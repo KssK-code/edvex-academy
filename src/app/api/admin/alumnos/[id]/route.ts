@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { verifyAdmin } from '@/lib/supabase/verify-admin'
 
+type UsuariosData = { nombre_completo: string; email: string; activo: boolean }
 type AlumnoRow = {
   id: string
   matricula: string
@@ -9,7 +11,7 @@ type AlumnoRow = {
   created_at: string
   usuario_id: string
   plan_estudio_id: string
-  usuarios: { nombre_completo: string; email: string; activo: boolean } | null
+  usuarios: UsuariosData | UsuariosData[] | null
   planes_estudio: { id: string; nombre: string; duracion_meses: number; precio_mensual: number } | null
 }
 
@@ -25,7 +27,10 @@ export async function GET(
     const denied = await verifyAdmin(supabase, user.id)
     if (denied) return denied
 
-    const { data: alumno, error } = await supabase
+    // Usar service role para bypass de RLS en el join con usuarios
+    const admin = createAdminClient()
+
+    const { data: alumno, error } = await admin
       .from('alumnos')
       .select(`
         *,
@@ -50,6 +55,8 @@ export async function GET(
       .select('*, materias (nombre, codigo)')
       .eq('alumno_id', params.id)
 
+    const usuariosData = Array.isArray(a.usuarios) ? a.usuarios[0] : a.usuarios
+
     return NextResponse.json({
       id: a.id,
       matricula: a.matricula,
@@ -57,9 +64,9 @@ export async function GET(
       created_at: a.created_at,
       usuario: {
         id: a.usuario_id,
-        nombre_completo: a.usuarios?.nombre_completo ?? '',
-        email: a.usuarios?.email ?? '',
-        activo: a.usuarios?.activo ?? true,
+        nombre_completo: usuariosData?.nombre_completo ?? '',
+        email: usuariosData?.email ?? '',
+        activo: usuariosData?.activo ?? true,
       },
       plan: {
         id: a.planes_estudio?.id ?? a.plan_estudio_id,

@@ -31,15 +31,49 @@ export default function ContenidoDetallePage() {
     const supabase = createClient()
     async function cargar() {
       try {
-        const { data, error: err } = await supabase
+        // 1. Obtener materia base
+        const { data: materiaBase, error: matErr } = await supabase
           .from('materias')
-          .select('*, semanas(*), evaluaciones(*, preguntas(*, opciones(*)))')
+          .select('*')
           .eq('id', id)
-          .order('numero', { foreignTable: 'semanas' })
-          .order('numero', { foreignTable: 'preguntas' })
           .single()
-        if (err || !data) { setError('Materia no encontrada'); return }
-        setMateria(data as unknown as Materia)
+
+        if (matErr || !materiaBase) { setError('Materia no encontrada'); return }
+
+        // 2. Semanas
+        const { data: semanas } = await supabase
+          .from('semanas')
+          .select('*')
+          .eq('materia_id', id)
+          .order('numero')
+
+        // 3. Evaluaciones
+        const { data: evaluaciones } = await supabase
+          .from('evaluaciones')
+          .select('*')
+          .eq('materia_id', id)
+
+        // 4. Preguntas y opciones por evaluación
+        const evaluacionesConPreguntas: Evaluacion[] = await Promise.all(
+          ((evaluaciones ?? []) as { id: string; titulo: string; tipo: string; intentos_max: number }[]).map(async (ev) => {
+            const { data: preguntas } = await supabase
+              .from('preguntas')
+              .select('*, opciones(*)')
+              .eq('evaluacion_id', ev.id)
+              .order('numero')
+
+            return {
+              ...ev,
+              preguntas: (preguntas ?? []) as Pregunta[],
+            }
+          })
+        )
+
+        setMateria({
+          ...(materiaBase as unknown as Materia),
+          semanas: (semanas ?? []) as Semana[],
+          evaluaciones: evaluacionesConPreguntas,
+        })
       } catch {
         setError('Error al cargar la materia')
       } finally {

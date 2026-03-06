@@ -13,7 +13,10 @@ export async function GET() {
     const denied = await verifyAdmin(supabase, user.id)
     if (denied) return denied
 
-    const { data, error } = await supabase
+    // Usar service role para el SELECT ya que RLS en 'usuarios' impediría leer registros de otros
+    const admin = createAdminClient()
+
+    const { data, error } = await admin
       .from('alumnos')
       .select(`
         id,
@@ -37,17 +40,19 @@ export async function GET() {
         created_at: string
         plan_estudio_id: string
         usuario_id: string
-        usuarios: { nombre_completo: string; email: string; activo: boolean } | null
+        usuarios: { nombre_completo: string; email: string; activo: boolean } | { nombre_completo: string; email: string; activo: boolean }[] | null
         planes_estudio: { nombre: string; duracion_meses: number } | null
       }
+      // Supabase puede retornar el join como objeto o como array dependiendo del schema
+      const usuariosData = Array.isArray(a.usuarios) ? a.usuarios[0] : a.usuarios
       return {
         id: a.id,
         matricula: a.matricula,
         meses_desbloqueados: a.meses_desbloqueados,
         created_at: a.created_at,
-        nombre_completo: a.usuarios?.nombre_completo ?? '',
-        email: a.usuarios?.email ?? '',
-        activo: a.usuarios?.activo ?? true,
+        nombre_completo: usuariosData?.nombre_completo ?? '',
+        email: usuariosData?.email ?? '',
+        activo: usuariosData?.activo ?? true,
         plan_nombre: a.planes_estudio?.nombre ?? '',
         duracion_meses: a.planes_estudio?.duracion_meses ?? 0,
       }
