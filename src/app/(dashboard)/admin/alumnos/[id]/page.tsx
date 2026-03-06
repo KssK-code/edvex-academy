@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { ArrowLeft, X, Loader2, CreditCard, Key, Eye, EyeOff } from 'lucide-react'
+import { useToast, ToastContainer } from '@/components/ui/toast'
 
 interface AlumnoDetalle {
   id: string
@@ -22,6 +23,8 @@ export default function AlumnoDetallePage() {
   const router = useRouter()
   const params = useParams()
   const id = params.id as string
+
+  const { toasts, showToast, removeToast } = useToast()
 
   const [alumno, setAlumno] = useState<AlumnoDetalle | null>(null)
   const [loading, setLoading] = useState(true)
@@ -70,6 +73,10 @@ export default function AlumnoDetallePage() {
       setModalPago(false)
       setPago({ monto: '', metodo_pago: 'Efectivo', referencia: '' })
       await cargar()
+      if (alumno) {
+        const mesDesbloqueado = alumno.meses_desbloqueados + 1
+        showToast(`✓ Pago registrado. Mes ${mesDesbloqueado} desbloqueado para ${alumno.usuario.nombre_completo}`, 'success')
+      }
     } catch {
       setPagoError('Error inesperado. Intenta de nuevo.')
     } finally {
@@ -100,6 +107,7 @@ export default function AlumnoDetallePage() {
       if (!res.ok) { setResetError(data.error ?? 'Error al cambiar contraseña'); return }
       setResetSuccess(resetPass.password)
       setResetPass({ password: '', confirm: '' })
+      showToast('✓ Contraseña actualizada correctamente', 'success')
     } catch {
       setResetError('Error inesperado. Intenta de nuevo.')
     } finally {
@@ -109,14 +117,21 @@ export default function AlumnoDetallePage() {
 
   async function handleToggleActivo() {
     if (!alumno) return
+    const nuevoEstado = !alumno.usuario.activo
     setTogglingActivo(true)
     try {
       await fetch(`/api/admin/alumnos/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ activo: !alumno.usuario.activo }),
+        body: JSON.stringify({ activo: nuevoEstado }),
       })
       await cargar()
+      showToast(
+        nuevoEstado
+          ? `✓ Alumno ${alumno.usuario.nombre_completo} activado`
+          : `Alumno ${alumno.usuario.nombre_completo} desactivado`,
+        nuevoEstado ? 'success' : 'info'
+      )
     } finally {
       setTogglingActivo(false)
     }
@@ -141,6 +156,8 @@ export default function AlumnoDetallePage() {
 
   return (
     <div className="space-y-6 max-w-4xl">
+      <ToastContainer toasts={toasts} onClose={removeToast} />
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div className="flex items-start gap-4">

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Users, Search, Plus, X, Loader2, Eye } from 'lucide-react'
+import { useToast, ToastContainer } from '@/components/ui/toast'
 
 interface Alumno {
   id: string
@@ -36,6 +37,7 @@ const CARD_STYLE = {
 
 export default function AlumnosPage() {
   const router = useRouter()
+  const { toasts, showToast, removeToast } = useToast()
   const [alumnos, setAlumnos] = useState<Alumno[]>([])
   const [planes, setPlanes] = useState<Plan[]>([])
   const [loading, setLoading] = useState(true)
@@ -94,9 +96,12 @@ export default function AlumnosPage() {
         setFormError(data.error ?? 'Error al crear alumno')
         return
       }
+      const nombre = form.nombre_completo
+      const matricula = data.matricula ?? ''
       setModalOpen(false)
       setForm({ nombre_completo: '', email: '', password: '', plan_estudio_id: '' })
       await cargarAlumnos()
+      showToast(`✓ Alumno ${nombre} creado${matricula ? ` con matrícula ${matricula}` : ''}`, 'success')
     } catch {
       setFormError('Error inesperado. Intenta de nuevo.')
     } finally {
@@ -106,6 +111,8 @@ export default function AlumnosPage() {
 
   return (
     <div className="space-y-6">
+      <ToastContainer toasts={toasts} onClose={removeToast} />
+
       {/* Encabezado */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

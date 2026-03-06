@@ -13,6 +13,7 @@ import {
   LogOut,
   Settings,
   X,
+  User,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { ESCUELA_CONFIG } from '@/lib/config'
@@ -37,6 +38,7 @@ const NAV_ITEMS: Record<UserRole, NavItem[]> = {
     { label: 'Mis Materias', href: '/alumno/materias', icon: BookOpen },
     { label: 'Calificaciones', href: '/alumno/calificaciones', icon: Award },
     { label: 'Constancia', href: '/alumno/constancia', icon: FileText },
+    { label: 'Mi Perfil', href: '/alumno/perfil', icon: User },
   ],
 }
 

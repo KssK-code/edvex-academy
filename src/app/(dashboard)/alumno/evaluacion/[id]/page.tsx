@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { ArrowLeft, ArrowRight, Loader2, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
+import { useToast, ToastContainer } from '@/components/ui/toast'
 
 interface Pregunta {
   id: string
@@ -50,6 +51,8 @@ export default function EvaluacionPage() {
   const params = useParams()
   const id = params.id as string
 
+  const { toasts, showToast, removeToast } = useToast()
+
   const [estado, setEstado] = useState<Estado>('loading')
   const [evaluacion, setEvaluacion] = useState<EvaluacionInfo | null>(null)
   const [preguntas, setPreguntas] = useState<Pregunta[]>([])
@@ -94,6 +97,7 @@ export default function EvaluacionPage() {
       if (!res.ok) { setErrorMsg(data.error ?? 'Error al enviar'); setEstado('error'); return }
       setResultado(data)
       setEstado('resultado')
+      showToast(`Examen enviado. Calificación: ${(data.calificacion as number).toFixed(1)}`, data.aprobado ? 'success' : 'info')
     } catch {
       setErrorMsg('Error inesperado al enviar el examen')
       setEstado('error')
@@ -130,6 +134,7 @@ export default function EvaluacionPage() {
 
     return (
       <div className="space-y-4 max-w-3xl">
+        <ToastContainer toasts={toasts} onClose={removeToast} />
         {/* Card calificación */}
         <div className="rounded-2xl p-5 sm:p-8 text-center" style={CARD}>
           <p className="text-sm font-medium mb-3" style={{ color: '#94A3B8' }}>
@@ -264,6 +269,8 @@ export default function EvaluacionPage() {
 
   return (
     <div className="max-w-2xl space-y-4">
+      <ToastContainer toasts={toasts} onClose={removeToast} />
+
       {/* Header */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 min-w-0">
