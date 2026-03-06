@@ -59,9 +59,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="w-full max-w-md px-4 flex flex-col items-center gap-6">
+    <div className="w-full max-w-md px-3 sm:px-4 flex flex-col items-center gap-6">
       <div
-        className="w-full rounded-2xl p-8 shadow-2xl"
+        className="w-full rounded-2xl p-6 sm:p-8 shadow-2xl"
         style={{ background: '#181C26', border: '1px solid rgba(255,255,255,0.06)' }}
       >
         {/* Header */}
@@ -111,7 +111,7 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="correo@ejemplo.com"
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm outline-none transition-all"
+                className="w-full pl-10 pr-4 py-3 rounded-lg text-sm outline-none transition-all"
                 style={{
                   background: 'rgba(255,255,255,0.04)',
                   border: '1px solid rgba(255,255,255,0.1)',
@@ -151,7 +151,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm outline-none transition-all"
+                className="w-full pl-10 pr-4 py-3 rounded-lg text-sm outline-none transition-all"
                 style={{
                   background: 'rgba(255,255,255,0.04)',
                   border: '1px solid rgba(255,255,255,0.1)',
@@ -184,7 +184,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-lg text-sm font-semibold transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
             style={{ background: '#5B6CFF', color: '#ffffff' }}
             onMouseEnter={(e) => {
               if (!loading) e.currentTarget.style.background = '#7B8AFF'

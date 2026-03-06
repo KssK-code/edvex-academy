@@ -84,7 +84,7 @@ export default function AlumnoDashboard() {
           style={{ background: 'radial-gradient(circle, rgba(123,138,255,0.05) 0%, transparent 70%)', transform: 'translate(-30%, 30%)' }}
         />
 
-        <div className="relative flex flex-col sm:flex-row sm:items-start gap-5">
+        <div className="relative flex flex-col gap-4">
           <div
             className="flex items-center justify-center w-14 h-14 rounded-2xl flex-shrink-0"
             style={{ background: 'rgba(91,108,255,0.2)', border: '1px solid rgba(91,108,255,0.4)' }}
@@ -104,8 +104,8 @@ export default function AlumnoDashboard() {
               Cada día de estudio te acerca más a tu meta. ¡Tú puedes!
             </p>
 
-            {/* Stats en fila */}
-            <div className="flex flex-wrap gap-4 mt-5">
+            {/* Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
                   style={{ background: 'rgba(91,108,255,0.15)' }}>
@@ -149,9 +149,9 @@ export default function AlumnoDashboard() {
           </div>
 
           {/* Porcentaje circular */}
-          <div className="flex flex-col items-center gap-1 flex-shrink-0">
-            <div className="relative flex items-center justify-center w-16 h-16">
-              <svg className="w-16 h-16 -rotate-90" viewBox="0 0 36 36">
+          <div className="flex items-center gap-3">
+            <div className="relative flex items-center justify-center w-14 h-14 flex-shrink-0">
+              <svg className="w-14 h-14 -rotate-90" viewBox="0 0 36 36">
                 <circle cx="18" cy="18" r="15.5" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="2.5" />
                 <circle
                   cx="18" cy="18" r="15.5" fill="none"
@@ -160,9 +160,9 @@ export default function AlumnoDashboard() {
                   strokeLinecap="round"
                 />
               </svg>
-              <span className="absolute text-sm font-bold" style={{ color: '#7B8AFF' }}>{porcentaje}%</span>
+              <span className="absolute text-xs font-bold" style={{ color: '#7B8AFF' }}>{porcentaje}%</span>
             </div>
-            <p className="text-xs" style={{ color: '#64748B' }}>avance</p>
+            <p className="text-xs" style={{ color: '#64748B' }}>de avance total</p>
           </div>
         </div>
 

@@ -89,12 +89,11 @@ export function Sidebar({ role, userName, isOpen, onClose }: SidebarProps) {
 
       {/* Sidebar */}
       <aside
-        className="fixed top-0 left-0 z-30 h-screen flex flex-col transition-transform duration-300 md:translate-x-0"
+        className={`fixed top-0 left-0 z-30 h-screen flex flex-col transition-transform duration-300 md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
         style={{
           width: '260px',
           background: '#181C26',
           borderRight: '1px solid #2A2F3E',
-          transform: isOpen ? 'translateX(0)' : undefined,
         }}
       >
         {/* Logo */}

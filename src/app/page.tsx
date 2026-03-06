@@ -74,23 +74,26 @@ export default function LandingPage() {
       >
         <div className="flex items-center gap-2.5">
           <div
-            className="flex items-center justify-center w-9 h-9 rounded-xl"
+            className="flex items-center justify-center w-9 h-9 rounded-xl flex-shrink-0"
             style={{ background: 'rgba(91,108,255,0.15)', border: '1px solid rgba(91,108,255,0.3)' }}
           >
             <GraduationCap className="w-5 h-5" style={{ color: '#5B6CFF' }} />
           </div>
-          <span className="font-bold text-sm sm:text-base hidden xs:block" style={{ color: '#F1F5F9' }}>
+          <span className="font-bold text-sm sm:text-base leading-tight hidden sm:block" style={{ color: '#F1F5F9' }}>
             {ESCUELA_CONFIG.nombre}
+          </span>
+          <span className="font-bold text-xs leading-tight block sm:hidden" style={{ color: '#F1F5F9' }}>
+            BV Jalisco
           </span>
         </div>
         <button
           onClick={() => router.push('/login')}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all"
+          className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all"
           style={{ background: '#5B6CFF', color: '#fff' }}
           onMouseEnter={e => { e.currentTarget.style.background = '#7B8AFF' }}
           onMouseLeave={e => { e.currentTarget.style.background = '#5B6CFF' }}
         >
-          Iniciar Sesión
+          Ingresar
           <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </nav>
@@ -98,7 +101,7 @@ export default function LandingPage() {
       {/* ── HERO ── */}
       <section
         ref={heroRef}
-        className="relative min-h-screen flex items-center justify-center px-5 pt-20"
+        className="relative min-h-screen flex items-center justify-center px-4 sm:px-5 pt-20"
         style={{ background: 'linear-gradient(135deg, #0B0D11 0%, #0F1628 45%, #1E2A5E 100%)' }}
       >
         {/* Decoraciones */}
@@ -122,7 +125,7 @@ export default function LandingPage() {
             {ESCUELA_CONFIG.nombre}
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black leading-tight tracking-tight mb-6">
+          <h1 className="text-3xl sm:text-5xl lg:text-7xl font-black leading-tight tracking-tight mb-5 sm:mb-6">
             Tu bachillerato,
             <br />
             <span style={{ background: 'linear-gradient(90deg, #5B6CFF, #A78BFA)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
@@ -130,23 +133,23 @@ export default function LandingPage() {
             </span>
           </h1>
 
-          <p className="text-base sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed" style={{ color: '#94A3B8' }}>
+          <p className="text-sm sm:text-xl max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed" style={{ color: '#94A3B8' }}>
             Educación media superior 100% en línea. Estudia desde cualquier lugar,
             las <strong style={{ color: '#F1F5F9' }}>24 horas del día</strong>, los <strong style={{ color: '#F1F5F9' }}>7 días de la semana</strong>.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex flex-col items-stretch sm:flex-row sm:items-center justify-center gap-3 sm:gap-4 px-4 sm:px-0">
             <ScrollLink
               to="planes"
-              className="flex items-center gap-2 px-8 py-3.5 rounded-xl text-base font-bold transition-all shadow-lg"
+              className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-sm sm:text-base font-bold transition-all shadow-lg"
               style={{ background: '#5B6CFF', color: '#fff', boxShadow: '0 0 30px rgba(91,108,255,0.4)' }}
             >
               Conoce nuestros planes
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </ScrollLink>
             <ScrollLink
               to="como-funciona"
-              className="flex items-center gap-2 px-8 py-3.5 rounded-xl text-base font-medium transition-all"
+              className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-sm sm:text-base font-medium transition-all"
               style={{ color: '#94A3B8', border: '1px solid #2A2F3E' }}
             >
               ¿Cómo funciona?
@@ -175,7 +178,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── VENTAJAS ── */}
-      <section id="ventajas" style={{ background: '#0D0F14' }} className="py-20 px-5">
+      <section id="ventajas" style={{ background: '#0D0F14' }} className="py-14 sm:py-20 px-4 sm:px-5">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: '#5B6CFF' }}>
@@ -218,7 +221,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── CÓMO FUNCIONA ── */}
-      <section id="como-funciona" style={{ background: '#0B0D11' }} className="py-20 px-5">
+      <section id="como-funciona" style={{ background: '#0B0D11' }} className="py-14 sm:py-20 px-4 sm:px-5">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: '#5B6CFF' }}>
@@ -260,7 +263,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── PLANES ── */}
-      <section id="planes" style={{ background: '#0D0F14' }} className="py-20 px-5">
+      <section id="planes" style={{ background: '#0D0F14' }} className="py-14 sm:py-20 px-4 sm:px-5">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: '#5B6CFF' }}>
@@ -274,7 +277,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {planes.map((plan, i) => {
               const isPopular = i === POPULAR_INDEX
               const materiasEst = Math.round(plan.duracion_meses * 2)
@@ -284,7 +287,7 @@ export default function LandingPage() {
               return (
                 <div
                   key={plan.id}
-                  className="relative rounded-2xl p-6 flex flex-col transition-all duration-300"
+                  className="relative rounded-2xl p-5 sm:p-6 flex flex-col transition-all duration-300"
                   style={{
                     background: isPopular ? 'linear-gradient(145deg, #1a1f35, #0f1628)' : '#181C26',
                     border: isPopular ? '1.5px solid rgba(91,108,255,0.6)' : '1px solid #2A2F3E',
@@ -362,7 +365,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── CONTACTO ── */}
-      <section id="contacto" style={{ background: '#0B0D11' }} className="py-20 px-5">
+      <section id="contacto" style={{ background: '#0B0D11' }} className="py-14 sm:py-20 px-4 sm:px-5">
         <div className="max-w-2xl mx-auto text-center">
           <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: '#5B6CFF' }}>
             Estamos aquí

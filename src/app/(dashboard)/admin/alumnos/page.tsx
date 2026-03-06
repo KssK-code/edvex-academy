@@ -159,59 +159,100 @@ export default function AlumnosPage() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr style={{ borderBottom: '1px solid #2A2F3E' }}>
-                  {['Matrícula', 'Nombre', 'Email', 'Plan', 'Meses', 'Estado', 'Acciones'].map(h => (
-                    <th key={h} className="text-left px-4 py-3 font-medium" style={{ color: '#94A3B8' }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {alumnosFiltrados.map(a => (
-                  <tr
-                    key={a.id}
-                    style={{ borderBottom: '1px solid rgba(42,47,62,0.5)' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(91,108,255,0.04)' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+          <>
+            {/* Cards en móvil */}
+            <div className="sm:hidden divide-y" style={{ borderColor: '#2A2F3E' }}>
+              {alumnosFiltrados.map(a => (
+                <div key={a.id} className="p-4 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm truncate" style={{ color: '#F1F5F9' }}>{a.nombre_completo}</p>
+                      <p className="text-xs truncate mt-0.5" style={{ color: '#94A3B8' }}>{a.email}</p>
+                    </div>
+                    <span
+                      className="flex-shrink-0 px-2 py-0.5 rounded-full text-xs font-medium"
+                      style={a.activo
+                        ? { background: 'rgba(16,185,129,0.15)', color: '#10B981' }
+                        : { background: 'rgba(239,68,68,0.15)', color: '#EF4444' }
+                      }
+                    >
+                      {a.activo ? 'Activo' : 'Inactivo'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs" style={{ color: '#94A3B8' }}>
+                    <span className="font-mono">{a.matricula}</span>
+                    <span>·</span>
+                    <span>{a.plan_nombre || 'Sin plan'}</span>
+                    <span>·</span>
+                    <span>{a.meses_desbloqueados}/{a.duracion_meses} meses</span>
+                  </div>
+                  <button
+                    onClick={() => router.push(`/admin/alumnos/${a.id}`)}
+                    className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-medium"
+                    style={{ background: 'rgba(91,108,255,0.1)', color: '#7B8AFF', border: '1px solid rgba(91,108,255,0.2)' }}
                   >
-                    <td className="px-4 py-3 font-mono text-xs" style={{ color: '#94A3B8' }}>{a.matricula}</td>
-                    <td className="px-4 py-3 font-medium" style={{ color: '#F1F5F9' }}>{a.nombre_completo}</td>
-                    <td className="px-4 py-3" style={{ color: '#94A3B8' }}>{a.email}</td>
-                    <td className="px-4 py-3" style={{ color: '#94A3B8' }}>{a.plan_nombre}</td>
-                    <td className="px-4 py-3">
-                      <span style={{ color: '#F1F5F9' }}>{a.meses_desbloqueados}</span>
-                      <span style={{ color: '#94A3B8' }}>/{a.duracion_meses}</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className="px-2 py-0.5 rounded-full text-xs font-medium"
-                        style={a.activo
-                          ? { background: 'rgba(16,185,129,0.15)', color: '#10B981' }
-                          : { background: 'rgba(239,68,68,0.15)', color: '#EF4444' }
-                        }
-                      >
-                        {a.activo ? 'Activo' : 'Inactivo'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <button
-                        onClick={() => router.push(`/admin/alumnos/${a.id}`)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-                        style={{ background: 'rgba(91,108,255,0.1)', color: '#7B8AFF', border: '1px solid rgba(91,108,255,0.2)' }}
-                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(91,108,255,0.2)' }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(91,108,255,0.1)' }}
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        Ver detalle
-                      </button>
-                    </td>
+                    <Eye className="w-3.5 h-3.5" />
+                    Ver detalle
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {/* Tabla en desktop */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr style={{ borderBottom: '1px solid #2A2F3E' }}>
+                    {['Matrícula', 'Nombre', 'Email', 'Plan', 'Meses', 'Estado', 'Acciones'].map(h => (
+                      <th key={h} className="text-left px-4 py-3 font-medium" style={{ color: '#94A3B8' }}>{h}</th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {alumnosFiltrados.map(a => (
+                    <tr
+                      key={a.id}
+                      style={{ borderBottom: '1px solid rgba(42,47,62,0.5)' }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(91,108,255,0.04)' }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+                    >
+                      <td className="px-4 py-3 font-mono text-xs" style={{ color: '#94A3B8' }}>{a.matricula}</td>
+                      <td className="px-4 py-3 font-medium" style={{ color: '#F1F5F9' }}>{a.nombre_completo}</td>
+                      <td className="px-4 py-3" style={{ color: '#94A3B8' }}>{a.email}</td>
+                      <td className="px-4 py-3" style={{ color: '#94A3B8' }}>{a.plan_nombre}</td>
+                      <td className="px-4 py-3">
+                        <span style={{ color: '#F1F5F9' }}>{a.meses_desbloqueados}</span>
+                        <span style={{ color: '#94A3B8' }}>/{a.duracion_meses}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className="px-2 py-0.5 rounded-full text-xs font-medium"
+                          style={a.activo
+                            ? { background: 'rgba(16,185,129,0.15)', color: '#10B981' }
+                            : { background: 'rgba(239,68,68,0.15)', color: '#EF4444' }
+                          }
+                        >
+                          {a.activo ? 'Activo' : 'Inactivo'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => router.push(`/admin/alumnos/${a.id}`)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                          style={{ background: 'rgba(91,108,255,0.1)', color: '#7B8AFF', border: '1px solid rgba(91,108,255,0.2)' }}
+                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(91,108,255,0.2)' }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(91,108,255,0.1)' }}
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          Ver detalle
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 

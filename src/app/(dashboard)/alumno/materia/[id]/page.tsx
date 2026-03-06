@@ -121,23 +121,25 @@ export default function MateriaPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-0" style={{ borderBottom: '1px solid #2A2F3E' }}>
-        {tabs.map(t => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className="px-4 py-2.5 text-sm font-medium transition-all relative"
-            style={{ color: tab === t.key ? '#F1F5F9' : '#94A3B8' }}
-          >
-            {t.label}
-            {tab === t.key && (
-              <span
-                className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
-                style={{ background: '#5B6CFF' }}
-              />
-            )}
-          </button>
-        ))}
+      <div className="overflow-x-auto" style={{ borderBottom: '1px solid #2A2F3E' }}>
+        <div className="flex min-w-max">
+          {tabs.map(t => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className="px-4 py-2.5 text-sm font-medium transition-all relative whitespace-nowrap"
+              style={{ color: tab === t.key ? '#F1F5F9' : '#94A3B8' }}
+            >
+              {t.label}
+              {tab === t.key && (
+                <span
+                  className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
+                  style={{ background: '#5B6CFF' }}
+                />
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Tab: Contenido */}
@@ -154,7 +156,7 @@ export default function MateriaPage() {
                 <div key={semana.id} className="rounded-xl overflow-hidden" style={CARD}>
                   <button
                     onClick={() => setSemanaAbierta(abierta ? null : semana.id)}
-                    className="w-full flex items-center justify-between px-5 py-4 transition-all text-left"
+                    className="w-full flex items-center justify-between px-3 sm:px-5 py-3.5 transition-all text-left"
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.03)' }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
                   >
@@ -174,7 +176,7 @@ export default function MateriaPage() {
                   </button>
 
                   {abierta && (
-                    <div className="px-5 pb-5 space-y-4" style={{ borderTop: '1px solid #2A2F3E' }}>
+                    <div className="px-3 sm:px-5 pb-4 sm:pb-5 space-y-4" style={{ borderTop: '1px solid #2A2F3E' }}>
                       {/* Contenido */}
                       {semana.contenido && (
                         <div className="pt-4 space-y-1">

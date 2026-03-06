@@ -129,14 +129,14 @@ export default function EvaluacionPage() {
     const intentosRestantes = evaluacion ? evaluacion.intentos_max - resultado.intento_numero : 0
 
     return (
-      <div className="space-y-6 max-w-3xl">
+      <div className="space-y-4 max-w-3xl">
         {/* Card calificación */}
-        <div className="rounded-2xl p-8 text-center" style={CARD}>
+        <div className="rounded-2xl p-5 sm:p-8 text-center" style={CARD}>
           <p className="text-sm font-medium mb-3" style={{ color: '#94A3B8' }}>
             {evaluacion?.titulo}
           </p>
           <div
-            className="text-7xl font-black mb-3"
+            className="text-6xl sm:text-7xl font-black mb-3"
             style={{ color: resultado.aprobado ? '#10B981' : '#EF4444' }}
           >
             {resultado.calificacion.toFixed(1)}
@@ -152,19 +152,19 @@ export default function EvaluacionPage() {
             {resultado.aprobado ? 'Aprobado' : 'Reprobado'}
           </span>
 
-          <div className="flex items-center justify-center gap-8 mt-6 pt-6" style={{ borderTop: '1px solid #2A2F3E' }}>
+          <div className="flex items-center justify-center gap-4 sm:gap-8 mt-5 pt-5" style={{ borderTop: '1px solid #2A2F3E' }}>
             <div>
-              <p className="text-2xl font-bold" style={{ color: '#F1F5F9' }}>
+              <p className="text-xl sm:text-2xl font-bold" style={{ color: '#F1F5F9' }}>
                 {resultado.correctas}/{resultado.total_preguntas}
               </p>
-              <p className="text-xs mt-0.5" style={{ color: '#94A3B8' }}>Respuestas correctas</p>
+              <p className="text-xs mt-0.5" style={{ color: '#94A3B8' }}>Correctas</p>
             </div>
             <div>
-              <p className="text-2xl font-bold" style={{ color: '#F1F5F9' }}>{pct}%</p>
+              <p className="text-xl sm:text-2xl font-bold" style={{ color: '#F1F5F9' }}>{pct}%</p>
               <p className="text-xs mt-0.5" style={{ color: '#94A3B8' }}>Porcentaje</p>
             </div>
             <div>
-              <p className="text-2xl font-bold" style={{ color: '#F1F5F9' }}>
+              <p className="text-xl sm:text-2xl font-bold" style={{ color: '#F1F5F9' }}>
                 {resultado.intento_numero}/{evaluacion?.intentos_max}
               </p>
               <p className="text-xs mt-0.5" style={{ color: '#94A3B8' }}>Intento</p>
@@ -175,16 +175,13 @@ export default function EvaluacionPage() {
           <div className="h-2 rounded-full overflow-hidden mt-5" style={{ background: 'rgba(255,255,255,0.06)' }}>
             <div
               className="h-full rounded-full transition-all duration-700"
-              style={{
-                width: `${pct}%`,
-                background: resultado.aprobado ? '#10B981' : '#EF4444',
-              }}
+              style={{ width: `${pct}%`, background: resultado.aprobado ? '#10B981' : '#EF4444' }}
             />
           </div>
         </div>
 
         {/* Botones */}
-        <div className="flex gap-3 flex-wrap">
+        <div className="flex flex-col sm:flex-row gap-3">
           {!resultado.aprobado && intentosRestantes > 0 ? (
             <button
               onClick={() => {
@@ -194,17 +191,17 @@ export default function EvaluacionPage() {
                 setIntentosUsados(resultado.intento_numero)
                 setEstado('quiz')
               }}
-              className="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all"
+              className="w-full sm:flex-1 py-3 rounded-lg text-sm font-semibold transition-all"
               style={{ background: '#5B6CFF', color: '#fff' }}
               onMouseEnter={e => { e.currentTarget.style.background = '#7B8AFF' }}
               onMouseLeave={e => { e.currentTarget.style.background = '#5B6CFF' }}
             >
-              Intentar de nuevo ({intentosRestantes} intento{intentosRestantes !== 1 ? 's' : ''} restante{intentosRestantes !== 1 ? 's' : ''})
+              Intentar de nuevo ({intentosRestantes} restante{intentosRestantes !== 1 ? 's' : ''})
             </button>
           ) : null}
           <button
             onClick={() => router.back()}
-            className="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all"
+            className="w-full sm:flex-1 py-3 rounded-lg text-sm font-semibold transition-all"
             style={{ background: 'rgba(255,255,255,0.05)', color: '#94A3B8', border: '1px solid #2A2F3E' }}
           >
             Volver a la materia
@@ -266,77 +263,60 @@ export default function EvaluacionPage() {
   if (estado !== 'quiz' || !pregunta) return null
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="max-w-2xl space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 min-w-0">
           <button
             onClick={() => router.back()}
-            className="p-2 rounded-lg transition-all"
+            className="p-2.5 rounded-lg transition-all flex-shrink-0"
             style={{ background: 'rgba(255,255,255,0.04)', color: '#94A3B8', border: '1px solid #2A2F3E' }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)' }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)' }}
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
-          <div>
-            <p className="text-sm font-semibold" style={{ color: '#F1F5F9' }}>{evaluacion?.titulo}</p>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold truncate" style={{ color: '#F1F5F9' }}>{evaluacion?.titulo}</p>
             <p className="text-xs" style={{ color: '#94A3B8' }}>
-              Pregunta {preguntaActual + 1} de {preguntas.length}
+              {preguntaActual + 1} / {preguntas.length}
             </p>
           </div>
         </div>
-        <span className="text-xs px-2 py-1 rounded" style={{ background: 'rgba(91,108,255,0.15)', color: '#7B8AFF' }}>
+        <span className="text-xs px-2 py-1 rounded flex-shrink-0" style={{ background: 'rgba(91,108,255,0.15)', color: '#7B8AFF' }}>
           Intento {intentosUsados + 1}/{evaluacion?.intentos_max}
         </span>
       </div>
 
       {/* Barra de progreso */}
-      <div className="space-y-1.5">
-        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-          <div
-            className="h-full rounded-full transition-all duration-300"
-            style={{ width: `${((preguntaActual + 1) / preguntas.length) * 100}%`, background: '#5B6CFF' }}
-          />
-        </div>
+      <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+        <div
+          className="h-full rounded-full transition-all duration-300"
+          style={{ width: `${((preguntaActual + 1) / preguntas.length) * 100}%`, background: '#5B6CFF' }}
+        />
       </div>
 
       {/* Card pregunta */}
-      <div className="rounded-2xl p-6 space-y-6" style={CARD}>
-        <p className="text-base font-semibold leading-relaxed" style={{ color: '#F1F5F9' }}>
+      <div className="rounded-2xl p-4 sm:p-6 space-y-4" style={CARD}>
+        <p className="text-sm sm:text-base font-semibold leading-relaxed" style={{ color: '#F1F5F9' }}>
           {pregunta.texto}
         </p>
 
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {pregunta.opciones.map((opcion, idx) => {
             const seleccionada = respuestas[pregunta.id] === idx
             return (
               <button
                 key={idx}
                 onClick={() => seleccionarRespuesta(pregunta.id, idx)}
-                className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-sm text-left transition-all duration-150"
+                className="w-full flex items-center gap-3 px-4 py-4 rounded-xl text-sm text-left transition-all duration-150"
                 style={{
+                  minHeight: '52px',
                   background: seleccionada ? 'rgba(91,108,255,0.15)' : 'rgba(255,255,255,0.03)',
-                  border: seleccionada ? '1px solid #5B6CFF' : '1px solid #2A2F3E',
+                  border: seleccionada ? '2px solid #5B6CFF' : '1px solid #2A2F3E',
                   color: seleccionada ? '#F1F5F9' : '#94A3B8',
-                }}
-                onMouseEnter={e => {
-                  if (!seleccionada) {
-                    e.currentTarget.style.background = 'rgba(91,108,255,0.08)'
-                    e.currentTarget.style.borderColor = 'rgba(91,108,255,0.4)'
-                    e.currentTarget.style.color = '#F1F5F9'
-                  }
-                }}
-                onMouseLeave={e => {
-                  if (!seleccionada) {
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
-                    e.currentTarget.style.borderColor = '#2A2F3E'
-                    e.currentTarget.style.color = '#94A3B8'
-                  }
                 }}
               >
                 <span
-                  className="flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold flex-shrink-0 transition-all"
+                  className="flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold flex-shrink-0"
                   style={{
                     background: seleccionada ? '#5B6CFF' : 'rgba(255,255,255,0.06)',
                     color: seleccionada ? '#fff' : '#94A3B8',
@@ -344,19 +324,43 @@ export default function EvaluacionPage() {
                 >
                   {String.fromCharCode(65 + idx)}
                 </span>
-                <span className="flex-1">{opcion}</span>
+                <span className="flex-1 leading-snug">{opcion}</span>
               </button>
             )
           })}
         </div>
       </div>
 
-      {/* Navegación */}
-      <div className="flex items-center justify-between gap-3">
+      {/* Indicador de preguntas — scroll horizontal si hay muchas */}
+      <div className="overflow-x-auto pb-1">
+        <div className="flex gap-1.5 min-w-max px-0.5">
+          {preguntas.map((p, idx) => {
+            const contestada = respuestas[p.id] !== undefined
+            const esActual = idx === preguntaActual
+            return (
+              <button
+                key={p.id}
+                onClick={() => setPreguntaActual(idx)}
+                className="w-8 h-8 rounded-full text-xs font-bold flex-shrink-0 transition-all"
+                style={{
+                  background: esActual ? '#5B6CFF' : contestada ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.06)',
+                  color: esActual ? '#fff' : contestada ? '#10B981' : '#475569',
+                  border: esActual ? '2px solid #5B6CFF' : contestada ? '1px solid rgba(16,185,129,0.4)' : '1px solid #2A2F3E',
+                }}
+              >
+                {idx + 1}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Navegación — full width en móvil */}
+      <div className="flex gap-3">
         <button
           onClick={() => setPreguntaActual(p => p - 1)}
           disabled={preguntaActual === 0}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           style={{ background: 'rgba(255,255,255,0.05)', color: '#94A3B8', border: '1px solid #2A2F3E' }}
         >
           <ArrowLeft className="w-4 h-4" />
@@ -366,10 +370,8 @@ export default function EvaluacionPage() {
         {preguntaActual < preguntas.length - 1 ? (
           <button
             onClick={() => setPreguntaActual(p => p + 1)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all"
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-medium transition-all"
             style={{ background: '#5B6CFF', color: '#fff' }}
-            onMouseEnter={e => { e.currentTarget.style.background = '#7B8AFF' }}
-            onMouseLeave={e => { e.currentTarget.style.background = '#5B6CFF' }}
           >
             Siguiente
             <ArrowRight className="w-4 h-4" />
@@ -377,70 +379,46 @@ export default function EvaluacionPage() {
         ) : todasContestadas ? (
           <button
             onClick={() => setConfirmarEnvio(true)}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all"
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all"
             style={{ background: '#10B981', color: '#fff' }}
-            onMouseEnter={e => { e.currentTarget.style.background = '#059669' }}
-            onMouseLeave={e => { e.currentTarget.style.background = '#10B981' }}
           >
             Enviar Examen
           </button>
         ) : (
-          <span className="text-xs" style={{ color: '#94A3B8' }}>
-            {preguntas.length - totalContestadas} sin contestar
-          </span>
+          <div className="flex-1 flex items-center justify-center">
+            <span className="text-xs text-center" style={{ color: '#94A3B8' }}>
+              {preguntas.length - totalContestadas} sin contestar
+            </span>
+          </div>
         )}
-      </div>
-
-      {/* Indicador de preguntas */}
-      <div className="flex flex-wrap gap-2 justify-center">
-        {preguntas.map((p, idx) => {
-          const contestada = respuestas[p.id] !== undefined
-          const esActual = idx === preguntaActual
-          return (
-            <button
-              key={p.id}
-              onClick={() => setPreguntaActual(idx)}
-              className="w-8 h-8 rounded-full text-xs font-bold transition-all"
-              style={{
-                background: esActual ? '#5B6CFF' : contestada ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.06)',
-                color: esActual ? '#fff' : contestada ? '#10B981' : '#475569',
-                border: esActual ? '2px solid #5B6CFF' : contestada ? '1px solid rgba(16,185,129,0.4)' : '1px solid #2A2F3E',
-              }}
-            >
-              {idx + 1}
-            </button>
-          )
-        })}
       </div>
 
       {/* Modal confirmación */}
       {confirmarEnvio && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.75)' }}>
-          <div className="w-full max-w-sm rounded-2xl p-6 space-y-4" style={CARD}>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.75)' }}>
+          <div className="w-full max-w-sm rounded-2xl p-5 space-y-4" style={CARD}>
             <div className="flex items-center gap-3">
               <AlertCircle className="w-6 h-6 flex-shrink-0" style={{ color: '#F59E0B' }} />
               <h3 className="text-base font-bold" style={{ color: '#F1F5F9' }}>Confirmar envío</h3>
             </div>
-            <p className="text-sm" style={{ color: '#94A3B8' }}>
-              ¿Estás seguro de que deseas enviar tu examen? <strong style={{ color: '#F1F5F9' }}>No podrás cambiar tus respuestas.</strong>
+            <p className="text-sm leading-relaxed" style={{ color: '#94A3B8' }}>
+              ¿Enviar tu examen? <strong style={{ color: '#F1F5F9' }}>No podrás cambiar tus respuestas.</strong>
             </p>
             <p className="text-xs" style={{ color: '#94A3B8' }}>
-              Has contestado <strong style={{ color: '#F1F5F9' }}>{totalContestadas} de {preguntas.length}</strong> preguntas.
+              Contestadas: <strong style={{ color: '#F1F5F9' }}>{totalContestadas}/{preguntas.length}</strong>
             </p>
-            <div className="flex gap-3 pt-1">
+            <div className="flex gap-3">
               <button
                 onClick={() => setConfirmarEnvio(false)}
-                className="flex-1 py-2.5 rounded-lg text-sm font-medium"
+                className="flex-1 py-3 rounded-lg text-sm font-medium"
                 style={{ background: 'rgba(255,255,255,0.05)', color: '#94A3B8', border: '1px solid #2A2F3E' }}
               >
                 Cancelar
               </button>
               <button
                 onClick={enviarExamen}
-                className="flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all"
+                className="flex-1 py-3 rounded-lg text-sm font-semibold"
                 style={{ background: '#10B981', color: '#fff' }}
-                onMouseEnter={e => { e.currentTarget.style.background = '#059669' }}
-                onMouseLeave={e => { e.currentTarget.style.background = '#10B981' }}
               >
                 Sí, enviar
               </button>
