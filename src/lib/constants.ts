@@ -8,13 +8,13 @@ export const ROLE_REDIRECTS: Record<string, string> = {
   ALUMNO: '/alumno',
 }
 
-export const APP_NAME = 'Bachillerato Virtual'
+export const APP_NAME = 'EDVEX Academy'
 
 export const COLORS = {
   bg: '#0B0D11',
   card: '#181C26',
-  accent: '#5B6CFF',
-  accentHover: '#7B8AFF',
+  accent: '#0055ff',
+  accentHover: '#1ad9ff',
   success: '#10B981',
   danger: '#EF4444',
   warning: '#F59E0B',

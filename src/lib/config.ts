@@ -1,11 +1,11 @@
 import type { ConfigEscuela } from '@/types'
 
 export const ESCUELA_CONFIG: ConfigEscuela = {
-  nombre: 'Bachillerato Virtual Jalisco',
-  slug: 'bachillerato-virtual-jalisco',
+  nombre: 'EDVEX Academy',
+  slug: 'edvex-academy',
   logoUrl: null,
-  colorPrimario: '#5B6CFF',
-  colorSecundario: '#1E40AF',
-  contactoEmail: 'contacto@bachilleratovirtual.mx',
+  colorPrimario: '#0055ff',
+  colorSecundario: '#003db3',
+  contactoEmail: 'contacto@edvexacademy.online',
   contactoTelefono: null,
 }

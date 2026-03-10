@@ -103,9 +103,9 @@ export function Sidebar({ role, userName, isOpen, onClose }: SidebarProps) {
           <div className="flex items-center gap-3">
             <div
               className="flex items-center justify-center w-9 h-9 rounded-xl flex-shrink-0"
-              style={{ background: 'rgba(91,108,255,0.15)', border: '1px solid rgba(91,108,255,0.3)' }}
+              style={{ background: 'rgba(0,85,255,0.15)', border: '1px solid rgba(0,85,255,0.3)' }}
             >
-              <GraduationCap className="w-5 h-5" style={{ color: '#5B6CFF' }} />
+              <GraduationCap className="w-5 h-5" style={{ color: '#0055ff' }} />
             </div>
             <div>
               <p className="text-sm font-bold leading-tight" style={{ color: '#F1F5F9' }}>
@@ -136,12 +136,12 @@ export function Sidebar({ role, userName, isOpen, onClose }: SidebarProps) {
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
                 style={{
                   color: active ? '#F1F5F9' : '#94A3B8',
-                  background: active ? 'rgba(91,108,255,0.2)' : 'transparent',
-                  borderLeft: active ? '3px solid #5B6CFF' : '3px solid transparent',
+                  background: active ? 'rgba(0,85,255,0.2)' : 'transparent',
+                  borderLeft: active ? '3px solid #0055ff' : '3px solid transparent',
                 }}
                 onMouseEnter={(e) => {
                   if (!active) {
-                    e.currentTarget.style.background = 'rgba(91,108,255,0.08)'
+                    e.currentTarget.style.background = 'rgba(0,85,255,0.08)'
                     e.currentTarget.style.color = '#F1F5F9'
                   }
                 }}
@@ -164,7 +164,7 @@ export function Sidebar({ role, userName, isOpen, onClose }: SidebarProps) {
           <div className="flex items-center gap-3 px-2 mb-3">
             <div
               className="flex items-center justify-center w-8 h-8 rounded-full flex-shrink-0 text-xs font-bold"
-              style={{ background: '#5B6CFF', color: '#fff' }}
+              style={{ background: '#0055ff', color: '#fff' }}
             >
               {initials}
             </div>
@@ -174,7 +174,7 @@ export function Sidebar({ role, userName, isOpen, onClose }: SidebarProps) {
               </p>
               <span
                 className="text-xs px-1.5 py-0.5 rounded font-medium"
-                style={{ background: 'rgba(91,108,255,0.2)', color: '#7B8AFF' }}
+                style={{ background: 'rgba(0,85,255,0.2)', color: '#1ad9ff' }}
               >
                 {ROLE_LABELS[role]}
               </span>

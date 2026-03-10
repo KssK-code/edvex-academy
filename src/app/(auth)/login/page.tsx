@@ -68,20 +68,20 @@ export default function LoginPage() {
         <div className="flex flex-col items-center mb-8">
           <div
             className="flex items-center justify-center w-16 h-16 rounded-2xl mb-4"
-            style={{ background: 'rgba(91,108,255,0.15)', border: '1px solid rgba(91,108,255,0.3)' }}
+            style={{ background: 'rgba(0,85,255,0.15)', border: '1px solid rgba(0,85,255,0.3)' }}
           >
-            <GraduationCap className="w-8 h-8" style={{ color: '#5B6CFF' }} />
+            <GraduationCap className="w-8 h-8" style={{ color: '#0055ff' }} />
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-center" style={{ color: '#F1F5F9' }}>
             {APP_NAME}
           </h1>
-          <p className="text-sm font-medium mt-1 text-center" style={{ color: '#7B8AFF' }}>
+          <p className="text-sm font-medium mt-1 text-center" style={{ color: '#1ad9ff' }}>
             {ESCUELA_CONFIG.nombre}
           </p>
           <p className="text-xs mt-1.5 text-center italic" style={{ color: '#64748B' }}>
-            Tu educación, tu ritmo, tu futuro.
+            Tu Prepa en 6 meses — Válida en México y USA
           </p>
-          <div className="w-10 h-px mt-4" style={{ background: 'rgba(91,108,255,0.4)' }} />
+          <div className="w-10 h-px mt-4" style={{ background: 'rgba(0,85,255,0.4)' }} />
           <p className="text-sm mt-4" style={{ color: '#94A3B8' }}>
             Inicia sesión para continuar
           </p>
@@ -118,8 +118,8 @@ export default function LoginPage() {
                   color: '#F1F5F9',
                 }}
                 onFocus={(e) => {
-                  e.currentTarget.style.border = '1px solid rgba(91,108,255,0.6)'
-                  e.currentTarget.style.boxShadow = '0 0 0 3px rgba(91,108,255,0.1)'
+                  e.currentTarget.style.border = '1px solid rgba(0,85,255,0.6)'
+                  e.currentTarget.style.boxShadow = '0 0 0 3px rgba(0,85,255,0.1)'
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.border = '1px solid rgba(255,255,255,0.1)'
@@ -158,8 +158,8 @@ export default function LoginPage() {
                   color: '#F1F5F9',
                 }}
                 onFocus={(e) => {
-                  e.currentTarget.style.border = '1px solid rgba(91,108,255,0.6)'
-                  e.currentTarget.style.boxShadow = '0 0 0 3px rgba(91,108,255,0.1)'
+                  e.currentTarget.style.border = '1px solid rgba(0,85,255,0.6)'
+                  e.currentTarget.style.boxShadow = '0 0 0 3px rgba(0,85,255,0.1)'
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.border = '1px solid rgba(255,255,255,0.1)'
@@ -185,12 +185,12 @@ export default function LoginPage() {
             type="submit"
             disabled={loading}
             className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-lg text-sm font-semibold transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
-            style={{ background: '#5B6CFF', color: '#ffffff' }}
+            style={{ background: '#0055ff', color: '#ffffff' }}
             onMouseEnter={(e) => {
-              if (!loading) e.currentTarget.style.background = '#7B8AFF'
+              if (!loading) e.currentTarget.style.background = '#1ad9ff'
             }}
             onMouseLeave={(e) => {
-              if (!loading) e.currentTarget.style.background = '#5B6CFF'
+              if (!loading) e.currentTarget.style.background = '#0055ff'
             }}
           >
             {loading ? (
@@ -209,7 +209,7 @@ export default function LoginPage() {
               onClick={() => router.push('/forgot-password')}
               className="text-sm transition-colors"
               style={{ color: '#94A3B8' }}
-              onMouseEnter={e => { e.currentTarget.style.color = '#5B6CFF' }}
+              onMouseEnter={e => { e.currentTarget.style.color = '#0055ff' }}
               onMouseLeave={e => { e.currentTarget.style.color = '#94A3B8' }}
             >
               ¿Olvidaste tu contraseña?
@@ -237,7 +237,7 @@ export default function LoginPage() {
           href={`mailto:${ESCUELA_CONFIG.contactoEmail}`}
           className="text-xs transition-colors"
           style={{ color: '#475569' }}
-          onMouseEnter={e => { e.currentTarget.style.color = '#7B8AFF' }}
+          onMouseEnter={e => { e.currentTarget.style.color = '#1ad9ff' }}
           onMouseLeave={e => { e.currentTarget.style.color = '#475569' }}
         >
           {ESCUELA_CONFIG.contactoEmail}

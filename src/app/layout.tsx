@@ -14,7 +14,7 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-const description = "Plataforma de educación media superior 100% en línea. Estudia a tu ritmo, las 24 horas del día."
+const description = "Tu Prepa en 6 meses — Válida en México y USA. Preparatoria, Secundaria y Diplomados 100% en línea."
 
 export const viewport: Viewport = {
   themeColor: "#0B0D11",
@@ -25,7 +25,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: `${ESCUELA_CONFIG.nombre} | Bachillerato Virtual`,
+    default: `${ESCUELA_CONFIG.nombre} | Tu Prepa en 6 meses`,
     template: `%s | ${ESCUELA_CONFIG.nombre}`,
   },
   description,
