@@ -71,7 +71,7 @@ export default function LandingPage() {
               onClick={() => setLang('en')}
             >EN</button>
           </div>
-          <a href="#planes" className="btn-ingresar">
+          <a href="#planes" className="btn-ingresar btn-ver-planes">
             <span className="es">Ver Planes</span>
             <span className="en">View Plans</span>
           </a>
