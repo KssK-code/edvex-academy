@@ -53,12 +53,14 @@ export async function GET(
       id: string
       codigo: string
       nombre: string
+      nombre_en: string
       color_hex: string
       descripcion: string
+      descripcion_en: string
       objetivo: string
       temario: string[]
       bibliografia: Record<string, string>[]
-      semanas: { id: string; numero: number; titulo: string; contenido: string; videos: { titulo: string; url: string; duracion: string }[] }[]
+      semanas: { id: string; numero: number; titulo: string; contenido: string; contenido_en: string; url_en: string; videos: { titulo: string; url: string; duracion: string }[] }[]
       evaluaciones: { id: string; titulo: string; tipo: string; intentos_max: number; activa: boolean }[]
     }
 

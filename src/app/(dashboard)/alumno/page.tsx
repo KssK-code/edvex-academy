@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Lock, Loader2, GraduationCap, BookOpen, TrendingUp } from 'lucide-react'
 import { ESCUELA_CONFIG } from '@/lib/config'
+import { useLanguage } from '@/context/LanguageContext'
 
 interface Perfil {
   id: string
@@ -19,6 +20,7 @@ interface MateriaResumen {
   id: string
   codigo: string
   nombre: string
+  nombre_en: string
   color_hex: string
 }
 
@@ -32,6 +34,8 @@ interface Mes {
 
 export default function AlumnoDashboard() {
   const router = useRouter()
+  const { lang } = useLanguage()
+  const loc = (es: string, en: string) => lang === 'en' && en ? en : es
   const [perfil, setPerfil] = useState<Perfil | null>(null)
   const [meses, setMeses] = useState<Mes[]>([])
   const [loading, setLoading] = useState(true)
@@ -228,7 +232,7 @@ export default function AlumnoDashboard() {
                       style={{ background: mes.desbloqueado ? (mat.color_hex || '#5B6CFF') : '#475569' }}
                     />
                     <p className="text-xs truncate" style={{ color: '#94A3B8' }}>
-                      <span className="font-mono">{mat.codigo}</span> — {mat.nombre}
+                      <span className="font-mono">{mat.codigo}</span> — {loc(mat.nombre, mat.nombre_en)}
                     </p>
                   </div>
                 ))}

@@ -3,10 +3,13 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { ArrowLeft, Loader2, PlayCircle, ChevronDown, ChevronRight } from 'lucide-react'
+import { useLanguage } from '@/context/LanguageContext'
 
 interface Video { titulo: string; url: string; duracion: string }
 interface Semana {
-  id: string; numero: number; titulo: string; contenido: string; videos: Video[]
+  id: string; numero: number; titulo: string
+  contenido: string; contenido_en: string
+  url_en: string; videos: Video[]
 }
 interface Evaluacion {
   id: string; titulo: string; tipo: string; intentos_max: number
@@ -14,8 +17,8 @@ interface Evaluacion {
 }
 interface BibItem { titulo: string; url?: string; tipo?: string }
 interface Materia {
-  id: string; codigo: string; nombre: string; color_hex: string
-  descripcion: string; objetivo: string; temario: string[]
+  id: string; codigo: string; nombre: string; nombre_en: string; color_hex: string
+  descripcion: string; descripcion_en: string; objetivo: string; temario: string[]
   bibliografia: BibItem[]
   semanas: Semana[]
   evaluaciones: Evaluacion[]
@@ -56,6 +59,8 @@ export default function MateriaPage() {
   const router = useRouter()
   const params = useParams()
   const id = params.id as string
+  const { lang } = useLanguage()
+  const loc = (es: string, en: string) => lang === 'en' && en ? en : es
 
   const [materia, setMateria] = useState<Materia | null>(null)
   const [loading, setLoading] = useState(true)
@@ -116,7 +121,7 @@ export default function MateriaPage() {
             </span>
             <div className="w-2 h-2 rounded-full" style={{ background: materia.color_hex || '#5B6CFF' }} />
           </div>
-          <h2 className="text-xl font-bold mt-1" style={{ color: '#F1F5F9' }}>{materia.nombre}</h2>
+          <h2 className="text-xl font-bold mt-1" style={{ color: '#F1F5F9' }}>{loc(materia.nombre, materia.nombre_en)}</h2>
         </div>
       </div>
 
@@ -178,16 +183,36 @@ export default function MateriaPage() {
                   {abierta && (
                     <div className="px-3 sm:px-5 pb-4 sm:pb-5 space-y-4" style={{ borderTop: '1px solid #2A2F3E' }}>
                       {/* Contenido */}
-                      {semana.contenido && (
+                      {(lang === 'en' ? (semana.contenido_en || semana.contenido) : semana.contenido) && (
                         <div className="pt-4 space-y-1">
-                          {renderTexto(semana.contenido)}
+                          {renderTexto(loc(semana.contenido, semana.contenido_en))}
                         </div>
                       )}
 
                       {/* Videos */}
-                      {semana.videos?.length > 0 && (
+                      {(semana.videos?.length > 0 || (lang === 'en' && semana.url_en)) && (
                         <div className="space-y-2 pt-2">
                           <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#94A3B8' }}>Videos</p>
+
+                          {/* Recurso en inglés (solo cuando lang === 'en' y url_en existe) */}
+                          {lang === 'en' && semana.url_en && (
+                            <a
+                              href={semana.url_en}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-3 px-4 py-3 rounded-lg transition-all"
+                              style={{ ...INPUT_BG, border: '1px solid rgba(91,108,255,0.3)' }}
+                              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#5B6CFF' }}
+                              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(91,108,255,0.3)' }}
+                            >
+                              <PlayCircle className="w-5 h-5 flex-shrink-0" style={{ color: '#7B8AFF' }} />
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium truncate" style={{ color: '#F1F5F9' }}>{semana.titulo} — English Version</p>
+                                <p className="text-xs mt-0.5" style={{ color: '#7B8AFF' }}>EN</p>
+                              </div>
+                            </a>
+                          )}
+
                           {semana.videos.map((v, i) => (
                             <a
                               key={i}
@@ -272,10 +297,19 @@ export default function MateriaPage() {
       {/* Tab: Información */}
       {tab === 'informacion' && (
         <div className="space-y-4">
-          {/* Objetivo */}
-          {materia.objetivo && (
+          {/* Descripción / Objetivo */}
+          {(materia.descripcion || materia.objetivo) && (
             <div className="rounded-xl p-5 space-y-2" style={CARD}>
-              <h3 className="text-sm font-semibold" style={{ color: '#F1F5F9' }}>Objetivo</h3>
+              <h3 className="text-sm font-semibold" style={{ color: '#F1F5F9' }}>{lang === 'en' ? 'Description' : 'Descripción'}</h3>
+              <p className="text-sm leading-relaxed" style={{ color: '#94A3B8' }}>
+                {loc(materia.descripcion || materia.objetivo, materia.descripcion_en)}
+              </p>
+            </div>
+          )}
+          {/* Objetivo (solo si es distinto de descripción) */}
+          {materia.objetivo && materia.objetivo !== materia.descripcion && (
+            <div className="rounded-xl p-5 space-y-2" style={CARD}>
+              <h3 className="text-sm font-semibold" style={{ color: '#F1F5F9' }}>{lang === 'en' ? 'Objective' : 'Objetivo'}</h3>
               <p className="text-sm leading-relaxed" style={{ color: '#94A3B8' }}>{materia.objetivo}</p>
             </div>
           )}

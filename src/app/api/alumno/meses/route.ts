@@ -26,7 +26,7 @@ export async function GET() {
     // Obtener meses con sus materias
     const { data: meses, error: mesesError } = await supabase
       .from('meses_contenido')
-      .select('*, materias(id, codigo, nombre, color_hex, descripcion)')
+      .select('*, materias(id, codigo, nombre, nombre_en, color_hex, descripcion, descripcion_en)')
       .order('numero')
       .lte('numero', duracionMeses)
 
@@ -37,7 +37,7 @@ export async function GET() {
         id: string
         numero: number
         titulo: string
-        materias: { id: string; codigo: string; nombre: string; color_hex: string; descripcion: string }[]
+        materias: { id: string; codigo: string; nombre: string; nombre_en: string; color_hex: string; descripcion: string; descripcion_en: string }[]
       }
       return {
         ...m,

@@ -3,13 +3,16 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2, BookOpen } from 'lucide-react'
+import { useLanguage } from '@/context/LanguageContext'
 
 interface MateriaResumen {
   id: string
   codigo: string
   nombre: string
+  nombre_en: string
   color_hex: string
   descripcion: string
+  descripcion_en: string
 }
 
 interface Mes {
@@ -24,6 +27,8 @@ const CARD = { background: '#181C26', border: '1px solid #2A2F3E' }
 
 export default function MateriasPage() {
   const router = useRouter()
+  const { lang } = useLanguage()
+  const loc = (es: string, en: string) => lang === 'en' && en ? en : es
   const [meses, setMeses] = useState<Mes[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -87,7 +92,7 @@ export default function MateriasPage() {
                       <div className="w-2.5 h-2.5 rounded-full" style={{ background: mat.color_hex || '#5B6CFF' }} />
                     </td>
                     <td className="px-4 py-3 font-mono text-xs" style={{ color: '#94A3B8' }}>{mat.codigo}</td>
-                    <td className="px-4 py-3 font-medium" style={{ color: '#F1F5F9' }}>{mat.nombre}</td>
+                    <td className="px-4 py-3 font-medium" style={{ color: '#F1F5F9' }}>{loc(mat.nombre, mat.nombre_en)}</td>
                     <td className="px-4 py-3" style={{ color: '#94A3B8' }}>
                       Mes {mat.mes_numero}{mat.mes_titulo ? ` — ${mat.mes_titulo}` : ''}
                     </td>

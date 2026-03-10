@@ -3,13 +3,16 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { ArrowLeft, Loader2, BookOpen } from 'lucide-react'
+import { useLanguage } from '@/context/LanguageContext'
 
 interface MateriaResumen {
   id: string
   codigo: string
   nombre: string
+  nombre_en: string
   color_hex: string
   descripcion: string
+  descripcion_en: string
 }
 
 interface Mes {
@@ -26,6 +29,8 @@ export default function MesPage() {
   const router = useRouter()
   const params = useParams()
   const numero = Number(params.numero)
+  const { lang } = useLanguage()
+  const loc = (es: string, en: string) => lang === 'en' && en ? en : es
 
   const [mes, setMes] = useState<Mes | null>(null)
   const [loading, setLoading] = useState(true)
@@ -106,11 +111,11 @@ export default function MesPage() {
                     <span className="font-mono text-xs px-2 py-0.5 rounded" style={{ background: 'rgba(91,108,255,0.15)', color: '#7B8AFF' }}>
                       {mat.codigo}
                     </span>
-                    <h3 className="text-sm font-semibold mt-2" style={{ color: '#F1F5F9' }}>{mat.nombre}</h3>
+                    <h3 className="text-sm font-semibold mt-2" style={{ color: '#F1F5F9' }}>{loc(mat.nombre, mat.nombre_en)}</h3>
                   </div>
                 </div>
                 {mat.descripcion && (
-                  <p className="text-xs mb-4 line-clamp-2" style={{ color: '#94A3B8' }}>{mat.descripcion}</p>
+                  <p className="text-xs mb-4 line-clamp-2" style={{ color: '#94A3B8' }}>{loc(mat.descripcion, mat.descripcion_en)}</p>
                 )}
                 <button
                   onClick={() => router.push(`/alumno/materia/${mat.id}`)}
