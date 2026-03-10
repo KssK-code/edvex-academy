@@ -11,8 +11,12 @@ const WA_REGULAR = 'https://wa.me/5215612510794?text=Quiero%20el%20plan%20regula
 const WA_EXPRESS = 'https://wa.me/5215612510794?text=Quiero%20el%20plan%20express%20de%203%20meses%20de%20EDVEX'
 
 function trackContact() {
-  try { if (typeof window !== 'undefined') (window as any).fbq?.('track', 'Contact') }
-  catch (_) {}
+  try {
+    if (typeof window !== 'undefined') {
+      (window as Window & { fbq?: (event: string, name: string) => void }).fbq?.('track', 'Contact')
+    }
+  } catch {
+  }
 }
 
 const WaIcon = () => (
