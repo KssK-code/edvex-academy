@@ -24,7 +24,7 @@ export default async function AdminLayout({
     <DashboardLayout
       role="ADMIN"
       userName={usuario.nombre_completo}
-      pageTitle="Panel de Administración"
+      pageTitle="header.adminPortal"
     >
       {children}
     </DashboardLayout>

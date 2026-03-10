@@ -2,9 +2,10 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { GraduationCap, Lock, Loader2, CheckCircle, Eye, EyeOff } from 'lucide-react'
+import { Lock, Loader2, CheckCircle, Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { ESCUELA_CONFIG } from '@/lib/config'
+import { EdvexLogo } from '@/components/ui/edvex-logo'
 
 export default function ResetPasswordPage() {
   const router = useRouter()
@@ -59,16 +60,13 @@ export default function ResetPasswordPage() {
       >
         {/* Header */}
         <div className="flex flex-col items-center mb-8">
-          <div
-            className="flex items-center justify-center w-16 h-16 rounded-2xl mb-4"
-            style={{ background: 'rgba(91,108,255,0.15)', border: '1px solid rgba(91,108,255,0.3)' }}
-          >
-            <GraduationCap className="w-8 h-8" style={{ color: '#5B6CFF' }} />
+          <div className="mb-4">
+            <EdvexLogo size={56} innerFill="#181C26" />
           </div>
           <h1 className="text-xl font-bold tracking-tight text-center" style={{ color: '#F1F5F9' }}>
             Nueva contraseña
           </h1>
-          <p className="text-sm font-medium mt-1 text-center" style={{ color: '#7B8AFF' }}>
+          <p className="text-sm font-medium mt-1 text-center" style={{ color: '#1ad9ff' }}>
             {ESCUELA_CONFIG.nombre}
           </p>
           <p className="text-xs mt-3 text-center" style={{ color: '#64748B' }}>
@@ -93,9 +91,9 @@ export default function ResetPasswordPage() {
             <button
               onClick={() => router.push('/login')}
               className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all"
-              style={{ background: '#5B6CFF', color: '#fff' }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#7B8AFF' }}
-              onMouseLeave={e => { e.currentTarget.style.background = '#5B6CFF' }}
+              style={{ background: '#0055ff', color: '#fff' }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#1ad9ff' }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#0055ff' }}
             >
               Ir al login
             </button>
@@ -118,8 +116,8 @@ export default function ResetPasswordPage() {
                   className="w-full pl-10 pr-10 py-2.5 rounded-lg text-sm outline-none transition-all"
                   style={inputStyle}
                   onFocus={e => {
-                    e.currentTarget.style.border = '1px solid rgba(91,108,255,0.6)'
-                    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(91,108,255,0.1)'
+                    e.currentTarget.style.border = '1px solid rgba(0,85,255,0.6)'
+                    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(0,85,255,0.1)'
                   }}
                   onBlur={e => {
                     e.currentTarget.style.border = '1px solid rgba(255,255,255,0.1)'
@@ -154,8 +152,8 @@ export default function ResetPasswordPage() {
                   className="w-full pl-10 pr-10 py-2.5 rounded-lg text-sm outline-none transition-all"
                   style={inputStyle}
                   onFocus={e => {
-                    e.currentTarget.style.border = '1px solid rgba(91,108,255,0.6)'
-                    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(91,108,255,0.1)'
+                    e.currentTarget.style.border = '1px solid rgba(0,85,255,0.6)'
+                    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(0,85,255,0.1)'
                   }}
                   onBlur={e => {
                     e.currentTarget.style.border = '1px solid rgba(255,255,255,0.1)'
@@ -219,9 +217,9 @@ export default function ResetPasswordPage() {
               type="submit"
               disabled={loading}
               className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-sm font-semibold transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-              style={{ background: '#5B6CFF', color: '#fff' }}
-              onMouseEnter={e => { if (!loading) e.currentTarget.style.background = '#7B8AFF' }}
-              onMouseLeave={e => { if (!loading) e.currentTarget.style.background = '#5B6CFF' }}
+              style={{ background: '#0055ff', color: '#fff' }}
+              onMouseEnter={e => { if (!loading) e.currentTarget.style.background = '#1ad9ff' }}
+              onMouseLeave={e => { if (!loading) e.currentTarget.style.background = '#0055ff' }}
             >
               {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Actualizando...</> : 'Cambiar contraseña'}
             </button>

@@ -24,7 +24,7 @@ export default async function AlumnoLayout({
     <DashboardLayout
       role="ALUMNO"
       userName={usuario.nombre_completo}
-      pageTitle="Mi Portal de Estudios"
+      pageTitle="header.studentPortal"
       showFooter={true}
     >
       {children}

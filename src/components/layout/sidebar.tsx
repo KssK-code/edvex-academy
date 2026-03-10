@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
-  GraduationCap,
   LayoutDashboard,
   Users,
   BookOpen,
@@ -16,48 +15,51 @@ import {
   User,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { ESCUELA_CONFIG } from '@/lib/config'
+import { EdvexLogo } from '@/components/ui/edvex-logo'
+import { useLanguage } from '@/context/LanguageContext'
+import type { TKey } from '@/lib/translations'
 import type { UserRole } from '@/types'
 
 interface NavItem {
-  label: string
-  href: string
-  icon: React.ElementType
+  labelKey: TKey
+  href:     string
+  icon:     React.ElementType
 }
 
 const NAV_ITEMS: Record<UserRole, NavItem[]> = {
   ADMIN: [
-    { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-    { label: 'Alumnos', href: '/admin/alumnos', icon: Users },
-    { label: 'Contenido', href: '/admin/contenido', icon: BookOpen },
-    { label: 'Reportes', href: '/admin/reportes', icon: BarChart3 },
-    { label: 'Configuración', href: '/admin/configuracion', icon: Settings },
+    { labelKey: 'sidebar.dashboard',  href: '/admin',                icon: LayoutDashboard },
+    { labelKey: 'sidebar.students',   href: '/admin/alumnos',        icon: Users           },
+    { labelKey: 'sidebar.content',    href: '/admin/contenido',      icon: BookOpen        },
+    { labelKey: 'sidebar.reports',    href: '/admin/reportes',       icon: BarChart3       },
+    { labelKey: 'sidebar.settings',   href: '/admin/configuracion',  icon: Settings        },
   ],
   ALUMNO: [
-    { label: 'Mi Progreso', href: '/alumno', icon: LayoutDashboard },
-    { label: 'Mis Materias', href: '/alumno/materias', icon: BookOpen },
-    { label: 'Calificaciones', href: '/alumno/calificaciones', icon: Award },
-    { label: 'Constancia', href: '/alumno/constancia', icon: FileText },
-    { label: 'Mi Perfil', href: '/alumno/perfil', icon: User },
+    { labelKey: 'sidebar.myProgress',  href: '/alumno',               icon: LayoutDashboard },
+    { labelKey: 'sidebar.mySubjects',  href: '/alumno/materias',      icon: BookOpen        },
+    { labelKey: 'sidebar.grades',      href: '/alumno/calificaciones',icon: Award           },
+    { labelKey: 'sidebar.certificate', href: '/alumno/constancia',    icon: FileText        },
+    { labelKey: 'sidebar.myProfile',   href: '/alumno/perfil',        icon: User            },
   ],
 }
 
-const ROLE_LABELS: Record<UserRole, string> = {
-  ADMIN: 'Administrador',
-  ALUMNO: 'Alumno',
+const ROLE_LABEL_KEY: Record<UserRole, TKey> = {
+  ADMIN:  'sidebar.admin',
+  ALUMNO: 'sidebar.student',
 }
 
 interface SidebarProps {
-  role: UserRole
+  role:     UserRole
   userName: string
-  isOpen: boolean
-  onClose: () => void
+  isOpen:   boolean
+  onClose:  () => void
 }
 
 export function Sidebar({ role, userName, isOpen, onClose }: SidebarProps) {
-  const pathname = usePathname()
-  const router = useRouter()
-  const navItems = NAV_ITEMS[role]
+  const pathname  = usePathname()
+  const router    = useRouter()
+  const { t }     = useLanguage()
+  const navItems  = NAV_ITEMS[role]
 
   const initials = userName
     .split(' ')
@@ -73,9 +75,7 @@ export function Sidebar({ role, userName, isOpen, onClose }: SidebarProps) {
   }
 
   const isActive = (href: string) => {
-    if (href === '/admin' || href === '/alumno') {
-      return pathname === href
-    }
+    if (href === '/admin' || href === '/alumno') return pathname === href
     return pathname.startsWith(href)
   }
 
@@ -91,29 +91,39 @@ export function Sidebar({ role, userName, isOpen, onClose }: SidebarProps) {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-30 h-screen flex flex-col transition-transform duration-300 md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
-        style={{
-          width: '260px',
-          background: '#181C26',
-          borderRight: '1px solid #2A2F3E',
-        }}
+        className={`fixed top-0 left-0 z-30 h-screen flex flex-col transition-transform duration-300 md:translate-x-0 ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+        style={{ width: '260px', background: '#181C26', borderRight: '1px solid #2A2F3E' }}
       >
         {/* Logo */}
-        <div className="flex items-center justify-between px-5 py-5" style={{ borderBottom: '1px solid #2A2F3E' }}>
+        <div
+          className="flex items-center justify-between px-5 py-5"
+          style={{ borderBottom: '1px solid #2A2F3E' }}
+        >
           <div className="flex items-center gap-3">
-            <div
-              className="flex items-center justify-center w-9 h-9 rounded-xl flex-shrink-0"
-              style={{ background: 'rgba(0,85,255,0.15)', border: '1px solid rgba(0,85,255,0.3)' }}
-            >
-              <GraduationCap className="w-5 h-5" style={{ color: '#0055ff' }} />
-            </div>
+            <EdvexLogo size={36} innerFill="#181C26" />
             <div>
-              <p className="text-sm font-bold leading-tight" style={{ color: '#F1F5F9' }}>
-                {ESCUELA_CONFIG.nombre}
+              <p
+                className="text-sm font-bold leading-none"
+                style={{
+                  background:           'linear-gradient(130deg, #1ad9ff 0%, #0055ff 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor:  'transparent',
+                }}
+              >
+                EDVEX
+              </p>
+              <p
+                className="text-xs mt-0.5"
+                style={{ color: '#2a3d5a', letterSpacing: '3px', textTransform: 'uppercase' }}
+              >
+                Academy
               </p>
             </div>
           </div>
-          {/* Botón cerrar en móvil */}
+
+          {/* Botón cerrar (móvil) */}
           <button
             onClick={onClose}
             className="md:hidden p-1 rounded-lg transition-colors"
@@ -126,7 +136,7 @@ export function Sidebar({ role, userName, isOpen, onClose }: SidebarProps) {
         {/* Navegación */}
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
           {navItems.map((item) => {
-            const Icon = item.icon
+            const Icon   = item.icon
             const active = isActive(item.href)
             return (
               <Link
@@ -135,25 +145,25 @@ export function Sidebar({ role, userName, isOpen, onClose }: SidebarProps) {
                 onClick={onClose}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
                 style={{
-                  color: active ? '#F1F5F9' : '#94A3B8',
+                  color:      active ? '#F1F5F9' : '#94A3B8',
                   background: active ? 'rgba(0,85,255,0.2)' : 'transparent',
                   borderLeft: active ? '3px solid #0055ff' : '3px solid transparent',
                 }}
                 onMouseEnter={(e) => {
                   if (!active) {
                     e.currentTarget.style.background = 'rgba(0,85,255,0.08)'
-                    e.currentTarget.style.color = '#F1F5F9'
+                    e.currentTarget.style.color      = '#F1F5F9'
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!active) {
                     e.currentTarget.style.background = 'transparent'
-                    e.currentTarget.style.color = '#94A3B8'
+                    e.currentTarget.style.color      = '#94A3B8'
                   }
                 }}
               >
                 <Icon className="w-4 h-4 flex-shrink-0" />
-                {item.label}
+                {t(item.labelKey)}
               </Link>
             )
           })}
@@ -176,25 +186,26 @@ export function Sidebar({ role, userName, isOpen, onClose }: SidebarProps) {
                 className="text-xs px-1.5 py-0.5 rounded font-medium"
                 style={{ background: 'rgba(0,85,255,0.2)', color: '#1ad9ff' }}
               >
-                {ROLE_LABELS[role]}
+                {t(ROLE_LABEL_KEY[role])}
               </span>
             </div>
           </div>
+
           <button
             onClick={handleSignOut}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
             style={{ color: '#94A3B8' }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = 'rgba(239,68,68,0.1)'
-              e.currentTarget.style.color = '#FCA5A5'
+              e.currentTarget.style.color      = '#FCA5A5'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'transparent'
-              e.currentTarget.style.color = '#94A3B8'
+              e.currentTarget.style.color      = '#94A3B8'
             }}
           >
             <LogOut className="w-4 h-4" />
-            Cerrar sesión
+            {t('sidebar.signOut')}
           </button>
         </div>
       </aside>

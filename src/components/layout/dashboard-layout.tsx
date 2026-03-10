@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { Sidebar } from './sidebar'
 import { Header } from './header'
 import { Footer } from './footer'
+import { useLanguage } from '@/context/LanguageContext'
+import type { TKey } from '@/lib/translations'
 import type { UserRole } from '@/types'
 
 interface DashboardLayoutProps {
@@ -22,6 +24,12 @@ export function DashboardLayout({
   showFooter = false,
 }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { t } = useLanguage()
+
+  // pageTitle puede ser una clave de traducción ('header.adminPortal') o un string literal
+  const translatedTitle = pageTitle.includes('.')
+    ? t(pageTitle as TKey)
+    : pageTitle
 
   return (
     <div className="flex min-h-screen" style={{ background: '#0B0D11' }}>
@@ -34,7 +42,7 @@ export function DashboardLayout({
 
       <div className="flex flex-col flex-1 min-w-0 md:ml-[260px]">
         <Header
-          pageTitle={pageTitle}
+          pageTitle={translatedTitle}
           userName={userName}
           onMenuToggle={() => setSidebarOpen((prev) => !prev)}
         />

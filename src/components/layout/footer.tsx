@@ -15,14 +15,26 @@ export function Footer() {
         {ESCUELA_CONFIG.nombre}
       </p>
       <p className="text-xs" style={{ color: '#374151' }}>
-        Plataforma de educación media superior en línea
+        Preparatoria · Secundaria · Diplomados · 100% en línea
       </p>
       <div className="flex items-center justify-center flex-wrap gap-x-4 gap-y-1">
+        <a
+          href="https://edvexacademy.online"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs transition-colors"
+          style={{ color: '#374151' }}
+          onMouseEnter={e => { e.currentTarget.style.color = '#1ad9ff' }}
+          onMouseLeave={e => { e.currentTarget.style.color = '#374151' }}
+        >
+          edvexacademy.online
+        </a>
+        <span style={{ color: '#2A2F3E' }}>·</span>
         <a
           href={`mailto:${ESCUELA_CONFIG.contactoEmail}`}
           className="text-xs transition-colors"
           style={{ color: '#374151' }}
-          onMouseEnter={e => { e.currentTarget.style.color = '#7B8AFF' }}
+          onMouseEnter={e => { e.currentTarget.style.color = '#1ad9ff' }}
           onMouseLeave={e => { e.currentTarget.style.color = '#374151' }}
         >
           {ESCUELA_CONFIG.contactoEmail}
@@ -34,7 +46,7 @@ export function Footer() {
               href={`tel:${ESCUELA_CONFIG.contactoTelefono}`}
               className="text-xs transition-colors"
               style={{ color: '#374151' }}
-              onMouseEnter={e => { e.currentTarget.style.color = '#7B8AFF' }}
+              onMouseEnter={e => { e.currentTarget.style.color = '#1ad9ff' }}
               onMouseLeave={e => { e.currentTarget.style.color = '#374151' }}
             >
               {ESCUELA_CONFIG.contactoTelefono}
