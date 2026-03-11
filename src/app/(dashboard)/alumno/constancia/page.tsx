@@ -1,14 +1,17 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Loader2, Download, Printer } from 'lucide-react'
-import { ESCUELA_CONFIG } from '@/lib/config'
+import { Loader2, Printer, Download } from 'lucide-react'
+import { useLanguage } from '@/context/LanguageContext'
+
+type Estado = 'Acreditada' | 'No acreditada' | 'Pendiente'
 
 interface MateriaCursada {
+  materia_id: string
   codigo: string
-  nombre: string
+  nombre_materia: string
   mes_numero: number
-  estado: 'Acreditada' | 'No acreditada' | 'Pendiente'
+  estado: Estado
 }
 
 interface DatosConstancia {
@@ -18,11 +21,8 @@ interface DatosConstancia {
   meses_desbloqueados: number
   duracion_meses: number
   porcentaje_avance: number
-  fecha_inscripcion: string
   materias_cursadas: MateriaCursada[]
 }
-
-const CARD = { background: '#181C26', border: '1px solid #2A2F3E' }
 
 function generarFolio() {
   const year = new Date().getFullYear()
@@ -30,302 +30,327 @@ function generarFolio() {
   return `CONST-${year}-${rand}`
 }
 
+const BADGE: Record<Estado, React.CSSProperties> = {
+  Acreditada:      { background: '#dcfce7', color: '#15803d', border: '1px solid #86efac' },
+  'No acreditada': { background: '#fee2e2', color: '#b91c1c', border: '1px solid #fca5a5' },
+  Pendiente:       { background: '#fef9ec', color: '#b45309', border: '1px solid #fde68a' },
+}
+
 export default function ConstanciaPage() {
+  const { t, lang } = useLanguage()
   const [datos, setDatos] = useState<DatosConstancia | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [generando, setGenerando] = useState(false)
   const folioRef = useRef<string>('')
 
   useEffect(() => {
+    folioRef.current = generarFolio()
     fetch('/api/alumno/constancia')
       .then(r => r.json())
       .then(data => {
         if (data.error) { setError(data.error); return }
         setDatos(data)
-        folioRef.current = generarFolio()
       })
       .catch(() => setError('Error al cargar los datos'))
       .finally(() => setLoading(false))
   }, [])
 
-  async function descargarPDF() {
-    if (!datos) return
-    setGenerando(true)
-    try {
-      const { jsPDF } = await import('jspdf')
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' })
+  const folio = folioRef.current
 
-      const margenIzq = 20
-      const margenDer = 190
-      const ancho = margenDer - margenIzq
-      let y = 20
+  const fecha = new Date().toLocaleDateString(
+    lang === 'en' ? 'en-US' : 'es-MX',
+    { day: 'numeric', month: 'long', year: 'numeric' }
+  )
 
-      // Encabezado — nombre de escuela
-      doc.setFontSize(16)
-      doc.setFont('helvetica', 'bold')
-      doc.setTextColor(17, 24, 39)
-      doc.text(ESCUELA_CONFIG.nombre.toUpperCase(), 105, y, { align: 'center' })
-      y += 8
+  const porcentaje = datos
+    ? Math.round((datos.meses_desbloqueados / datos.duracion_meses) * 100)
+    : 0
 
-      // Línea decorativa
-      doc.setDrawColor(91, 108, 255)
-      doc.setLineWidth(0.8)
-      doc.line(margenIzq, y, margenDer, y)
-      y += 10
-
-      // Título
-      doc.setFontSize(14)
-      doc.setFont('helvetica', 'bold')
-      doc.setTextColor(17, 24, 39)
-      doc.text('CONSTANCIA DE ESTUDIOS', 105, y, { align: 'center' })
-      y += 12
-
-      // Cuerpo principal
-      doc.setFontSize(11)
-      doc.setFont('helvetica', 'normal')
-      doc.setTextColor(55, 65, 81)
-
-      const textoConstancia = `Se hace constar que ${datos.nombre_completo}, con matrícula ${datos.matricula}, se encuentra inscrito(a) en el programa de ${datos.plan_nombre} del ${ESCUELA_CONFIG.nombre}.`
-      const lineas = doc.splitTextToSize(textoConstancia, ancho)
-      doc.text(lineas, margenIzq, y)
-      y += lineas.length * 6 + 6
-
-      // Avance
-      const textoAvance = `Ha completado ${datos.meses_desbloqueados} de ${datos.duracion_meses} meses del programa (${datos.porcentaje_avance}% de avance).`
-      const lineasAvance = doc.splitTextToSize(textoAvance, ancho)
-      doc.text(lineasAvance, margenIzq, y)
-      y += lineasAvance.length * 6 + 10
-
-      // Tabla de materias
-      if (datos.materias_cursadas.length > 0) {
-        doc.setFontSize(11)
-        doc.setFont('helvetica', 'bold')
-        doc.setTextColor(17, 24, 39)
-        doc.text('Materias cursadas:', margenIzq, y)
-        y += 7
-
-        // Encabezados tabla
-        doc.setFillColor(240, 242, 255)
-        doc.rect(margenIzq, y - 4, ancho, 8, 'F')
-        doc.setFontSize(9)
-        doc.setFont('helvetica', 'bold')
-        doc.setTextColor(55, 65, 81)
-        doc.text('Mes', margenIzq + 2, y + 1)
-        doc.text('Código', margenIzq + 18, y + 1)
-        doc.text('Materia', margenIzq + 40, y + 1)
-        doc.text('Estado', margenDer - 28, y + 1)
-        y += 8
-
-        doc.setFont('helvetica', 'normal')
-        doc.setFontSize(9)
-
-        for (const mat of datos.materias_cursadas) {
-          if (y > 240) {
-            doc.addPage()
-            y = 20
-          }
-          const bgColor = mat.estado === 'Acreditada' ? [240, 253, 244] :
-            mat.estado === 'No acreditada' ? [254, 242, 242] : [255, 251, 235]
-          doc.setFillColor(bgColor[0], bgColor[1], bgColor[2])
-          doc.rect(margenIzq, y - 3.5, ancho, 7, 'F')
-
-          doc.setTextColor(55, 65, 81)
-          doc.text(`Mes ${mat.mes_numero}`, margenIzq + 2, y + 1)
-          doc.text(mat.codigo, margenIzq + 18, y + 1)
-
-          const nombreCorto = doc.splitTextToSize(mat.nombre, 80)
-          doc.text(nombreCorto[0], margenIzq + 40, y + 1)
-
-          const colorEstado = mat.estado === 'Acreditada' ? [16, 185, 129] :
-            mat.estado === 'No acreditada' ? [239, 68, 68] : [245, 158, 11]
-          doc.setTextColor(colorEstado[0], colorEstado[1], colorEstado[2])
-          doc.setFont('helvetica', 'bold')
-          doc.text(mat.estado, margenDer - 28, y + 1)
-          doc.setFont('helvetica', 'normal')
-          doc.setTextColor(55, 65, 81)
-          y += 7
-        }
-        y += 8
-      }
-
-      // Folio y fecha
-      const fecha = new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })
-      doc.setFontSize(9)
-      doc.setFont('helvetica', 'normal')
-      doc.setTextColor(107, 114, 128)
-      doc.text(`Folio: ${folioRef.current}`, margenIzq, y)
-      doc.text(`Fecha de expedición: ${fecha}`, margenDer, y, { align: 'right' })
-      y += 20
-
-      // Firma
-      doc.setDrawColor(17, 24, 39)
-      doc.setLineWidth(0.3)
-      doc.line(105 - 30, y, 105 + 30, y)
-      y += 5
-      doc.setFontSize(10)
-      doc.setFont('helvetica', 'bold')
-      doc.setTextColor(17, 24, 39)
-      doc.text('Dirección Académica', 105, y, { align: 'center' })
-      y += 5
-      doc.setFont('helvetica', 'normal')
-      doc.setFontSize(9)
-      doc.setTextColor(107, 114, 128)
-      doc.text(ESCUELA_CONFIG.nombre, 105, y, { align: 'center' })
-
-      doc.save(`constancia-${datos.matricula}.pdf`)
-    } finally {
-      setGenerando(false)
-    }
+  const estadoLabel: Record<Estado, string> = {
+    Acreditada:      t('certificate.badgePassed'),
+    'No acreditada': t('certificate.badgeFailed'),
+    Pendiente:       t('certificate.badgePending'),
   }
 
+  const disclaimerParts = t('certificate.disclaimer').split('{folio}')
+
   if (loading) return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <Loader2 className="w-6 h-6 animate-spin" style={{ color: '#5B6CFF' }} />
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 400 }}>
+      <Loader2 className="w-6 h-6 animate-spin" style={{ color: '#2563eb' }} />
     </div>
   )
 
   if (error || !datos) return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <p className="text-sm" style={{ color: '#EF4444' }}>{error ?? 'Error al cargar'}</p>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 400 }}>
+      <p style={{ fontSize: 14, color: '#ef4444' }}>{error ?? 'Error al cargar'}</p>
     </div>
   )
 
-  const fecha = new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })
-
   return (
-    <div className="space-y-6 max-w-3xl">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-bold" style={{ color: '#F1F5F9' }}>Constancia de Estudios</h2>
-          <p className="text-sm mt-0.5" style={{ color: '#94A3B8' }}>
-            Vista previa de tu constancia oficial
-          </p>
-        </div>
-        <div className="flex gap-3">
+    <>
+      {/* Importar fuentes de Google */}
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');`}</style>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20, alignItems: 'center', width: '100%', maxWidth: 780, margin: '0 auto' }}>
+
+        {/* ── Botones de acción ── */}
+        <div style={{ display: 'flex', gap: 12, alignSelf: 'flex-start' }}>
           <button
             onClick={() => window.print()}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all"
-            style={{ background: 'rgba(255,255,255,0.05)', color: '#94A3B8', border: '1px solid #2A2F3E' }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)' }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
+            style={{
+              padding: '10px 22px', borderRadius: 6, fontSize: 13, fontWeight: 600,
+              cursor: 'pointer', fontFamily: '"DM Sans", sans-serif',
+              display: 'flex', alignItems: 'center', gap: 7,
+              background: 'transparent', border: '1px solid #2a3a5e', color: '#94a3b8',
+            }}
           >
             <Printer className="w-4 h-4" />
-            Imprimir
+            {t('certificate.printBtn')}
           </button>
           <button
-            onClick={descargarPDF}
-            disabled={generando}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all disabled:opacity-60"
-            style={{ background: '#5B6CFF', color: '#fff' }}
-            onMouseEnter={e => { if (!generando) e.currentTarget.style.background = '#7B8AFF' }}
-            onMouseLeave={e => { if (!generando) e.currentTarget.style.background = '#5B6CFF' }}
+            onClick={() => window.print()}
+            style={{
+              padding: '10px 22px', borderRadius: 6, fontSize: 13, fontWeight: 600,
+              cursor: 'pointer', fontFamily: '"DM Sans", sans-serif',
+              display: 'flex', alignItems: 'center', gap: 7,
+              background: '#2563eb', color: '#fff', border: 'none',
+            }}
           >
-            {generando
-              ? <><Loader2 className="w-4 h-4 animate-spin" />Generando...</>
-              : <><Download className="w-4 h-4" />Descargar PDF</>
-            }
+            <Download className="w-4 h-4" />
+            {t('certificate.downloadBtn')}
           </button>
         </div>
-      </div>
 
-      {/* Vista previa */}
-      <div
-        id="constancia-preview"
-        className="rounded-xl p-8 shadow-2xl"
-        style={{ background: '#FFFFFF', color: '#111827' }}
-      >
-        {/* Encabezado */}
-        <div className="text-center mb-6">
-          <p className="text-lg font-bold tracking-wide" style={{ color: '#111827' }}>
-            {ESCUELA_CONFIG.nombre.toUpperCase()}
-          </p>
-          <div className="h-0.5 my-3 rounded-full" style={{ background: '#5B6CFF' }} />
-          <p className="text-xl font-black tracking-widest" style={{ color: '#111827' }}>
-            CONSTANCIA DE ESTUDIOS
-          </p>
-        </div>
+        {/* ── Certificado ── */}
+        <div
+          id="constancia-print"
+          style={{
+            width: '100%', background: '#fff', borderRadius: 6,
+            overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.7)',
+            position: 'relative', fontFamily: '"DM Sans", sans-serif',
+          }}
+        >
+          {/* Barra superior */}
+          <div style={{ height: 5, background: 'linear-gradient(90deg, #0f2d82, #2563eb 55%, #60a5fa)' }} />
 
-        {/* Texto principal */}
-        <div className="mb-6 leading-relaxed text-sm" style={{ color: '#374151' }}>
-          <p>
-            Se hace constar que <strong style={{ color: '#111827' }}>{datos.nombre_completo}</strong>, con matrícula{' '}
-            <strong style={{ color: '#111827' }}>{datos.matricula}</strong>, se encuentra inscrito(a) en el programa de{' '}
-            <strong style={{ color: '#111827' }}>{datos.plan_nombre}</strong> del {ESCUELA_CONFIG.nombre}.
-          </p>
-          <p className="mt-3">
-            Ha completado <strong style={{ color: '#111827' }}>{datos.meses_desbloqueados} de {datos.duracion_meses} meses</strong> del programa
-            ({datos.porcentaje_avance}% de avance).
-          </p>
-        </div>
+          {/* ── Encabezado ── */}
+          <div style={{
+            padding: '28px 48px 24px',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            borderBottom: '1px solid #edf0f7',
+          }}>
+            {/* Logo */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="cert-hg" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor="#1a3a8f" />
+                    <stop offset="100%" stopColor="#2563eb" />
+                  </linearGradient>
+                </defs>
+                <polygon points="26,3 48,15 48,37 26,49 4,37 4,15" fill="#0f172a" stroke="url(#cert-hg)" strokeWidth="1.5" />
+                <polygon points="26,10 41,18.5 41,33.5 26,42 11,33.5 11,18.5" fill="none" stroke="#3b82f6" strokeWidth="0.8" opacity="0.45" />
+                <line x1="26" y1="10" x2="26" y2="26" stroke="#3b82f6" strokeWidth="0.6" opacity="0.35" />
+                <line x1="11" y1="18.5" x2="26" y2="26" stroke="#3b82f6" strokeWidth="0.6" opacity="0.35" />
+                <line x1="41" y1="18.5" x2="26" y2="26" stroke="#3b82f6" strokeWidth="0.6" opacity="0.35" />
+                <circle cx="26" cy="26" r="4.5" fill="none" stroke="#60a5fa" strokeWidth="1.2" />
+                <circle cx="26" cy="26" r="1.5" fill="#93c5fd" />
+              </svg>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{
+                  fontWeight: 800, fontSize: 22, letterSpacing: '0.12em',
+                  background: 'linear-gradient(135deg, #1a3a8f, #2563eb, #60a5fa)',
+                  WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text', lineHeight: 1,
+                }}>EDVEX</span>
+                <span style={{ fontSize: 9, letterSpacing: '0.3em', color: '#64748b', fontWeight: 500, textTransform: 'uppercase', marginTop: 3 }}>
+                  Academy
+                </span>
+                <span style={{
+                  fontSize: 8, letterSpacing: '0.2em', color: '#94a3b8', fontWeight: 400,
+                  borderTop: '1px solid #e2e8f0', paddingTop: 4, marginTop: 5,
+                }}>
+                  Preparatoria &nbsp;•&nbsp; Secundaria
+                </span>
+              </div>
+            </div>
 
-        {/* Tabla de materias */}
-        {datos.materias_cursadas.length > 0 && (
-          <div className="mb-6">
-            <p className="text-sm font-bold mb-3" style={{ color: '#111827' }}>Materias cursadas:</p>
-            <table className="w-full text-xs border-collapse">
+            {/* Meta folio / fecha */}
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: 9, letterSpacing: '0.18em', color: '#a0aec0', textTransform: 'uppercase', fontWeight: 600 }}>
+                {t('certificate.folioLabel')}
+              </div>
+              <div style={{ fontSize: 13, color: '#2563eb', fontWeight: 700, marginTop: 2 }}>
+                {folio}
+              </div>
+              <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 5 }}>
+                {t('certificate.issueDate')} {fecha}
+              </div>
+            </div>
+          </div>
+
+          {/* ── Cuerpo ── */}
+          <div style={{ padding: '36px 48px 4px' }}>
+
+            {/* Título */}
+            <div style={{
+              fontFamily: '"Playfair Display", serif',
+              fontSize: 26, color: '#0f172a', fontWeight: 700,
+              marginBottom: 22, paddingBottom: 18,
+              borderBottom: '1px solid #edf0f7',
+              display: 'flex', alignItems: 'center', gap: 14,
+            }}>
+              <span style={{
+                display: 'inline-block', width: 4, height: 28, flexShrink: 0,
+                background: 'linear-gradient(180deg, #2563eb, #93c5fd)', borderRadius: 2,
+              }} />
+              {t('certificate.title')}
+            </div>
+
+            {/* Párrafo 1 */}
+            <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.9, marginBottom: 6 }}>
+              {t('certificate.intro')}{' '}
+              <strong style={{ color: '#0f172a', fontWeight: 600 }}>{datos.nombre_completo}</strong>,{' '}
+              {t('certificate.withId')}{' '}
+              <strong style={{ color: '#0f172a', fontWeight: 600 }}>{datos.matricula}</strong>,{' '}
+              {t('certificate.enrolledIn')}{' '}
+              <strong style={{ color: '#0f172a', fontWeight: 600 }}>{datos.plan_nombre}</strong>{' '}
+              {t('certificate.ofEdvex')}.
+            </p>
+
+            {/* Párrafo 2 */}
+            <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.9, marginTop: 6 }}>
+              {t('certificate.completed')}{' '}
+              <span style={{ color: '#1d4ed8', fontWeight: 600 }}>
+                {datos.meses_desbloqueados} {t('certificate.of')} {datos.duracion_meses} {t('certificate.monthsOfProgram')}
+              </span>.
+            </p>
+
+            {/* Barra de progreso */}
+            <div style={{ margin: '20px 0 4px' }}>
+              <div style={{ background: '#eef2ff', borderRadius: 3, height: 5, overflow: 'hidden' }}>
+                <div style={{
+                  height: '100%', width: `${porcentaje}%`,
+                  background: 'linear-gradient(90deg, #1d4ed8, #60a5fa)', borderRadius: 3,
+                }} />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#94a3b8', marginTop: 6, fontWeight: 500 }}>
+                <span>{t('certificate.totalProgress')}</span>
+                <span style={{ color: '#2563eb', fontWeight: 700 }}>{porcentaje}%</span>
+              </div>
+            </div>
+
+            {/* Etiqueta sección */}
+            <div style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#64748b', fontWeight: 600, margin: '26px 0 10px' }}>
+              {t('certificate.coursesTaken')}
+            </div>
+
+            {/* Tabla de materias */}
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead>
-                <tr style={{ background: '#F0F2FF' }}>
-                  <th className="text-left px-3 py-2 font-semibold" style={{ color: '#374151', border: '1px solid #E5E7EB' }}>Mes</th>
-                  <th className="text-left px-3 py-2 font-semibold" style={{ color: '#374151', border: '1px solid #E5E7EB' }}>Código</th>
-                  <th className="text-left px-3 py-2 font-semibold" style={{ color: '#374151', border: '1px solid #E5E7EB' }}>Materia</th>
-                  <th className="text-left px-3 py-2 font-semibold" style={{ color: '#374151', border: '1px solid #E5E7EB' }}>Estado</th>
+                <tr style={{ background: '#f8fafd' }}>
+                  {[
+                    t('certificate.colMonth'),
+                    t('certificate.colCode'),
+                    t('certificate.colSubject'),
+                    t('certificate.colStatus'),
+                  ].map(h => (
+                    <th key={h} style={{
+                      textAlign: 'left', padding: '9px 14px',
+                      fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase',
+                      color: '#94a3b8', fontWeight: 600, borderBottom: '1px solid #e8edf5',
+                    }}>{h}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {datos.materias_cursadas
                   .sort((a, b) => a.mes_numero - b.mes_numero)
-                  .map((mat, i) => (
-                    <tr key={i} style={{
-                      background: mat.estado === 'Acreditada' ? '#F0FDF4' :
-                        mat.estado === 'No acreditada' ? '#FEF2F2' : '#FFFBEB'
-                    }}>
-                      <td className="px-3 py-2" style={{ border: '1px solid #E5E7EB', color: '#374151' }}>
-                        Mes {mat.mes_numero}
+                  .map(m => (
+                    <tr key={m.materia_id}>
+                      <td style={{ padding: '12px 14px', color: '#64748b', fontSize: 12, borderBottom: '1px solid #f4f6fb' }}>
+                        {t('certificate.monthPrefix')} {m.mes_numero}
                       </td>
-                      <td className="px-3 py-2 font-mono" style={{ border: '1px solid #E5E7EB', color: '#374151' }}>
-                        {mat.codigo}
+                      <td style={{ padding: '12px 14px', fontSize: 12, color: '#2563eb', fontWeight: 700, letterSpacing: '0.06em', borderBottom: '1px solid #f4f6fb' }}>
+                        {m.codigo}
                       </td>
-                      <td className="px-3 py-2" style={{ border: '1px solid #E5E7EB', color: '#374151' }}>
-                        {mat.nombre}
+                      <td style={{ padding: '12px 14px', color: '#334155', borderBottom: '1px solid #f4f6fb' }}>
+                        {m.nombre_materia}
                       </td>
-                      <td className="px-3 py-2 font-semibold" style={{
-                        border: '1px solid #E5E7EB',
-                        color: mat.estado === 'Acreditada' ? '#059669' :
-                          mat.estado === 'No acreditada' ? '#DC2626' : '#D97706'
-                      }}>
-                        {mat.estado}
+                      <td style={{ padding: '12px 14px', borderBottom: '1px solid #f4f6fb' }}>
+                        <span style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 5,
+                          padding: '3px 11px', borderRadius: 20,
+                          fontSize: 11, fontWeight: 600,
+                          ...BADGE[m.estado],
+                        }}>
+                          <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'currentColor', flexShrink: 0 }} />
+                          {estadoLabel[m.estado]}
+                        </span>
                       </td>
                     </tr>
                   ))}
               </tbody>
             </table>
           </div>
-        )}
 
-        {/* Folio y fecha */}
-        <div className="flex items-center justify-between text-xs mb-10" style={{ color: '#6B7280' }}>
-          <span>Folio: <strong>{folioRef.current}</strong></span>
-          <span>Fecha de expedición: <strong>{fecha}</strong></span>
-        </div>
+          {/* ── Marca de agua ── */}
+          <svg
+            style={{ position: 'absolute', bottom: 50, right: 40, opacity: 0.028, pointerEvents: 'none' }}
+            width="220" height="220" viewBox="0 0 100 100"
+          >
+            <polygon points="50,4 93,28 93,72 50,96 7,72 7,28" fill="none" stroke="#2563eb" strokeWidth="2.5" />
+            <polygon points="50,14 83,33 83,67 50,86 17,67 17,33" fill="none" stroke="#2563eb" strokeWidth="1.2" />
+          </svg>
 
-        {/* Firma */}
-        <div className="flex justify-center">
-          <div className="text-center">
-            <div className="w-40 mx-auto mb-1" style={{ borderTop: '1px solid #374151' }} />
-            <p className="text-sm font-bold" style={{ color: '#111827' }}>Dirección Académica</p>
-            <p className="text-xs" style={{ color: '#6B7280' }}>{ESCUELA_CONFIG.nombre}</p>
+          {/* ── Pie del certificado ── */}
+          <div style={{
+            padding: '22px 48px 32px',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end',
+            borderTop: '1px solid #edf0f7', marginTop: 26,
+          }}>
+            {/* Disclaimer */}
+            <p style={{ fontSize: 10, color: '#a0aec0', maxWidth: 260, lineHeight: 1.7 }}>
+              {disclaimerParts[0]}
+              <strong style={{ color: '#64748b' }}>{folio}</strong>
+              {disclaimerParts[1]}
+            </p>
+
+            {/* Firma */}
+            <div style={{ textAlign: 'center' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/firma-direccion.png"
+                alt="Firma"
+                style={{ height: 110, width: 'auto', display: 'block', margin: '0 auto 2px' }}
+              />
+              <div style={{ width: 180, height: 1, background: '#cbd5e1', margin: '0 auto 8px' }} />
+              <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', letterSpacing: '0.05em' }}>
+                {t('certificate.academicDir')}
+              </div>
+              <div style={{ fontSize: 10, color: '#94a3b8', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 3 }}>
+                EDVEX Academy
+              </div>
+            </div>
           </div>
+
+          {/* Barra inferior */}
+          <div style={{ height: 3, background: 'linear-gradient(90deg, #60a5fa, #2563eb 50%, #0f2d82)' }} />
         </div>
       </div>
 
-      {/* Info folio */}
-      <div className="rounded-xl p-4 flex items-center gap-3" style={CARD}>
-        <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: '#5B6CFF' }} />
-        <p className="text-xs" style={{ color: '#94A3B8' }}>
-          Este documento es informativo. El folio <strong style={{ color: '#F1F5F9' }}>{folioRef.current}</strong> es generado de manera única en cada descarga.
-        </p>
-      </div>
-    </div>
+      {/* Estilos de impresión */}
+      <style>{`
+        @media print {
+          body > *:not(#constancia-print) { display: none !important; }
+          #constancia-print {
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+          }
+        }
+      `}</style>
+    </>
   )
 }
