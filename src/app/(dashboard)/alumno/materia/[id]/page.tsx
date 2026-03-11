@@ -20,6 +20,7 @@ interface Materia {
   id: string; codigo: string; nombre: string; nombre_en: string; color_hex: string
   descripcion: string; descripcion_en: string; objetivo: string; objetivo_en: string; temario: string[]
   bibliografia: BibItem[]
+  bibliografia_en?: BibItem[]
   semanas: Semana[]
   evaluaciones: Evaluacion[]
 }
@@ -207,7 +208,7 @@ export default function MateriaPage() {
                             >
                               <PlayCircle className="w-5 h-5 flex-shrink-0" style={{ color: '#7B8AFF' }} />
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium truncate" style={{ color: '#F1F5F9' }}>{semana.titulo} — English Version</p>
+                                <p className="text-sm font-medium truncate" style={{ color: '#F1F5F9' }}>{loc(semana.titulo, semana.titulo_en)} — English Version</p>
                                 <p className="text-xs mt-0.5" style={{ color: '#7B8AFF' }}>EN</p>
                               </div>
                             </a>
@@ -314,29 +315,43 @@ export default function MateriaPage() {
             </div>
           )}
 
-          {/* Temario */}
-          {materia.temario?.length > 0 && (
+          {/* Syllabus: títulos de semanas + temario */}
+          {(materia.semanas?.length > 0 || materia.temario?.length > 0) && (
             <div className="rounded-xl p-5 space-y-3" style={CARD}>
               <h3 className="text-sm font-semibold" style={{ color: '#F1F5F9' }}>{t('subjects.syllabus')}</h3>
-              <ol className="space-y-2">
-                {materia.temario.map((tema, i) => (
-                  <li key={i} className="flex items-start gap-3 text-sm">
-                    <span className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold" style={{ background: 'rgba(91,108,255,0.15)', color: '#5B6CFF' }}>
-                      {i + 1}
-                    </span>
-                    <span style={{ color: '#94A3B8' }}>{tema}</span>
-                  </li>
-                ))}
-              </ol>
+              {materia.semanas?.length > 0 && (
+                <ol className="space-y-2">
+                  {materia.semanas.map(semana => (
+                    <li key={semana.id} className="flex items-start gap-3 text-sm">
+                      <span className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold" style={{ background: 'rgba(91,108,255,0.15)', color: '#5B6CFF' }}>
+                        {semana.numero}
+                      </span>
+                      <span style={{ color: '#94A3B8' }}>{loc(semana.titulo, semana.titulo_en)}</span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+              {materia.temario?.length > 0 && (
+                <ol className="space-y-2">
+                  {materia.temario.map((tema, i) => (
+                    <li key={i} className="flex items-start gap-3 text-sm">
+                      <span className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold" style={{ background: 'rgba(91,108,255,0.15)', color: '#5B6CFF' }}>
+                        {i + 1}
+                      </span>
+                      <span style={{ color: '#94A3B8' }}>{tema}</span>
+                    </li>
+                  ))}
+                </ol>
+              )}
             </div>
           )}
 
-          {/* Bibliografía */}
-          {materia.bibliografia?.length > 0 && (
+          {/* Bibliografía: loc(bibliografia, bibliografia_en) con fallback */}
+          {((lang === 'en' && materia.bibliografia_en?.length) ? materia.bibliografia_en : materia.bibliografia)?.length > 0 && (
             <div className="rounded-xl p-5 space-y-3" style={CARD}>
               <h3 className="text-sm font-semibold" style={{ color: '#F1F5F9' }}>{t('subjects.bibliography')}</h3>
               <ul className="space-y-2">
-                {materia.bibliografia.map((bib, i) => {
+                {(lang === 'en' && materia.bibliografia_en?.length ? materia.bibliografia_en : materia.bibliografia).map((bib, i) => {
                   const etiqueta = bib.tipo ? `${bib.titulo} (${bib.tipo})` : bib.titulo
                   return (
                     <li key={i} className="flex items-start gap-2">

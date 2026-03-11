@@ -60,7 +60,8 @@ export async function GET(
       objetivo: string
       temario: string[]
       bibliografia: Record<string, string>[]
-      semanas: { id: string; numero: number; titulo: string; contenido: string; contenido_en: string; url_en: string; videos: { titulo: string; url: string; duracion: string }[] }[]
+      bibliografia_en?: Record<string, string>[]
+      semanas: { id: string; numero: number; titulo: string; titulo_en?: string; contenido: string; contenido_en: string; url_en: string; videos: { titulo: string; titulo_en?: string; url: string; url_en?: string; duracion: string }[] }[]
       evaluaciones: { id: string; titulo: string; titulo_en: string; tipo: string; intentos_max: number; activa: boolean }[]
     }
 
