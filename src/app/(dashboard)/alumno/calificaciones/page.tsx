@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react'
+import { useLanguage } from '@/context/LanguageContext'
 
 type Estado = 'Acreditada' | 'No acreditada' | 'Pendiente'
 
@@ -29,6 +30,14 @@ const BADGE: Record<Estado, React.CSSProperties> = {
 }
 
 export default function CalificacionesPage() {
+  const { t } = useLanguage()
+
+  const estadoLabel: Record<Estado, string> = {
+    'Acreditada':    t('grades.acreditadaBadge'),
+    'No acreditada': t('grades.noAcreditadaBadge'),
+    'Pendiente':     t('grades.pending'),
+  }
+
   const [materias, setMaterias] = useState<MateriaCalif[]>([])
   const [resumen, setResumen] = useState<Resumen | null>(null)
   const [loading, setLoading] = useState(true)
@@ -55,9 +64,9 @@ export default function CalificacionesPage() {
   return (
     <div className="space-y-6 max-w-4xl">
       <div>
-        <h2 className="text-xl font-bold" style={{ color: '#F1F5F9' }}>Mis Calificaciones</h2>
+        <h2 className="text-xl font-bold" style={{ color: '#F1F5F9' }}>{t('grades.title')}</h2>
         <p className="text-sm mt-0.5" style={{ color: '#94A3B8' }}>
-          Estado de acreditación por materia
+          {t('grades.subtitle')}
         </p>
       </div>
 
@@ -79,7 +88,7 @@ export default function CalificacionesPage() {
                   <p className="text-2xl font-bold" style={{ color: '#10B981' }}>
                     {resumen.materias_acreditadas}
                   </p>
-                  <p className="text-xs" style={{ color: '#94A3B8' }}>Acreditadas</p>
+                  <p className="text-xs" style={{ color: '#94A3B8' }}>{t('grades.acreditada')}</p>
                 </div>
               </div>
 
@@ -92,7 +101,7 @@ export default function CalificacionesPage() {
                   <p className="text-2xl font-bold" style={{ color: '#EF4444' }}>
                     {resumen.materias_no_acreditadas}
                   </p>
-                  <p className="text-xs" style={{ color: '#94A3B8' }}>No acreditadas</p>
+                  <p className="text-xs" style={{ color: '#94A3B8' }}>{t('grades.noAcreditada')}</p>
                 </div>
               </div>
 
@@ -105,7 +114,7 @@ export default function CalificacionesPage() {
                   <p className="text-2xl font-bold" style={{ color: '#F59E0B' }}>
                     {resumen.materias_pendientes}
                   </p>
-                  <p className="text-xs" style={{ color: '#94A3B8' }}>Pendientes</p>
+                  <p className="text-xs" style={{ color: '#94A3B8' }}>{t('grades.pendientes')}</p>
                 </div>
               </div>
             </div>
@@ -115,7 +124,7 @@ export default function CalificacionesPage() {
           {materias.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3 rounded-xl" style={CARD}>
               <Clock className="w-10 h-10" style={{ color: '#2A2F3E' }} />
-              <p className="text-sm" style={{ color: '#94A3B8' }}>No hay materias disponibles aún</p>
+              <p className="text-sm" style={{ color: '#94A3B8' }}>{t('grades.noData')}</p>
             </div>
           ) : (
             <div className="rounded-xl overflow-hidden" style={CARD}>
@@ -123,7 +132,7 @@ export default function CalificacionesPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr style={{ borderBottom: '1px solid #2A2F3E' }}>
-                      {['Mes', 'Código', 'Materia', 'Estado'].map(h => (
+                      {[t('grades.monthCol'), t('grades.codeCol'), t('grades.subjectCol'), t('grades.statusCol')].map(h => (
                         <th key={h} className="text-left px-4 py-3 font-medium" style={{ color: '#94A3B8' }}>{h}</th>
                       ))}
                     </tr>
@@ -141,14 +150,14 @@ export default function CalificacionesPage() {
                           <td className="px-4 py-3">
                             <span className="text-xs font-medium px-2 py-0.5 rounded"
                               style={{ background: 'rgba(91,108,255,0.15)', color: '#7B8AFF' }}>
-                              Mes {m.mes_numero}
+                              {t('grades.monthCol')} {m.mes_numero}
                             </span>
                           </td>
                           <td className="px-4 py-3 font-mono text-xs" style={{ color: '#94A3B8' }}>{m.codigo}</td>
                           <td className="px-4 py-3 font-medium" style={{ color: '#F1F5F9' }}>{m.nombre_materia}</td>
                           <td className="px-4 py-3">
                             <span className="px-2.5 py-1 rounded-full text-xs font-semibold" style={BADGE[m.estado]}>
-                              {m.estado}
+                              {estadoLabel[m.estado]}
                             </span>
                           </td>
                         </tr>

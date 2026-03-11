@@ -34,7 +34,7 @@ interface Mes {
 
 export default function AlumnoDashboard() {
   const router = useRouter()
-  const { lang } = useLanguage()
+  const { lang, t } = useLanguage()
   const loc = (es: string, en: string) => lang === 'en' && en ? en : es
   const [perfil, setPerfil] = useState<Perfil | null>(null)
   const [meses, setMeses] = useState<Mes[]>([])
@@ -101,11 +101,11 @@ export default function AlumnoDashboard() {
               {ESCUELA_CONFIG.nombre}
             </p>
             <h2 className="text-xl sm:text-2xl font-bold leading-snug" style={{ color: '#F1F5F9' }}>
-              Bienvenido, {perfil.nombre_completo.split(' ')[0]}
+              {t('dashboard.welcomeStudent')} {perfil.nombre_completo.split(' ')[0]}
             </h2>
             <p className="text-xs font-mono mt-1" style={{ color: '#64748B' }}>{perfil.matricula}</p>
             <p className="text-sm mt-2 italic" style={{ color: '#94A3B8' }}>
-              Cada día de estudio te acerca más a tu meta. ¡Tú puedes!
+              {t('dashboard.motivational')}
             </p>
 
             {/* Stats */}
@@ -116,7 +116,7 @@ export default function AlumnoDashboard() {
                   <GraduationCap className="w-4 h-4" style={{ color: '#7B8AFF' }} />
                 </div>
                 <div>
-                  <p className="text-xs leading-none" style={{ color: '#64748B' }}>Plan actual</p>
+                  <p className="text-xs leading-none" style={{ color: '#64748B' }}>{t('dashboard.currentPlan')}</p>
                   <p className="text-xs font-semibold mt-0.5 truncate max-w-[120px]" style={{ color: '#F1F5F9' }}>
                     {perfil.plan_nombre}
                   </p>
@@ -129,7 +129,7 @@ export default function AlumnoDashboard() {
                   <TrendingUp className="w-4 h-4" style={{ color: '#10B981' }} />
                 </div>
                 <div>
-                  <p className="text-xs leading-none" style={{ color: '#64748B' }}>Meses completados</p>
+                  <p className="text-xs leading-none" style={{ color: '#64748B' }}>{t('dashboard.monthsCompleted')}</p>
                   <p className="text-xs font-semibold mt-0.5" style={{ color: '#F1F5F9' }}>
                     {perfil.meses_desbloqueados} / {perfil.duracion_meses}
                     <span className="font-normal ml-1" style={{ color: '#64748B' }}>({porcentaje}%)</span>
@@ -143,7 +143,7 @@ export default function AlumnoDashboard() {
                   <BookOpen className="w-4 h-4" style={{ color: '#F59E0B' }} />
                 </div>
                 <div>
-                  <p className="text-xs leading-none" style={{ color: '#64748B' }}>Materias disponibles</p>
+                  <p className="text-xs leading-none" style={{ color: '#64748B' }}>{t('dashboard.availableSubjects')}</p>
                   <p className="text-xs font-semibold mt-0.5" style={{ color: '#F1F5F9' }}>
                     {materiasDisponibles}
                   </p>
@@ -166,7 +166,7 @@ export default function AlumnoDashboard() {
               </svg>
               <span className="absolute text-xs font-bold" style={{ color: '#7B8AFF' }}>{porcentaje}%</span>
             </div>
-            <p className="text-xs" style={{ color: '#64748B' }}>de avance total</p>
+            <p className="text-xs" style={{ color: '#64748B' }}>{t('dashboard.totalProgress')}</p>
           </div>
         </div>
 
@@ -184,7 +184,7 @@ export default function AlumnoDashboard() {
       {/* Grid de meses */}
       <div>
         <h3 className="text-sm font-semibold mb-3" style={{ color: '#94A3B8' }}>
-          MESES DEL PROGRAMA
+          {t('dashboard.programMonths')}
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {meses.map((mes) => (
@@ -238,13 +238,13 @@ export default function AlumnoDashboard() {
                 ))}
                 {(mes.materias ?? []).length > 2 && (
                   <p className="text-xs" style={{ color: '#475569' }}>
-                    +{mes.materias.length - 2} materias más
+                    +{mes.materias.length - 2} {t('dashboard.moreSubjects')}
                   </p>
                 )}
               </div>
 
               {!mes.desbloqueado && (
-                <p className="text-xs mt-3 font-medium" style={{ color: '#475569' }}>Bloqueado</p>
+                <p className="text-xs mt-3 font-medium" style={{ color: '#475569' }}>{t('dashboard.blocked')}</p>
               )}
             </div>
           ))}

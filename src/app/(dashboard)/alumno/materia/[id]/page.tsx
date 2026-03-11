@@ -5,9 +5,9 @@ import { useRouter, useParams } from 'next/navigation'
 import { ArrowLeft, Loader2, PlayCircle, ChevronDown, ChevronRight } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 
-interface Video { titulo: string; titulo_en: string; url: string; duracion: string }
+interface Video { titulo: string; titulo_en: string; url: string; url_en: string; duracion: string }
 interface Semana {
-  id: string; numero: number; titulo: string
+  id: string; numero: number; titulo: string; titulo_en: string
   contenido: string; contenido_en: string
   url_en: string; videos: Video[]
 }
@@ -172,7 +172,7 @@ export default function MateriaPage() {
                       >
                         {semana.numero}
                       </span>
-                      <span className="text-sm font-medium" style={{ color: '#F1F5F9' }}>{semana.titulo}</span>
+                      <span className="text-sm font-medium" style={{ color: '#F1F5F9' }}>{loc(semana.titulo, semana.titulo_en)}</span>
                     </div>
                     {abierta
                       ? <ChevronDown className="w-4 h-4 flex-shrink-0" style={{ color: '#94A3B8' }} />
@@ -216,7 +216,7 @@ export default function MateriaPage() {
                           {semana.videos.map((v, i) => (
                             <a
                               key={i}
-                              href={v.url}
+                              href={loc(v.url, v.url_en)}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="flex items-center gap-3 px-4 py-3 rounded-lg transition-all"

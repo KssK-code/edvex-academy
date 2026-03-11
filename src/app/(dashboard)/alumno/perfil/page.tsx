@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Loader2, Eye, EyeOff, User, Lock, GraduationCap, Mail, Phone } from 'lucide-react'
 import { ESCUELA_CONFIG } from '@/lib/config'
 import { useToast, ToastContainer } from '@/components/ui/toast'
+import { useLanguage } from '@/context/LanguageContext'
 
 interface Perfil {
   id: string
@@ -24,6 +25,7 @@ const INPUT_STYLE = {
 }
 
 export default function PerfilPage() {
+  const { t } = useLanguage()
   const { toasts, showToast, removeToast } = useToast()
   const [perfil, setPerfil] = useState<Perfil | null>(null)
   const [loading, setLoading] = useState(true)
@@ -48,11 +50,11 @@ export default function PerfilPage() {
     setPassError(null)
 
     if (passForm.nueva.length < 6) {
-      setPassError('La nueva contraseña debe tener al menos 6 caracteres.')
+      setPassError(t('profile.passwordTooShort'))
       return
     }
     if (passForm.nueva !== passForm.confirmar) {
-      setPassError('Las contraseñas nuevas no coinciden.')
+      setPassError(t('profile.passwordsNoMatch'))
       return
     }
 
@@ -65,13 +67,13 @@ export default function PerfilPage() {
       })
       const data = await res.json()
       if (!res.ok) {
-        setPassError(data.error ?? 'Error al cambiar contraseña')
+        setPassError(data.error ?? t('profile.passwordError'))
         return
       }
       setPassForm({ current: '', nueva: '', confirmar: '' })
-      showToast('✓ Contraseña actualizada correctamente', 'success')
+      showToast(t('profile.passwordUpdated'), 'success')
     } catch {
-      setPassError('Error inesperado. Intenta de nuevo.')
+      setPassError(t('profile.unexpectedError'))
     } finally {
       setPassLoading(false)
     }
@@ -89,8 +91,8 @@ export default function PerfilPage() {
 
       {/* Header */}
       <div>
-        <h2 className="text-xl font-bold" style={{ color: '#F1F5F9' }}>Mi Perfil</h2>
-        <p className="text-sm mt-0.5" style={{ color: '#94A3B8' }}>Tu información personal y configuración de cuenta</p>
+        <h2 className="text-xl font-bold" style={{ color: '#F1F5F9' }}>{t('profile.title')}</h2>
+        <p className="text-sm mt-0.5" style={{ color: '#94A3B8' }}>{t('profile.subtitle')}</p>
       </div>
 
       {/* Card Información Personal */}
@@ -99,17 +101,17 @@ export default function PerfilPage() {
           <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(91,108,255,0.15)' }}>
             <User className="w-4 h-4" style={{ color: '#7B8AFF' }} />
           </div>
-          <h3 className="text-sm font-semibold" style={{ color: '#F1F5F9' }}>Información Personal</h3>
+          <h3 className="text-sm font-semibold" style={{ color: '#F1F5F9' }}>{t('profile.personalInfo')}</h3>
         </div>
         <div className="p-5 space-y-4">
           {perfil ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
-                { label: 'Nombre completo', value: perfil.nombre_completo },
-                { label: 'Correo electrónico', value: perfil.email },
-                { label: 'Matrícula', value: perfil.matricula, mono: true },
-                { label: 'Plan de estudio', value: perfil.plan_nombre },
-                { label: 'Duración del plan', value: `${perfil.duracion_meses} meses` },
+                { label: t('profile.fullName'),    value: perfil.nombre_completo },
+                { label: t('profile.email'),        value: perfil.email },
+                { label: t('profile.studentId'),    value: perfil.matricula, mono: true },
+                { label: t('profile.studyPlan'),    value: perfil.plan_nombre },
+                { label: t('profile.planDuration'), value: `${perfil.duracion_meses} ${t('profile.months')}` },
               ].map(({ label, value, mono }) => (
                 <div key={label}>
                   <p className="text-xs font-medium mb-1" style={{ color: '#64748B' }}>{label}</p>
@@ -123,7 +125,7 @@ export default function PerfilPage() {
               ))}
             </div>
           ) : (
-            <p className="text-sm" style={{ color: '#94A3B8' }}>No se pudo cargar el perfil.</p>
+            <p className="text-sm" style={{ color: '#94A3B8' }}>{t('profile.noProfile')}</p>
           )}
         </div>
       </div>
@@ -134,14 +136,14 @@ export default function PerfilPage() {
           <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(245,158,11,0.15)' }}>
             <Lock className="w-4 h-4" style={{ color: '#F59E0B' }} />
           </div>
-          <h3 className="text-sm font-semibold" style={{ color: '#F1F5F9' }}>Cambiar Contraseña</h3>
+          <h3 className="text-sm font-semibold" style={{ color: '#F1F5F9' }}>{t('profile.changePassword')}</h3>
         </div>
         <div className="p-5">
           <form onSubmit={handleCambiarPassword} className="space-y-4">
             {[
-              { label: 'Contraseña actual', key: 'current', show: showCurrent, toggle: () => setShowCurrent(v => !v) },
-              { label: 'Nueva contraseña', key: 'nueva', show: showNueva, toggle: () => setShowNueva(v => !v) },
-              { label: 'Confirmar nueva contraseña', key: 'confirmar', show: showConfirmar, toggle: () => setShowConfirmar(v => !v) },
+              { label: t('profile.currentPassword'),    key: 'current',   show: showCurrent,   toggle: () => setShowCurrent(v => !v) },
+              { label: t('profile.newPassword'),         key: 'nueva',     show: showNueva,     toggle: () => setShowNueva(v => !v) },
+              { label: t('profile.confirmNewPassword'),  key: 'confirmar', show: showConfirmar, toggle: () => setShowConfirmar(v => !v) },
             ].map(({ label, key, show, toggle }) => (
               <div key={key} className="space-y-1.5">
                 <label className="block text-sm font-medium" style={{ color: '#94A3B8' }}>{label}</label>
@@ -193,7 +195,7 @@ export default function PerfilPage() {
               onMouseEnter={e => { if (!passLoading) e.currentTarget.style.background = '#7B8AFF' }}
               onMouseLeave={e => { if (!passLoading) e.currentTarget.style.background = '#5B6CFF' }}
             >
-              {passLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Cambiando...</> : 'Cambiar contraseña'}
+              {passLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> {t('profile.changing')}</> : t('profile.changeBtn')}
             </button>
           </form>
         </div>
@@ -205,20 +207,20 @@ export default function PerfilPage() {
           <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(16,185,129,0.15)' }}>
             <GraduationCap className="w-4 h-4" style={{ color: '#10B981' }} />
           </div>
-          <h3 className="text-sm font-semibold" style={{ color: '#F1F5F9' }}>Datos de la Escuela</h3>
+          <h3 className="text-sm font-semibold" style={{ color: '#F1F5F9' }}>{t('profile.schoolInfo')}</h3>
         </div>
         <div className="p-5 space-y-3">
           <div className="flex items-center gap-3">
             <GraduationCap className="w-4 h-4 flex-shrink-0" style={{ color: '#94A3B8' }} />
             <div>
-              <p className="text-xs" style={{ color: '#64748B' }}>Institución</p>
+              <p className="text-xs" style={{ color: '#64748B' }}>{t('profile.institution')}</p>
               <p className="text-sm font-medium" style={{ color: '#F1F5F9' }}>{ESCUELA_CONFIG.nombre}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <Mail className="w-4 h-4 flex-shrink-0" style={{ color: '#94A3B8' }} />
             <div>
-              <p className="text-xs" style={{ color: '#64748B' }}>Contacto</p>
+              <p className="text-xs" style={{ color: '#64748B' }}>{t('profile.contact')}</p>
               <a
                 href={`mailto:${ESCUELA_CONFIG.contactoEmail}`}
                 className="text-sm transition-colors"
@@ -234,7 +236,7 @@ export default function PerfilPage() {
             <div className="flex items-center gap-3">
               <Phone className="w-4 h-4 flex-shrink-0" style={{ color: '#94A3B8' }} />
               <div>
-                <p className="text-xs" style={{ color: '#64748B' }}>Teléfono</p>
+                <p className="text-xs" style={{ color: '#64748B' }}>{t('profile.phone')}</p>
                 <a
                   href={`tel:${ESCUELA_CONFIG.contactoTelefono}`}
                   className="text-sm transition-colors"

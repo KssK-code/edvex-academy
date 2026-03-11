@@ -27,7 +27,7 @@ const CARD = { background: '#181C26', border: '1px solid #2A2F3E' }
 
 export default function MateriasPage() {
   const router = useRouter()
-  const { lang } = useLanguage()
+  const { lang, t } = useLanguage()
   const loc = (es: string, en: string) => lang === 'en' && en ? en : es
   const [meses, setMeses] = useState<Mes[]>([])
   const [loading, setLoading] = useState(true)
@@ -54,9 +54,9 @@ export default function MateriasPage() {
   return (
     <div className="space-y-6 max-w-4xl">
       <div>
-        <h2 className="text-xl font-bold" style={{ color: '#F1F5F9' }}>Mis Materias</h2>
+        <h2 className="text-xl font-bold" style={{ color: '#F1F5F9' }}>{t('subjects.mySubjectsTitle')}</h2>
         <p className="text-sm mt-0.5" style={{ color: '#94A3B8' }}>
-          Todas las materias de tu plan de estudios
+          {t('subjects.mySubjectsSubtitle')}
         </p>
       </div>
 
@@ -67,7 +67,7 @@ export default function MateriasPage() {
       ) : todasLasMaterias.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 gap-3 rounded-xl" style={CARD}>
           <BookOpen className="w-10 h-10" style={{ color: '#2A2F3E' }} />
-          <p className="text-sm" style={{ color: '#94A3B8' }}>No hay materias disponibles</p>
+          <p className="text-sm" style={{ color: '#94A3B8' }}>{t('subjects.noSubjects')}</p>
         </div>
       ) : (
         <div className="rounded-xl overflow-hidden" style={CARD}>
@@ -75,7 +75,7 @@ export default function MateriasPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr style={{ borderBottom: '1px solid #2A2F3E' }}>
-                  {['', 'Código', 'Materia', 'Mes', 'Estado', 'Acción'].map(h => (
+                  {['', t('subjects.codeCol'), t('subjects.subjectCol'), t('subjects.monthCol'), t('subjects.statusCol'), t('subjects.actionCol')].map(h => (
                     <th key={h} className="text-left px-4 py-3 font-medium" style={{ color: '#94A3B8' }}>{h}</th>
                   ))}
                 </tr>
@@ -94,7 +94,7 @@ export default function MateriasPage() {
                     <td className="px-4 py-3 font-mono text-xs" style={{ color: '#94A3B8' }}>{mat.codigo}</td>
                     <td className="px-4 py-3 font-medium" style={{ color: '#F1F5F9' }}>{loc(mat.nombre, mat.nombre_en)}</td>
                     <td className="px-4 py-3" style={{ color: '#94A3B8' }}>
-                      Mes {mat.mes_numero}{mat.mes_titulo ? ` — ${mat.mes_titulo}` : ''}
+                      {t('subjects.monthLabel')} {mat.mes_numero}{mat.mes_titulo ? ` — ${mat.mes_titulo}` : ''}
                     </td>
                     <td className="px-4 py-3">
                       <span
@@ -104,7 +104,7 @@ export default function MateriasPage() {
                           : { background: 'rgba(71,85,105,0.2)', color: '#64748B' }
                         }
                       >
-                        {mat.desbloqueado ? 'Disponible' : 'Bloqueada'}
+                        {mat.desbloqueado ? t('subjects.available') : t('subjects.locked')}
                       </span>
                     </td>
                     <td className="px-4 py-3">
@@ -117,7 +117,7 @@ export default function MateriasPage() {
                           onMouseLeave={e => { e.currentTarget.style.background = 'rgba(91,108,255,0.1)' }}
                         >
                           <BookOpen className="w-3.5 h-3.5" />
-                          Estudiar
+                          {t('subjects.study')}
                         </button>
                       ) : (
                         <span className="text-xs" style={{ color: '#475569' }}>—</span>

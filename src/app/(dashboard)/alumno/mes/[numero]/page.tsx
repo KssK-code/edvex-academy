@@ -29,7 +29,7 @@ export default function MesPage() {
   const router = useRouter()
   const params = useParams()
   const numero = Number(params.numero)
-  const { lang } = useLanguage()
+  const { lang, t } = useLanguage()
   const loc = (es: string, en: string) => lang === 'en' && en ? en : es
 
   const [mes, setMes] = useState<Mes | null>(null)
@@ -78,10 +78,12 @@ export default function MesPage() {
         </button>
         <div>
           <h2 className="text-xl font-bold" style={{ color: '#F1F5F9' }}>
-            Mes {mes.numero}{mes.titulo ? ` — ${mes.titulo}` : ''}
+            {t('subjects.monthLabel')} {mes.numero}{mes.titulo ? ` — ${mes.titulo}` : ''}
           </h2>
           <p className="text-sm mt-0.5" style={{ color: '#94A3B8' }}>
-            {mes.materias.length} materia{mes.materias.length !== 1 ? 's' : ''}
+            {lang === 'en'
+              ? `${mes.materias.length} subject${mes.materias.length !== 1 ? 's' : ''}`
+              : `${mes.materias.length} materia${mes.materias.length !== 1 ? 's' : ''}`}
           </p>
         </div>
       </div>
@@ -125,7 +127,7 @@ export default function MesPage() {
                   onMouseLeave={e => { e.currentTarget.style.background = '#5B6CFF' }}
                 >
                   <BookOpen className="w-4 h-4" />
-                  Estudiar
+                  {t('subjects.study')}
                 </button>
               </div>
             </div>
