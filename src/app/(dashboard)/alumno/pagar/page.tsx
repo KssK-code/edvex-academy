@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { CreditCard, Loader2 } from 'lucide-react'
+import { CreditCard, Loader2, Lock } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
 
 interface Perfil {
@@ -124,7 +124,34 @@ export default function PagarPage() {
     )
   }
 
-  const visibles = OPCIONES.filter(o => o.visible(perfil))
+  const inscripcionPagada = perfil.inscripcion_pagada === true
+  const tieneSeisModulos = (perfil.modulos_desbloqueados?.length ?? 0) >= 6
+
+  // Mostrar siempre las 4 opciones; aplicar candado según estado
+  const opcionesConCandado = OPCIONES.map((opcion) => {
+    const esInscripcion = opcion.id === 'inscripcion'
+    const esModulo = opcion.id === 'modulo-estandar' || opcion.id === 'modulo-acelerado'
+    const esCertificacion = opcion.id === 'certificacion'
+
+    let bloqueada = false
+    let mensajeCandado: string | null = null
+
+    if (esInscripcion) {
+      bloqueada = perfil.inscripcion_pagada
+    } else if (esModulo) {
+      if (!inscripcionPagada) {
+        bloqueada = true
+        mensajeCandado = t('payment.payInscriptionFirst')
+      }
+    } else if (esCertificacion) {
+      if (!tieneSeisModulos) {
+        bloqueada = true
+        mensajeCandado = t('payment.needSixModules')
+      }
+    }
+
+    return { ...opcion, bloqueada, mensajeCandado }
+  })
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -138,10 +165,8 @@ export default function PagarPage() {
       </div>
 
       <div className="grid gap-4">
-        {visibles.map((opcion) => {
-          const disabled =
-            (opcion.id === 'certificacion' && (perfil.modulos_desbloqueados?.length ?? 0) < 6) ||
-            (opcion.id === 'inscripcion' && perfil.inscripcion_pagada)
+        {opcionesConCandado.map((opcion) => {
+          const disabled = opcion.bloqueada
           const isPaying = payingId === opcion.id
 
           return (
@@ -149,16 +174,20 @@ export default function PagarPage() {
               key={opcion.id}
               className="rounded-xl p-4 flex items-center justify-between gap-4"
               style={{
-                background: '#181C26',
-                border: '1px solid #2A2F3E',
+                background: opcion.bloqueada ? 'rgba(24,28,38,0.7)' : '#181C26',
+                border: opcion.bloqueada ? '1px solid #2A2F3E' : '1px solid #2A2F3E',
+                opacity: opcion.bloqueada ? 0.85 : 1,
               }}
             >
-              <div className="min-w-0">
-                <p className="font-medium" style={{ color: '#F1F5F9' }}>
-                  {t(opcion.titleKey)}
-                </p>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  {opcion.bloqueada && <Lock className="w-4 h-4 flex-shrink-0" style={{ color: '#64748B' }} />}
+                  <p className="font-medium" style={{ color: opcion.bloqueada ? '#94A3B8' : '#F1F5F9' }}>
+                    {t(opcion.titleKey)}
+                  </p>
+                </div>
                 <p className="text-xs mt-0.5" style={{ color: '#64748B' }}>
-                  {t(opcion.descKey)}
+                  {opcion.mensajeCandado ?? t(opcion.descKey)}
                 </p>
               </div>
               <div className="flex items-center gap-3 flex-shrink-0">
@@ -168,9 +197,9 @@ export default function PagarPage() {
                 <button
                   onClick={() => handlePay(opcion)}
                   disabled={disabled || isPaying}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{
-                    background: '#5B6CFF',
+                    background: disabled ? '#374151' : '#5B6CFF',
                     color: '#fff',
                   }}
                 >
@@ -181,7 +210,7 @@ export default function PagarPage() {
                     </>
                   ) : (
                     <>
-                      <CreditCard className="w-4 h-4" />
+                      {disabled ? <Lock className="w-4 h-4" /> : <CreditCard className="w-4 h-4" />}
                       {t('payment.pay')}
                     </>
                   )}
@@ -191,17 +220,6 @@ export default function PagarPage() {
           )
         })}
       </div>
-
-      {OPCIONES.some(o => o.id === 'inscripcion' && !o.visible(perfil)) && (
-        <p className="text-xs" style={{ color: '#64748B' }}>
-          {t('payment.alreadyPaid')}
-        </p>
-      )}
-      {OPCIONES.some(o => o.id === 'certificacion' && !o.visible(perfil)) && (
-        <p className="text-xs" style={{ color: '#64748B' }}>
-          {t('payment.needSixModules')}
-        </p>
-      )}
     </div>
   )
 }
