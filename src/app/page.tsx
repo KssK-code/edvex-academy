@@ -117,7 +117,7 @@ export default function LandingPage() {
             <span className="es">Ver Planes</span>
             <span className="en">View Plans</span>
           </a>
-          <Link href="/register" className="btn-ingresar">
+          <Link href="/register" className="btn-ingresar nav-btn-register">
             <span className="es">Regístrate</span>
             <span className="en">Sign up</span>
           </Link>
