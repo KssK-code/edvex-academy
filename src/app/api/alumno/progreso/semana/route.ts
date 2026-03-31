@@ -112,7 +112,79 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ ok: true, ya_existia: false })
+    // --- Racha de días ---
+    // Obtener los 2 registros más recientes (incluyendo el recién insertado)
+    const { data: recientes } = await supabase
+      .from('progreso_semanas')
+      .select('completada_en')
+      .eq('alumno_id', alumno.id)
+      .order('completada_en', { ascending: false })
+      .limit(2)
+
+    const ahora = new Date()
+    const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate())
+
+    // Obtener racha actual guardada
+    const { data: rachaActual } = await supabase
+      .from('logros_alumno')
+      .select('metadata')
+      .eq('alumno_id', alumno.id)
+      .eq('tipo', 'racha_actual')
+      .single()
+
+    const rachaPrevia = (rachaActual?.metadata as { dias?: number; ultima_actividad?: string } | null)
+
+    let diasRacha = 1
+
+    if (rachaPrevia?.ultima_actividad) {
+      const ultimaFecha = new Date(rachaPrevia.ultima_actividad)
+      const ultimaDia = new Date(ultimaFecha.getFullYear(), ultimaFecha.getMonth(), ultimaFecha.getDate())
+      const diffMs = hoy.getTime() - ultimaDia.getTime()
+      const diffDias = Math.round(diffMs / (1000 * 60 * 60 * 24))
+
+      if (diffDias === 0) {
+        // Misma sesión del mismo día — mantener racha
+        diasRacha = rachaPrevia.dias ?? 1
+      } else if (diffDias === 1) {
+        // Ayer → incrementar
+        diasRacha = (rachaPrevia.dias ?? 1) + 1
+      } else {
+        // Más de 1 día sin actividad → resetear
+        diasRacha = 1
+      }
+    }
+
+    // Guardar racha actual (siempre upsert)
+    await supabase
+      .from('logros_alumno')
+      .upsert(
+        {
+          alumno_id: alumno.id,
+          tipo: 'racha_actual',
+          metadata: { dias: diasRacha, ultima_actividad: ahora.toISOString() },
+        },
+        { onConflict: 'alumno_id,tipo', ignoreDuplicates: false }
+      )
+
+    // Logros de racha
+    if (diasRacha >= 3) {
+      await supabase
+        .from('logros_alumno')
+        .upsert(
+          { alumno_id: alumno.id, tipo: 'racha_3_dias' },
+          { onConflict: 'alumno_id,tipo', ignoreDuplicates: true }
+        )
+    }
+    if (diasRacha >= 7) {
+      await supabase
+        .from('logros_alumno')
+        .upsert(
+          { alumno_id: alumno.id, tipo: 'racha_7_dias' },
+          { onConflict: 'alumno_id,tipo', ignoreDuplicates: true }
+        )
+    }
+
+    return NextResponse.json({ ok: true, ya_existia: false, diasRacha })
   } catch {
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
