@@ -1,6 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import gsap from 'gsap'
+import { useGSAP } from '@gsap/react'
+
+gsap.registerPlugin(useGSAP)
 
 interface BadgesGridProps {
   logros: Array<{ tipo: string; obtenido_en: string }>
@@ -86,9 +90,24 @@ function formatFecha(iso: string, lang: string) {
 
 export default function BadgesGrid({ logros, lang }: BadgesGridProps) {
   const [hoveredTipo, setHoveredTipo] = useState<string | null>(null)
+  const gridRef = useRef<HTMLDivElement>(null)
 
   const logroMap = new Map(logros.map(l => [l.tipo, l.obtenido_en]))
   const obtenidos = logros.length
+
+  useGSAP(() => {
+    if (!gridRef.current) return
+    const badges = gridRef.current.querySelectorAll('.badge-obtenido')
+    if (badges.length === 0) return
+    gsap.from(badges, {
+      scale: 3,
+      opacity: 0,
+      rotation: -15,
+      duration: 0.6,
+      stagger: 0.1,
+      ease: 'back.out(1.7)',
+    })
+  }, { scope: gridRef, dependencies: [logros] })
 
   return (
     <div className="space-y-4">
@@ -105,7 +124,7 @@ export default function BadgesGrid({ logros, lang }: BadgesGridProps) {
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div ref={gridRef} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {BADGES.map(badge => {
           const obtenido = logroMap.has(badge.tipo)
           const fecha = logroMap.get(badge.tipo)
@@ -116,7 +135,7 @@ export default function BadgesGrid({ logros, lang }: BadgesGridProps) {
           return (
             <div
               key={badge.tipo}
-              className="relative flex flex-col items-center text-center gap-2 rounded-xl p-4 transition-all duration-200 cursor-default select-none"
+              className={`relative flex flex-col items-center text-center gap-2 rounded-xl p-4 transition-all duration-200 cursor-default select-none${obtenido ? ' badge-obtenido' : ''}`}
               style={{
                 background: obtenido ? 'rgba(99,102,241,0.1)' : '#181C26',
                 border: obtenido ? '1px solid rgba(99,102,241,0.3)' : '1px solid #2A2F3E',

@@ -10,6 +10,7 @@ import ReadingProgress from '@/components/alumno/ReadingProgress'
 import WeekRoadmap from '@/components/alumno/WeekRoadmap'
 import CelebrationBanner from '@/components/alumno/CelebrationBanner'
 import FadeIn from '@/components/ui/FadeIn'
+import SplitTitle from '@/components/ui/SplitTitle'
 
 interface Video { titulo: string; titulo_en: string; url: string; url_en: string; duracion: string }
 interface Semana {
@@ -173,7 +174,7 @@ export default function MateriaPage() {
             </span>
             <div className="w-2 h-2 rounded-full" style={{ background: materia.color_hex || '#5B6CFF' }} />
           </div>
-          <h2 className="text-xl font-bold mt-1" style={{ color: '#F1F5F9' }}>{loc(materia.nombre, materia.nombre_en)}</h2>
+          <SplitTitle text={loc(materia.nombre, materia.nombre_en)} className="text-xl font-bold mt-1" style={{ color: '#F1F5F9' }} />
         </div>
       </div>
       </FadeIn>
@@ -214,13 +215,15 @@ export default function MateriaPage() {
             <div className="flex flex-col md:flex-row gap-6 items-start">
               {/* Columna izquierda: roadmap */}
               <div className="w-full md:w-1/3 rounded-xl p-5 flex-shrink-0" style={CARD}>
-                <WeekRoadmap
-                  semanas={materia.semanas}
-                  semanasCompletadas={semanasCompletadas}
-                  semanaActivaId={semanaSeleccionada ?? undefined}
-                  onSemanaClick={setSemanaSeleccionada}
-                  lang={lang}
-                />
+                <div className="overflow-y-auto max-h-[40vh] md:max-h-[calc(100vh-120px)] md:sticky md:top-4">
+                  <WeekRoadmap
+                    semanas={materia.semanas}
+                    semanasCompletadas={semanasCompletadas}
+                    semanaActivaId={semanaSeleccionada ?? undefined}
+                    onSemanaClick={setSemanaSeleccionada}
+                    lang={lang}
+                  />
+                </div>
               </div>
 
               {/* Columna derecha: contenido de la semana seleccionada */}

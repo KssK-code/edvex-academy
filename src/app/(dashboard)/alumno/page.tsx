@@ -10,6 +10,7 @@ import { createClient } from '@/lib/supabase/client'
 import BadgesGrid from '@/components/alumno/BadgesGrid'
 import StreakTracker from '@/components/alumno/StreakTracker'
 import FadeIn from '@/components/ui/FadeIn'
+import SplitTitle from '@/components/ui/SplitTitle'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
@@ -53,8 +54,49 @@ export default function AlumnoDashboard() {
   const [materiasAcreditadas, setMateriasAcreditadas] = useState(0)
   const [logros, setLogros] = useState<Array<{ tipo: string; obtenido_en: string; metadata?: Record<string, unknown> }>>([])
   const [loading, setLoading] = useState(true)
+  const [matriculaDisplay, setMatriculaDisplay] = useState<string | null>(null)
   const porcentajeRef = useRef<HTMLSpanElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
+  const btnContinuarRef = useRef<HTMLButtonElement>(null)
+
+  const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+
+  // Scramble effect en matrícula
+  useEffect(() => {
+    if (!perfil) return
+    const target = perfil.matricula
+    const arr = target.split('').map(ch =>
+      SCRAMBLE_CHARS.includes(ch) ? SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)] : ch
+    )
+    setMatriculaDisplay(arr.join(''))
+    const interval = setInterval(() => {
+      let resolved = false
+      for (let i = 0; i < target.length; i++) {
+        if (arr[i] !== target[i]) {
+          arr[i] = target[i]
+          resolved = true
+          break
+        }
+      }
+      setMatriculaDisplay(arr.join(''))
+      if (!resolved) clearInterval(interval)
+    }, 80)
+    return () => clearInterval(interval)
+  }, [perfil]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Botón magnético: handlers
+  const handleMagneticMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const btn = btnContinuarRef.current
+    if (!btn) return
+    const rect = btn.getBoundingClientRect()
+    const dx = (e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2)
+    const dy = (e.clientY - (rect.top + rect.height / 2)) / (rect.height / 2)
+    gsap.to(btn, { x: dx * 8, y: dy * 4, duration: 0.2, ease: 'power2.out' })
+  }
+  const handleMagneticLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
+    gsap.to(btnContinuarRef.current, { x: 0, y: 0, duration: 0.3, ease: 'power2.out' })
+    e.currentTarget.style.background = '#5B6CFF'
+  }
 
   // Contador animado del porcentaje
   useGSAP(() => {
@@ -240,11 +282,16 @@ export default function AlumnoDashboard() {
       {/* SECCIÓN 1 — Header de bienvenida */}
       <FadeIn delay={perfil.inscripcion_pagada === false ? 100 : 0}>
         <div className="space-y-1.5">
-          <h1 className="text-2xl sm:text-4xl font-bold" style={{ color: '#F1F5F9' }}>
-            {saludo}, {primerNombre}
-          </h1>
-          <p className="text-sm" style={{ color: '#475569' }}>
-            {lang === 'en' ? 'Student ID:' : 'Matrícula:'} {perfil.matricula}
+          <SplitTitle
+            text={`${saludo}, ${primerNombre}`}
+            className="text-2xl sm:text-4xl font-bold"
+            style={{ color: '#F1F5F9' }}
+          />
+          <p className="text-sm font-mono" style={{ color: '#475569' }}>
+            {lang === 'en' ? 'Student ID:' : 'Matrícula:'}{' '}
+            <span style={{ color: '#64748B', letterSpacing: '0.05em' }}>
+              {matriculaDisplay ?? perfil.matricula}
+            </span>
           </p>
           <StreakTracker diasRacha={diasRacha} lang={lang} />
         </div>
@@ -316,11 +363,13 @@ export default function AlumnoDashboard() {
         <div>
           {mesActivo > 0 && (
             <button
+              ref={btnContinuarRef}
               onClick={() => router.push(`/alumno/mes/${mesActivo}`)}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all"
+              className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm"
               style={{ background: '#5B6CFF', color: '#fff' }}
               onMouseEnter={e => { e.currentTarget.style.background = '#7B8AFF' }}
-              onMouseLeave={e => { e.currentTarget.style.background = '#5B6CFF' }}
+              onMouseMove={handleMagneticMove}
+              onMouseLeave={handleMagneticLeave}
             >
               {lang === 'en' ? 'Continue studying' : 'Continuar estudiando'}
               <ChevronRight className="w-4 h-4" />
