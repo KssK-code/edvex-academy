@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import './landing.css'
 
 type Lang = 'es' | 'en'
@@ -470,6 +471,103 @@ export default function LandingPage() {
               <span className="en">Start Express →</span>
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* ── CERTIFICADO ── */}
+      <section className="cert-section">
+        <div style={{ textAlign: 'center', marginBottom: '56px' }}>
+          <div className="tag-line">
+            <span className="es">Validez Internacional</span>
+            <span className="en">International Validity</span>
+          </div>
+          <h2 className="sec-title">
+            <span className="es">Tu certificado vale en México 🇲🇽 y USA 🇺🇸</span>
+            <span className="en">Your certificate is valid in Mexico 🇲🇽 and the USA 🇺🇸</span>
+          </h2>
+          <p className="sec-sub">
+            <span className="es">Al terminar recibes DOS documentos oficiales</span>
+            <span className="en">Upon completion you receive TWO official documents</span>
+          </p>
+        </div>
+
+        <div className="cert-grid">
+          {/* Tarjeta USA */}
+          <div className="cert-card">
+            <div className="cert-img-wrap">
+              <Image
+                src="/images/certiusa.jpeg"
+                alt="High School Transcript - Innovative Online Academy"
+                fill
+                style={{ objectFit: 'contain', padding: '12px' }}
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            </div>
+            <div className="cert-card-body">
+              <div className="cert-badge cert-badge-usa">
+                🎓{' '}
+                <span className="es">EMITIDO EN CALIFORNIA, USA</span>
+                <span className="en">ISSUED IN CALIFORNIA, USA</span>
+              </div>
+              <div className="cert-card-title">
+                <span className="es">Transcript Oficial de High School</span>
+                <span className="en">Official High School Transcript</span>
+              </div>
+              <p className="cert-card-desc">
+                <span className="es">Emitido por Innovative Online Academy, registrada ante el California Department of Education (CDS CODE: 37684116171458)</span>
+                <span className="en">Issued by Innovative Online Academy, registered with the California Department of Education (CDS CODE: 37684116171458)</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Tarjeta México */}
+          <div className="cert-card">
+            <div className="cert-img-wrap">
+              <Image
+                src="/images/ValidacionMEXICO.jpeg"
+                alt="Revalidación oficial SEP México"
+                fill
+                style={{ objectFit: 'contain', padding: '12px' }}
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            </div>
+            <div className="cert-card-body">
+              <div className="cert-badge cert-badge-mx">
+                ✅{' '}
+                <span className="es">VALIDADO POR LA SEP MÉXICO</span>
+                <span className="en">VALIDATED BY SEP MEXICO</span>
+              </div>
+              <div className="cert-card-title">
+                <span className="es">Revalidación Oficial SEP</span>
+                <span className="en">Official SEP Revalidation</span>
+              </div>
+              <p className="cert-card-desc">
+                <span className="es">La SEP México revalida tu High School como Bachillerato General. Verificable públicamente en el portal SIGED de la SEP</span>
+                <span className="en">SEP Mexico revalidates your High School as a General Baccalaureate. Publicly verifiable on the SEP SIGED portal</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Bloque de verificación */}
+        <div className="cert-verify">
+          <div className="cert-verify-title">
+            <span className="es">🔍 Verifica tú mismo — es 100% real</span>
+            <span className="en">🔍 Verify it yourself — it&apos;s 100% real</span>
+          </div>
+          <p className="cert-verify-text">
+            <span className="es">Entra al portal oficial de la SEP y escribe el folio de validación. Los documentos de nuestros alumnos aparecen registrados oficialmente.</span>
+            <span className="en">Go to the official SEP portal and enter the validation folio number. Our students&apos; documents appear officially registered.</span>
+          </p>
+          <a
+            href="https://siged.sep.gob.mx/SIGED/revalidaciones.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-verify"
+          >
+            <span className="es">Verificar en portal SEP →</span>
+            <span className="en">Verify on SEP portal →</span>
+          </a>
         </div>
       </section>
 

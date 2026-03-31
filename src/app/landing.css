@@ -531,6 +531,78 @@
 }
 .edvex-landing .plat-feat-icon { font-size: 1rem; }
 
+/* ── CERTIFICADO ── */
+.edvex-landing .cert-section { background: var(--negro); }
+.edvex-landing .cert-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 28px; max-width: 960px; margin: 0 auto 48px;
+}
+.edvex-landing .cert-card {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 20px; overflow: hidden;
+  transition: transform .3s, box-shadow .3s;
+  display: flex; flex-direction: column;
+}
+.edvex-landing .cert-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 60px rgba(0,85,255,.15);
+}
+.edvex-landing .cert-img-wrap {
+  position: relative; height: 300px; flex-shrink: 0;
+  background: rgba(255,255,255,.04);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.edvex-landing .cert-card-body {
+  padding: 20px 24px 24px; display: flex; flex-direction: column; gap: 8px;
+}
+.edvex-landing .cert-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: .62rem; font-weight: 800; letter-spacing: 1.5px;
+  text-transform: uppercase; padding: 5px 12px; border-radius: 20px;
+  width: fit-content;
+}
+.edvex-landing .cert-badge-usa {
+  background: rgba(91,108,255,.15); color: #7B8AFF;
+  border: 1px solid rgba(91,108,255,.3);
+}
+.edvex-landing .cert-badge-mx {
+  background: rgba(16,185,129,.12); color: #34d399;
+  border: 1px solid rgba(16,185,129,.25);
+}
+.edvex-landing .cert-card-title {
+  font-family: 'Syne', sans-serif; font-weight: 700;
+  font-size: 1rem; color: var(--blanco); line-height: 1.3;
+}
+.edvex-landing .cert-card-desc {
+  font-size: .82rem; color: var(--gris); line-height: 1.65; margin: 0;
+}
+.edvex-landing .cert-verify {
+  max-width: 680px; margin: 0 auto;
+  background: linear-gradient(135deg, rgba(16,185,129,.08), rgba(26,217,255,.06));
+  border: 1px solid rgba(16,185,129,.2);
+  border-radius: 18px; padding: 36px 40px; text-align: center;
+}
+.edvex-landing .cert-verify-title {
+  font-family: 'Syne', sans-serif; font-weight: 800;
+  font-size: 1.15rem; margin-bottom: 12px; color: var(--blanco);
+}
+.edvex-landing .cert-verify-text {
+  font-size: .88rem; color: var(--gris); line-height: 1.7;
+  max-width: 520px; margin: 0 auto 24px;
+}
+.edvex-landing .btn-verify {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: linear-gradient(135deg, rgba(16,185,129,.25), rgba(26,217,255,.15));
+  border: 1px solid rgba(16,185,129,.35); color: #34d399;
+  font-weight: 700; font-size: .9rem; padding: 12px 28px;
+  border-radius: 10px; text-decoration: none; transition: all .25s;
+}
+.edvex-landing .btn-verify:hover {
+  background: linear-gradient(135deg, rgba(16,185,129,.35), rgba(26,217,255,.25));
+  box-shadow: 0 4px 24px rgba(16,185,129,.2);
+}
+
 /* ── VALIDEZ ── */
 .edvex-landing .validez-grid {
   display: grid; grid-template-columns: 1fr 1fr;
@@ -896,6 +968,9 @@
   .edvex-landing section           { padding: 72px 5%; }
   .edvex-landing .cta-final        { padding: 72px 5%; }
   .edvex-landing .validez-grid     { grid-template-columns: 1fr; }
+  .edvex-landing .cert-grid        { grid-template-columns: 1fr; }
+  .edvex-landing .cert-verify      { padding: 28px 20px; }
+  .edvex-landing .cert-img-wrap    { height: 240px; }
   .edvex-landing .proceso-steps::before { display: none; }
   .edvex-landing .plan-card        { padding: 28px 22px; }
   .edvex-landing .validez-card     { padding: 28px 22px; }
