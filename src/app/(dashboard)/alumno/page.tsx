@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useRef } from 'react'
 import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 
-gsap.registerPlugin(useGSAP)
+gsap.registerPlugin(useGSAP, ScrollTrigger)
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Lock, Loader2, BookOpen, TrendingUp, ChevronRight, GraduationCap, Bell, CreditCard } from 'lucide-react'
@@ -53,6 +54,7 @@ export default function AlumnoDashboard() {
   const [logros, setLogros] = useState<Array<{ tipo: string; obtenido_en: string; metadata?: Record<string, unknown> }>>([])
   const [loading, setLoading] = useState(true)
   const porcentajeRef = useRef<HTMLSpanElement>(null)
+  const gridRef = useRef<HTMLDivElement>(null)
 
   // Contador animado del porcentaje
   useGSAP(() => {
@@ -72,6 +74,23 @@ export default function AlumnoDashboard() {
       },
     })
   }, { dependencies: [perfil] })
+
+  // ScrollTrigger: cards de meses entran al hacer scroll
+  useGSAP(() => {
+    if (!gridRef.current || meses.length === 0) return
+    const cards = gridRef.current.querySelectorAll('.mes-card')
+    gsap.from(cards, {
+      opacity: 0,
+      y: 30,
+      duration: 0.5,
+      stagger: 0.1,
+      ease: 'power2.out',
+      scrollTrigger: {
+        trigger: gridRef.current,
+        start: 'top 85%',
+      },
+    })
+  }, { dependencies: [meses], scope: gridRef })
 
   useEffect(() => {
     const pago = searchParams.get('pago')
@@ -319,12 +338,12 @@ export default function AlumnoDashboard() {
             </p>
             <div className="flex-1 h-px" style={{ background: '#2A2F3E' }} />
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {meses.map((mes) => (
               <div
                 key={mes.id}
                 onClick={() => mes.desbloqueado && router.push(`/alumno/mes/${mes.numero}`)}
-                className="rounded-xl p-4 transition-all duration-200"
+                className="mes-card rounded-xl p-4 transition-all duration-200"
                 style={{
                   background: '#181C26',
                   border: mes.desbloqueado ? '1px solid rgba(91,108,255,0.35)' : '1px solid #2A2F3E',

@@ -51,6 +51,8 @@ export default function WeekRoadmap({
 
   useGSAP(() => {
     if (!containerRef.current) return
+
+    // Nodos: entran desde la izquierda con stagger
     const nodes = containerRef.current.querySelectorAll('.roadmap-node')
     gsap.from(nodes, {
       opacity: 0,
@@ -58,6 +60,16 @@ export default function WeekRoadmap({
       duration: 0.4,
       stagger: 0.08,
       ease: 'power2.out',
+    })
+
+    // Líneas: se dibujan de arriba hacia abajo
+    const lines = containerRef.current.querySelectorAll('.roadmap-line')
+    gsap.from(lines, {
+      scaleY: 0,
+      transformOrigin: 'top center',
+      duration: 0.8,
+      stagger: 0.08,
+      ease: 'power2.inOut',
     })
   }, { scope: containerRef })
 
@@ -104,7 +116,7 @@ export default function WeekRoadmap({
               {!esUltima && (
                 <div
                   className={[
-                    'w-0.5 flex-1 min-h-[2rem] my-0.5 transition-all duration-500',
+                    'roadmap-line w-0.5 flex-1 min-h-[2rem] my-0.5 transition-all duration-500',
                     estado === 'completado'
                       ? 'bg-indigo-500'
                       : 'border-l-2 border-dashed border-slate-600 bg-transparent w-0',

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { DashboardLayout } from '@/components/layout/dashboard-layout'
+import PageTransition from '@/components/ui/PageTransition'
 
 export default async function AlumnoLayout({
   children,
@@ -27,7 +28,7 @@ export default async function AlumnoLayout({
       pageTitle="header.studentPortal"
       showFooter={true}
     >
-      {children}
+      <PageTransition>{children}</PageTransition>
     </DashboardLayout>
   )
 }
