@@ -110,36 +110,36 @@ export default function CalificacionesPage() {
           {/* SECCIÓN 2 — Stats cards */}
           {resumen && (
             <FadeIn delay={100}>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="rounded-xl p-5 flex items-center gap-4" style={CARD}>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="rounded-xl p-3 sm:p-5 flex items-center gap-4" style={CARD}>
                   <div className="flex items-center justify-center w-10 h-10 rounded-xl flex-shrink-0"
                     style={{ background: 'rgba(16,185,129,0.15)' }}>
                     <CheckCircle className="w-5 h-5" style={{ color: '#10B981' }} />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold" style={{ color: '#10B981' }}>{resumen.materias_acreditadas}</p>
+                    <p className="text-xl sm:text-2xl font-bold" style={{ color: '#10B981' }}>{resumen.materias_acreditadas}</p>
                     <p className="text-xs" style={{ color: '#94A3B8' }}>{t('grades.acreditada')}</p>
                   </div>
                 </div>
 
-                <div className="rounded-xl p-5 flex items-center gap-4" style={CARD}>
+                <div className="rounded-xl p-3 sm:p-5 flex items-center gap-4" style={CARD}>
                   <div className="flex items-center justify-center w-10 h-10 rounded-xl flex-shrink-0"
                     style={{ background: 'rgba(239,68,68,0.15)' }}>
                     <XCircle className="w-5 h-5" style={{ color: '#EF4444' }} />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold" style={{ color: '#EF4444' }}>{resumen.materias_no_acreditadas}</p>
+                    <p className="text-xl sm:text-2xl font-bold" style={{ color: '#EF4444' }}>{resumen.materias_no_acreditadas}</p>
                     <p className="text-xs" style={{ color: '#94A3B8' }}>{t('grades.noAcreditada')}</p>
                   </div>
                 </div>
 
-                <div className="rounded-xl p-5 flex items-center gap-4" style={CARD}>
+                <div className="rounded-xl p-3 sm:p-5 flex items-center gap-4" style={CARD}>
                   <div className="flex items-center justify-center w-10 h-10 rounded-xl flex-shrink-0"
                     style={{ background: 'rgba(245,158,11,0.15)' }}>
                     <Clock className="w-5 h-5" style={{ color: '#F59E0B' }} />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold" style={{ color: '#F59E0B' }}>{resumen.materias_pendientes}</p>
+                    <p className="text-xl sm:text-2xl font-bold" style={{ color: '#F59E0B' }}>{resumen.materias_pendientes}</p>
                     <p className="text-xs" style={{ color: '#94A3B8' }}>{t('grades.pendientes')}</p>
                   </div>
                 </div>
@@ -173,7 +173,7 @@ export default function CalificacionesPage() {
                       {items.map(m => (
                         <div
                           key={m.materia_id}
-                          className="flex items-center gap-4 rounded-xl p-4 transition-transform duration-200 hover:scale-[1.01]"
+                          className="flex items-center flex-wrap gap-4 rounded-xl p-4 transition-transform duration-200 hover:scale-[1.01]"
                           style={{
                             background: '#181C26',
                             border: '1px solid #2A2F3E',
@@ -198,7 +198,7 @@ export default function CalificacionesPage() {
 
                           {/* Badge de estado */}
                           <span
-                            className="px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0"
+                            className="px-2.5 py-1 rounded-full text-xs font-semibold shrink-0 mt-1"
                             style={BADGE[m.estado]}
                           >
                             {estadoLabel[m.estado]}
