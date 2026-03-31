@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
+import FadeIn from '@/components/ui/FadeIn'
 
 type Estado = 'Acreditada' | 'No acreditada' | 'Pendiente'
 
@@ -24,9 +25,27 @@ interface Resumen {
 const CARD = { background: '#181C26', border: '1px solid #2A2F3E' }
 
 const BADGE: Record<Estado, React.CSSProperties> = {
-  'Acreditada': { background: 'rgba(16,185,129,0.15)', color: '#10B981', border: '1px solid rgba(16,185,129,0.25)' },
-  'No acreditada': { background: 'rgba(239,68,68,0.15)', color: '#EF4444', border: '1px solid rgba(239,68,68,0.25)' },
-  'Pendiente': { background: 'rgba(245,158,11,0.15)', color: '#F59E0B', border: '1px solid rgba(245,158,11,0.25)' },
+  'Acreditada':    { background: 'rgba(16,185,129,0.15)', color: '#10B981', border: '1px solid rgba(16,185,129,0.25)' },
+  'No acreditada': { background: 'rgba(239,68,68,0.15)',  color: '#EF4444', border: '1px solid rgba(239,68,68,0.25)' },
+  'Pendiente':     { background: 'rgba(245,158,11,0.15)', color: '#F59E0B', border: '1px solid rgba(245,158,11,0.25)' },
+}
+
+const BORDER_COLOR: Record<Estado, string> = {
+  'Acreditada':    '#10B981',
+  'No acreditada': '#EF4444',
+  'Pendiente':     '#F59E0B',
+}
+
+const ICON_BG: Record<Estado, string> = {
+  'Acreditada':    'rgba(16,185,129,0.15)',
+  'No acreditada': 'rgba(239,68,68,0.15)',
+  'Pendiente':     'rgba(245,158,11,0.15)',
+}
+
+function EstadoIcon({ estado }: { estado: Estado }) {
+  if (estado === 'Acreditada')    return <CheckCircle className="w-4 h-4" style={{ color: '#10B981' }} />
+  if (estado === 'No acreditada') return <XCircle    className="w-4 h-4" style={{ color: '#EF4444' }} />
+  return <Clock className="w-4 h-4" style={{ color: '#F59E0B' }} />
 }
 
 export default function CalificacionesPage() {
@@ -61,14 +80,26 @@ export default function CalificacionesPage() {
     </div>
   )
 
+  // Agrupar materias por mes_numero
+  const porMes = materias
+    .slice()
+    .sort((a, b) => a.mes_numero - b.mes_numero)
+    .reduce<Record<number, MateriaCalif[]>>((acc, m) => {
+      if (!acc[m.mes_numero]) acc[m.mes_numero] = []
+      acc[m.mes_numero].push(m)
+      return acc
+    }, {})
+
   return (
     <div className="space-y-6 max-w-4xl">
-      <div>
-        <h2 className="text-xl font-bold" style={{ color: '#F1F5F9' }}>{t('grades.title')}</h2>
-        <p className="text-sm mt-0.5" style={{ color: '#94A3B8' }}>
-          {t('grades.subtitle')}
-        </p>
-      </div>
+
+      {/* SECCIÓN 1 — Header */}
+      <FadeIn delay={0}>
+        <div>
+          <h2 className="text-xl font-bold" style={{ color: '#F1F5F9' }}>{t('grades.title')}</h2>
+          <p className="text-sm mt-0.5" style={{ color: '#94A3B8' }}>{t('grades.subtitle')}</p>
+        </div>
+      </FadeIn>
 
       {error ? (
         <div className="rounded-xl p-6 text-center" style={CARD}>
@@ -76,97 +107,110 @@ export default function CalificacionesPage() {
         </div>
       ) : (
         <>
-          {/* Resumen */}
+          {/* SECCIÓN 2 — Stats cards */}
           {resumen && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="rounded-xl p-5 flex items-center gap-4" style={CARD}>
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl flex-shrink-0"
-                  style={{ background: 'rgba(16,185,129,0.15)' }}>
-                  <CheckCircle className="w-5 h-5" style={{ color: '#10B981' }} />
+            <FadeIn delay={100}>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="rounded-xl p-5 flex items-center gap-4" style={CARD}>
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl flex-shrink-0"
+                    style={{ background: 'rgba(16,185,129,0.15)' }}>
+                    <CheckCircle className="w-5 h-5" style={{ color: '#10B981' }} />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold" style={{ color: '#10B981' }}>{resumen.materias_acreditadas}</p>
+                    <p className="text-xs" style={{ color: '#94A3B8' }}>{t('grades.acreditada')}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-2xl font-bold" style={{ color: '#10B981' }}>
-                    {resumen.materias_acreditadas}
-                  </p>
-                  <p className="text-xs" style={{ color: '#94A3B8' }}>{t('grades.acreditada')}</p>
-                </div>
-              </div>
 
-              <div className="rounded-xl p-5 flex items-center gap-4" style={CARD}>
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl flex-shrink-0"
-                  style={{ background: 'rgba(239,68,68,0.15)' }}>
-                  <XCircle className="w-5 h-5" style={{ color: '#EF4444' }} />
+                <div className="rounded-xl p-5 flex items-center gap-4" style={CARD}>
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl flex-shrink-0"
+                    style={{ background: 'rgba(239,68,68,0.15)' }}>
+                    <XCircle className="w-5 h-5" style={{ color: '#EF4444' }} />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold" style={{ color: '#EF4444' }}>{resumen.materias_no_acreditadas}</p>
+                    <p className="text-xs" style={{ color: '#94A3B8' }}>{t('grades.noAcreditada')}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-2xl font-bold" style={{ color: '#EF4444' }}>
-                    {resumen.materias_no_acreditadas}
-                  </p>
-                  <p className="text-xs" style={{ color: '#94A3B8' }}>{t('grades.noAcreditada')}</p>
-                </div>
-              </div>
 
-              <div className="rounded-xl p-5 flex items-center gap-4" style={CARD}>
-                <div className="flex items-center justify-center w-10 h-10 rounded-xl flex-shrink-0"
-                  style={{ background: 'rgba(245,158,11,0.15)' }}>
-                  <Clock className="w-5 h-5" style={{ color: '#F59E0B' }} />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold" style={{ color: '#F59E0B' }}>
-                    {resumen.materias_pendientes}
-                  </p>
-                  <p className="text-xs" style={{ color: '#94A3B8' }}>{t('grades.pendientes')}</p>
+                <div className="rounded-xl p-5 flex items-center gap-4" style={CARD}>
+                  <div className="flex items-center justify-center w-10 h-10 rounded-xl flex-shrink-0"
+                    style={{ background: 'rgba(245,158,11,0.15)' }}>
+                    <Clock className="w-5 h-5" style={{ color: '#F59E0B' }} />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold" style={{ color: '#F59E0B' }}>{resumen.materias_pendientes}</p>
+                    <p className="text-xs" style={{ color: '#94A3B8' }}>{t('grades.pendientes')}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            </FadeIn>
           )}
 
-          {/* Tabla */}
-          {materias.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 gap-3 rounded-xl" style={CARD}>
-              <Clock className="w-10 h-10" style={{ color: '#2A2F3E' }} />
-              <p className="text-sm" style={{ color: '#94A3B8' }}>{t('grades.noData')}</p>
-            </div>
-          ) : (
-            <div className="rounded-xl overflow-hidden" style={CARD}>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid #2A2F3E' }}>
-                      {[t('grades.monthCol'), t('grades.codeCol'), t('grades.subjectCol'), t('grades.statusCol')].map(h => (
-                        <th key={h} className="text-left px-4 py-3 font-medium" style={{ color: '#94A3B8' }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {materias
-                      .sort((a, b) => a.mes_numero - b.mes_numero)
-                      .map(m => (
-                        <tr
+          {/* SECCIÓN 3 — Materias agrupadas por mes */}
+          <FadeIn delay={200}>
+            {materias.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 gap-3 rounded-xl" style={CARD}>
+                <Clock className="w-10 h-10" style={{ color: '#2A2F3E' }} />
+                <p className="text-sm" style={{ color: '#94A3B8' }}>{t('grades.noData')}</p>
+              </div>
+            ) : (
+              <div className="space-y-8">
+                {Object.entries(porMes).map(([mes, items]) => (
+                  <div key={mes} className="space-y-3">
+
+                    {/* Título de mes con separador */}
+                    <div className="flex items-center gap-3">
+                      <p className="text-xs font-semibold tracking-widest uppercase whitespace-nowrap"
+                        style={{ color: '#475569' }}>
+                        {t('grades.monthCol')} {mes}
+                      </p>
+                      <div className="flex-1 h-px" style={{ background: '#2A2F3E' }} />
+                    </div>
+
+                    {/* Grid de cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {items.map(m => (
+                        <div
                           key={m.materia_id}
-                          style={{ borderBottom: '1px solid rgba(42,47,62,0.5)' }}
-                          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(91,108,255,0.04)' }}
-                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+                          className="flex items-center gap-4 rounded-xl p-4 transition-transform duration-200 hover:scale-[1.01]"
+                          style={{
+                            background: '#181C26',
+                            border: '1px solid #2A2F3E',
+                            borderLeft: `3px solid ${BORDER_COLOR[m.estado]}`,
+                          }}
                         >
-                          <td className="px-4 py-3">
-                            <span className="text-xs font-medium px-2 py-0.5 rounded"
-                              style={{ background: 'rgba(91,108,255,0.15)', color: '#7B8AFF' }}>
-                              {t('grades.monthCol')} {m.mes_numero}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 font-mono text-xs" style={{ color: '#94A3B8' }}>{m.codigo}</td>
-                          <td className="px-4 py-3 font-medium" style={{ color: '#F1F5F9' }}>{m.nombre_materia}</td>
-                          <td className="px-4 py-3">
-                            <span className="px-2.5 py-1 rounded-full text-xs font-semibold" style={BADGE[m.estado]}>
-                              {estadoLabel[m.estado]}
-                            </span>
-                          </td>
-                        </tr>
+                          {/* Ícono de estado */}
+                          <div
+                            className="flex items-center justify-center w-8 h-8 rounded-lg flex-shrink-0"
+                            style={{ background: ICON_BG[m.estado] }}
+                          >
+                            <EstadoIcon estado={m.estado} />
+                          </div>
+
+                          {/* Código y nombre */}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-mono text-xs mb-0.5" style={{ color: '#64748B' }}>{m.codigo}</p>
+                            <p className="text-sm font-medium leading-snug" style={{ color: '#F1F5F9' }}>
+                              {m.nombre_materia}
+                            </p>
+                          </div>
+
+                          {/* Badge de estado */}
+                          <span
+                            className="px-2.5 py-1 rounded-full text-xs font-semibold flex-shrink-0"
+                            style={BADGE[m.estado]}
+                          >
+                            {estadoLabel[m.estado]}
+                          </span>
+                        </div>
                       ))}
-                  </tbody>
-                </table>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-          )}
+            )}
+          </FadeIn>
         </>
       )}
     </div>
