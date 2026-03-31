@@ -7,6 +7,7 @@ import { useToast, ToastContainer } from '@/components/ui/toast'
 import { useLanguage } from '@/context/LanguageContext'
 import { createClient } from '@/lib/supabase/client'
 import BadgesGrid from '@/components/alumno/BadgesGrid'
+import StreakTracker from '@/components/alumno/StreakTracker'
 
 interface Perfil {
   id: string
@@ -43,7 +44,7 @@ export default function AlumnoDashboard() {
   const [perfil, setPerfil] = useState<Perfil | null>(null)
   const [meses, setMeses] = useState<Mes[]>([])
   const [materiasAcreditadas, setMateriasAcreditadas] = useState(0)
-  const [logros, setLogros] = useState<Array<{ tipo: string; obtenido_en: string }>>([])
+  const [logros, setLogros] = useState<Array<{ tipo: string; obtenido_en: string; metadata?: Record<string, unknown> }>>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -78,7 +79,7 @@ export default function AlumnoDashboard() {
         .from('logros_alumno')
         .select('tipo, obtenido_en')
         .eq('alumno_id', perfil.id)
-      if (data) setLogros(data as Array<{ tipo: string; obtenido_en: string }>)
+      if (data) setLogros(data as Array<{ tipo: string; obtenido_en: string; metadata?: Record<string, unknown> }>)
     })()
   }, [perfil])
 
@@ -107,6 +108,8 @@ export default function AlumnoDashboard() {
 
   const primerNombre = perfil.nombre_completo.split(' ')[0]
   const mesActivo = perfil.meses_desbloqueados
+  const rachaLogro = logros.find(l => l.tipo === 'racha_actual')
+  const diasRacha = (rachaLogro?.metadata?.dias as number | undefined) ?? 0
 
   return (
     <div className="space-y-8 max-w-5xl">
@@ -120,6 +123,7 @@ export default function AlumnoDashboard() {
         <p className="text-sm" style={{ color: '#475569' }}>
           {lang === 'en' ? 'Student ID:' : 'Matrícula:'} {perfil.matricula}
         </p>
+        <StreakTracker diasRacha={diasRacha} lang={lang} />
       </div>
 
       {/* SECCIÓN 2 — 3 tarjetas de stats */}
