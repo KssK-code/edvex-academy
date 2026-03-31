@@ -77,6 +77,7 @@ const LogoSvg = ({ id }: { id: string }) => (
 export default function LandingPage() {
   const [lang, setLang] = useState<Lang>('es')
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null)
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
 
   useEffect(() => {
     const prev = document.documentElement.style.scrollBehavior
@@ -749,6 +750,96 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* ── FAQ ── */}
+      <section className="faq-section">
+        <div className="tag-line">
+          <span className="es">Dudas comunes</span>
+          <span className="en">Common Questions</span>
+        </div>
+        <h2 className="sec-title">
+          <span className="es">Preguntas frecuentes</span>
+          <span className="en">Frequently Asked Questions</span>
+        </h2>
+        <div className="faq-list">
+          {([
+            {
+              q: { es: '¿El certificado es válido en México?', en: 'Is the certificate valid in Mexico?' },
+              a: {
+                es: 'Sí. Recibes un Transcript Oficial de High School emitido en California, USA, y la SEP México lo revalida como Bachillerato General. Puedes verificarlo en el portal SIGED de la SEP con el folio de tu documento.',
+                en: 'Yes. You receive an Official High School Transcript issued in California, USA, and SEP Mexico revalidates it as a General Baccalaureate. You can verify it on the SEP SIGED portal using your document folio.',
+              },
+            },
+            {
+              q: { es: '¿Cuánto tiempo al día necesito dedicarle?', en: 'How much time per day do I need?' },
+              a: {
+                es: 'Con 1 a 2 horas diarias es suficiente. El plan de 6 meses es ideal si trabajas o tienes familia. El plan de 3 meses es más intensivo pero manejable si tienes más disponibilidad.',
+                en: '1 to 2 hours a day is enough. The 6-month plan is ideal if you work or have a family. The 3-month plan is more intensive but manageable if you have more availability.',
+              },
+            },
+            {
+              q: { es: '¿Puedo trabajar y estudiar al mismo tiempo?', en: 'Can I work and study at the same time?' },
+              a: {
+                es: 'Sí, está diseñado para eso. Estudias a tu ritmo, sin horarios fijos. Puedes avanzar de noche, fines de semana o en los momentos que tengas disponibles.',
+                en: "Yes, it's designed for that. You study at your own pace, with no fixed schedules. You can progress at night, on weekends, or whenever you have time.",
+              },
+            },
+            {
+              q: { es: '¿Qué pasa si me atraso en mis estudios?', en: 'What happens if I fall behind in my studies?' },
+              a: {
+                es: 'No te preocupes. Control Escolar te contacta por WhatsApp para apoyarte. No hay penalizaciones por avanzar más despacio — lo importante es que termines.',
+                en: "Don't worry. Student Services will contact you via WhatsApp to support you. There are no penalties for going slower — what matters is that you finish.",
+              },
+            },
+            {
+              q: { es: '¿Puedo ver la plataforma antes de pagar?', en: 'Can I see the platform before paying?' },
+              a: {
+                es: 'Sí. Crea tu cuenta gratis, entra a la plataforma y explora el contenido. Solo necesitas pagar la inscripción ($50 USD) para desbloquear tu acceso completo y que Control Escolar te asigne tu generación.',
+                en: 'Yes. Create your free account, log in, and explore the platform. You only need to pay the enrollment fee ($50 USD) to unlock full access and have Student Services assign you to your generation.',
+              },
+            },
+            {
+              q: { es: '¿Emiten facturas?', en: 'Do you issue invoices?' },
+              a: {
+                es: 'Sí, somos una empresa legalmente constituida en México y emitimos CFDI. Solicita tu factura al momento de realizar tu pago.',
+                en: 'Yes, we are a legally registered company in Mexico and issue CFDI invoices. Request yours at the time of payment.',
+              },
+            },
+          ] as Array<{ q: { es: string; en: string }; a: { es: string; en: string } }>).map((item, i) => (
+            <div key={i} className={`faq-item${openFaq === i ? ' open' : ''}`}>
+              <button
+                className="faq-q"
+                onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                aria-expanded={openFaq === i}
+              >
+                <span className="faq-q-text">
+                  <span className="es">{item.q.es}</span>
+                  <span className="en">{item.q.en}</span>
+                </span>
+                <span className="faq-chevron" aria-hidden="true">›</span>
+              </button>
+              <div className="faq-a" style={{ '--faq-h': openFaq === i ? '1' : '0' } as React.CSSProperties}>
+                <div className="faq-a-inner">
+                  <span className="es">{item.a.es}</span>
+                  <span className="en">{item.a.en}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── URGENCIA EVERGREEN ── */}
+      <div className="urgency-bar">
+        <p className="urgency-main">
+          <span className="es">⚡ Cupo limitado · Solo 20 alumnos por generación</span>
+          <span className="en">⚡ Limited spots · Only 20 students per generation</span>
+        </p>
+        <p className="urgency-sub">
+          <span className="es">Asegura tu lugar hoy — los accesos se abren por orden de registro</span>
+          <span className="en">Secure your spot today — access opens in registration order</span>
+        </p>
+      </div>
 
       {/* ── CTA FINAL ── */}
       <section className="cta-final">

@@ -922,6 +922,71 @@
   font-size: .75rem; color: #334155; margin: 24px 0 0;
 }
 
+/* ── FAQ ── */
+.edvex-landing .faq-section { background: var(--negro2); }
+.edvex-landing .faq-list {
+  max-width: 720px; margin: 0 auto;
+  display: flex; flex-direction: column; gap: 0;
+}
+.edvex-landing .faq-item {
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.edvex-landing .faq-item:first-child { border-top: 1px solid rgba(255,255,255,.06); }
+.edvex-landing .faq-q {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; padding: 20px 4px;
+  background: transparent; border: none; cursor: pointer;
+  text-align: left; color: var(--blanco);
+  font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600;
+  transition: color .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.edvex-landing .faq-q:hover { color: var(--cian); }
+.edvex-landing .faq-item.open .faq-q { color: var(--cian); }
+.edvex-landing .faq-q-text { flex: 1; line-height: 1.45; }
+.edvex-landing .faq-chevron {
+  font-size: 1.4rem; color: var(--gris); flex-shrink: 0;
+  transition: transform .3s ease, color .2s;
+  display: inline-block; line-height: 1;
+  transform: rotate(0deg);
+}
+.edvex-landing .faq-item.open .faq-chevron {
+  transform: rotate(90deg);
+  color: var(--cian);
+}
+/* Smooth height animation via max-height */
+.edvex-landing .faq-a {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height .35s ease, opacity .25s ease;
+  opacity: 0;
+}
+.edvex-landing .faq-item.open .faq-a {
+  max-height: 260px;
+  opacity: 1;
+}
+.edvex-landing .faq-a-inner {
+  padding: 0 4px 20px;
+  font-size: .92rem; color: var(--gris); line-height: 1.75;
+}
+
+/* ── URGENCY BAR ── */
+.edvex-landing .urgency-bar {
+  background: linear-gradient(135deg, rgba(0,68,238,.28) 0%, rgba(26,217,255,.14) 100%);
+  border-top: 1px solid rgba(26,217,255,.18);
+  border-bottom: 1px solid rgba(26,217,255,.18);
+  padding: 28px 5%; text-align: center;
+}
+.edvex-landing .urgency-main {
+  font-family: 'Syne', sans-serif; font-weight: 800;
+  font-size: clamp(1.05rem, 3vw, 1.35rem);
+  color: var(--blanco); margin: 0 0 6px;
+  letter-spacing: -.3px;
+}
+.edvex-landing .urgency-sub {
+  font-size: .85rem; color: #7ba4c4; margin: 0;
+}
+
 /* ── BILLING TRUST ── */
 .edvex-landing .billing-trust {
   display: flex; align-items: center; justify-content: center;
@@ -1096,6 +1161,13 @@
   /* Proceso CTA: full-width cal button */
   .edvex-landing .btn-cal          { width: 100%; max-width: 380px; justify-content: center; }
   .edvex-landing .proceso-cta      { margin-top: 44px; }
+  /* FAQ */
+  .edvex-landing .faq-q            { font-size: .92rem; padding: 18px 2px; }
+  .edvex-landing .faq-a-inner      { font-size: .87rem; }
+  .edvex-landing .faq-item.open .faq-a { max-height: 320px; }
+  /* Urgency */
+  .edvex-landing .urgency-bar      { padding: 22px 5%; }
+  .edvex-landing .urgency-sub      { font-size: .8rem; }
   /* Cert section */
   .edvex-landing .cert-img-wrap    { height: 200px; }
   .edvex-landing .cert-folio       { font-size: .9rem; padding: 10px 14px; word-break: break-all; }
