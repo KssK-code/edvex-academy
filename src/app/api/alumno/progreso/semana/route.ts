@@ -113,14 +113,6 @@ export async function POST(request: NextRequest) {
     }
 
     // --- Racha de días ---
-    // Obtener los 2 registros más recientes (incluyendo el recién insertado)
-    const { data: recientes } = await supabase
-      .from('progreso_semanas')
-      .select('completada_en')
-      .eq('alumno_id', alumno.id)
-      .order('completada_en', { ascending: false })
-      .limit(2)
-
     const ahora = new Date()
     const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate())
 
