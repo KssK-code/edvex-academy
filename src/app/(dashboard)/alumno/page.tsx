@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Lock, Loader2, BookOpen, TrendingUp, ChevronRight, GraduationCap } from 'lucide-react'
 import { useToast, ToastContainer } from '@/components/ui/toast'
 import { useLanguage } from '@/context/LanguageContext'
+import { createClient } from '@/lib/supabase/client'
+import BadgesGrid from '@/components/alumno/BadgesGrid'
 
 interface Perfil {
   id: string
@@ -41,6 +43,7 @@ export default function AlumnoDashboard() {
   const [perfil, setPerfil] = useState<Perfil | null>(null)
   const [meses, setMeses] = useState<Mes[]>([])
   const [materiasAcreditadas, setMateriasAcreditadas] = useState(0)
+  const [logros, setLogros] = useState<Array<{ tipo: string; obtenido_en: string }>>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -65,6 +68,19 @@ export default function AlumnoDashboard() {
       setMateriasAcreditadas(c?.resumen?.materias_acreditadas ?? 0)
     }).finally(() => setLoading(false))
   }, [])
+
+  // Cargar logros una vez que perfil está disponible
+  useEffect(() => {
+    if (!perfil) return
+    const supabase = createClient()
+    ;(async () => {
+      const { data } = await supabase
+        .from('logros_alumno')
+        .select('tipo, obtenido_en')
+        .eq('alumno_id', perfil.id)
+      if (data) setLogros(data as Array<{ tipo: string; obtenido_en: string }>)
+    })()
+  }, [perfil])
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-[400px]">
@@ -231,6 +247,9 @@ export default function AlumnoDashboard() {
           ))}
         </div>
       </div>
+
+      {/* SECCIÓN 5 — Logros */}
+      <BadgesGrid logros={logros} lang={lang} />
     </div>
   )
 }
