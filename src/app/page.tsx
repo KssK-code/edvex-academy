@@ -479,6 +479,17 @@ export default function LandingPage() {
             </Link>
           </div>
         </div>
+
+        {/* Facturación trust */}
+        <div className="billing-trust">
+          <span>🧾</span>
+          <span className="es">Empresa legalmente constituida en México · Emitimos facturas (CFDI)</span>
+          <span className="en">Legally registered company in Mexico · We issue invoices (CFDI)</span>
+        </div>
+        <p className="billing-hint">
+          <span className="es">¿Necesitas factura? Solicítala al momento de tu pago.</span>
+          <span className="en">Need an invoice? Request it at the time of your payment.</span>
+        </p>
       </section>
 
       {/* ── CERTIFICADO ── */}
@@ -799,6 +810,11 @@ export default function LandingPage() {
 
       {/* ── FOOTER ── */}
       <footer>
+        <div className="billing-trust billing-trust--footer">
+          <span>🧾</span>
+          <span className="es">Empresa legalmente constituida en México · Emitimos facturas (CFDI)</span>
+          <span className="en">Legally registered company in Mexico · We issue invoices (CFDI)</span>
+        </div>
         <div className="footer-logo">
           <div style={{ width: 28, height: 28 }}>
             <LogoSvg id="fg" />
