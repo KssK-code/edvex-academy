@@ -594,6 +594,7 @@
   background: linear-gradient(135deg, rgba(0,85,255,.18), rgba(26,217,255,.08));
   border: 1px solid rgba(26,217,255,.25);
   animation: glow-pulse 4s ease-in-out infinite;
+  overflow: visible;
 }
 .edvex-landing .plan-card.express::before {
   content: ''; position: absolute; inset: -1px;
