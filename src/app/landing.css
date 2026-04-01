@@ -45,11 +45,10 @@
 }
 
 /* ── LANG SYSTEM ── */
-.edvex-landing .en               { display: none; }
-.edvex-landing.lang-en .es       { display: none; }
-.edvex-landing.lang-en .en       { display: inherit; }
-.edvex-landing.lang-en span.es   { display: none; }
-.edvex-landing.lang-en span.en   { display: inline; }
+.edvex-landing .en               { display: none !important; }
+.edvex-landing.lang-en .es       { display: none !important; }
+.edvex-landing.lang-en .en       { display: block !important; }
+.edvex-landing.lang-en span.en   { display: inline !important; }
 
 /* ── KEYFRAMES ── */
 @keyframes pulse-dot {

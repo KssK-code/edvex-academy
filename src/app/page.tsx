@@ -305,17 +305,19 @@ export default function LandingPage() {
         </div>
 
         <h1 ref={titleRef} className="hero-title" style={{ opacity: 0 }}>
-          <span className="line-white">
-            {'Tu Prepa en'.split(' ').map((w, i) => (
-              <span key={i} className="hw" style={{ display: 'inline-block', marginRight: i < 2 ? '0.25em' : 0 }}>{w}</span>
-            ))}
+          <span className="es" style={{ display: 'block' }}>
+            <span className="line-white">
+              {'Tu Prepa en'.split(' ').map((w, i) => (
+                <span key={i} className="hw" style={{ display: 'inline-block', marginRight: i < 2 ? '0.25em' : 0 }}>{w}</span>
+              ))}
+            </span>
+            <span className="line-blue">
+              {'6 meses'.split(' ').map((w, i) => (
+                <span key={i} className="hw" style={{ display: 'inline-block', marginRight: i < 1 ? '0.25em' : 0 }}>{w}</span>
+              ))}
+            </span>
           </span>
-          <span className="line-blue">
-            {'6 meses'.split(' ').map((w, i) => (
-              <span key={i} className="hw" style={{ display: 'inline-block', marginRight: i < 1 ? '0.25em' : 0 }}>{w}</span>
-            ))}
-          </span>
-          <span className="en" style={{ display: 'block', fontSize: '1em', lineHeight: 1.05 }}>
+          <span className="en" style={{ fontSize: '1em', lineHeight: 1.05 }}>
             <span className="line-white">
               {'Your Diploma in'.split(' ').map((w, i) => (
                 <span key={i} className="hw" style={{ display: 'inline-block', marginRight: '0.25em' }}>{w}</span>
