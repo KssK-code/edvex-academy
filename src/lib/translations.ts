@@ -318,7 +318,7 @@ const dict = {
     },
     docs: {
       title:           'Mis Documentos',
-      subtitle:        'Sube tus documentos para iniciar tu proceso de certificación',
+      subtitle:        'Sube tus documentos para que estén listos cuando inicies tu proceso de certificación',
       // Tipos
       acta_nacimiento:        'Acta de Nacimiento',
       curp:                   'CURP',
@@ -666,7 +666,7 @@ const dict = {
     },
     docs: {
       title:           'My Documents',
-      subtitle:        'Upload your documents to start your certification process',
+      subtitle:        "Upload your documents so they're ready when you start your certification process",
       // Types
       acta_nacimiento:        'Birth Certificate',
       curp:                   'CURP',
