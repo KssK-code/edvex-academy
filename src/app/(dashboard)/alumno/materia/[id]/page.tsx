@@ -87,6 +87,27 @@ export default function MateriaPage() {
   const [materiaAcreditada, setMateriaAcreditada] = useState(false)
   const [glosario, setGlosario] = useState<{ id: string; termino: string; termino_en: string; definicion: string; definicion_en: string }[]>([])
 
+  const [mostrarGuia, setMostrarGuia] = useState(true)
+  const guiaRef = useRef<HTMLDivElement>(null)
+
+  // Resetear guía cada vez que el alumno entra al tab examen
+  useEffect(() => {
+    if (tab === 'examen') setMostrarGuia(true)
+  }, [tab])
+
+  const ocultarGuia = () => {
+    if (guiaRef.current) {
+      gsap.to(guiaRef.current, {
+        opacity: 0,
+        duration: 0.3,
+        ease: 'power2.in',
+        onComplete: () => setMostrarGuia(false),
+      })
+    } else {
+      setMostrarGuia(false)
+    }
+  }
+
   const cardSigueRef = useRef<HTMLDivElement>(null)
   const todasCompletas = materia
     ? semanasCompletadas.size === materia.semanas.length && materia.semanas.length > 0
@@ -430,7 +451,102 @@ export default function MateriaPage() {
       {/* Tab: Examen */}
       {tab === 'examen' && (
         <div className="space-y-4">
-          {materia.evaluaciones.length === 0 ? (
+
+          {/* Guía de estudio — aparece antes del examen */}
+          {mostrarGuia && (() => {
+            const pendientes = materia.semanas.filter(s => !semanasCompletadas.has(s.id)).length
+            const termsPills = glosario.slice(0, 4)
+            return (
+              <div
+                ref={guiaRef}
+                className="rounded-xl p-5 space-y-5"
+                style={{ background: '#1A1F2E', border: '1px solid #2A2F3E' }}
+              >
+                {/* Encabezado */}
+                <div className="space-y-0.5">
+                  <h3 className="text-base font-bold" style={{ color: '#F1F5F9' }}>
+                    {lang === 'en' ? 'Prepare for the exam' : 'Prepárate para el examen'}
+                  </h3>
+                  <p className="text-sm" style={{ color: '#64748B' }}>
+                    {lang === 'en'
+                      ? 'Review these key points before starting'
+                      : 'Repasa estos puntos clave antes de comenzar'}
+                  </p>
+                </div>
+
+                {/* Alerta semanas pendientes */}
+                {pendientes > 0 && (
+                  <div
+                    className="flex items-start gap-2.5 px-4 py-3 rounded-lg text-sm"
+                    style={{ background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.25)' }}
+                  >
+                    <span style={{ fontSize: '1rem', lineHeight: 1.4 }}>⚠️</span>
+                    <p style={{ color: '#FDE68A' }}>
+                      {lang === 'en'
+                        ? `You have ${pendientes} pending week${pendientes !== 1 ? 's' : ''}. We recommend completing them before the exam.`
+                        : `Tienes ${pendientes} semana${pendientes !== 1 ? 's' : ''} pendiente${pendientes !== 1 ? 's' : ''}. Te recomendamos completarlas antes del examen.`}
+                    </p>
+                  </div>
+                )}
+
+                {/* Checklist de semanas */}
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#475569' }}>
+                    {lang === 'en' ? 'Weeks' : 'Semanas'}
+                  </p>
+                  <ul className="space-y-1.5">
+                    {materia.semanas.map(s => {
+                      const completa = semanasCompletadas.has(s.id)
+                      return (
+                        <li key={s.id} className="flex items-center gap-2.5 text-sm">
+                          <span style={{ fontSize: '1rem', lineHeight: 1, flexShrink: 0 }}>
+                            {completa ? '✅' : '⚪'}
+                          </span>
+                          <span style={{ color: completa ? '#CBD5E1' : '#475569' }}>
+                            {loc(s.titulo, s.titulo_en)}
+                          </span>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </div>
+
+                {/* Términos importantes */}
+                {termsPills.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#475569' }}>
+                      {lang === 'en' ? 'Key terms' : 'Términos importantes'}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {termsPills.map(term => (
+                        <span
+                          key={term.id}
+                          className="px-3 py-1 rounded-full text-xs font-medium"
+                          style={{ background: 'rgba(91,108,255,0.12)', color: '#7B8AFF', border: '1px solid rgba(91,108,255,0.25)' }}
+                        >
+                          {lang === 'en' ? term.termino_en : term.termino}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Botón comenzar */}
+                <button
+                  onClick={ocultarGuia}
+                  className="w-full py-2.5 rounded-lg text-sm font-semibold transition-all"
+                  style={{ background: '#5B6CFF', color: '#fff', border: 'none' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#7B8AFF' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = '#5B6CFF' }}
+                >
+                  {lang === 'en' ? "I'm ready — start exam →" : 'Ya estoy listo — comenzar examen →'}
+                </button>
+              </div>
+            )
+          })()}
+
+          {/* Evaluaciones — se muestran al ocultar la guía */}
+          {!mostrarGuia && (materia.evaluaciones.length === 0 ? (
             <div className="flex items-center justify-center py-12 rounded-xl" style={CARD}>
               <p className="text-sm" style={{ color: '#94A3B8' }}>{t('subjects.noExams')}</p>
             </div>
@@ -475,7 +591,7 @@ export default function MateriaPage() {
                 </div>
               )
             })
-          )}
+          ))}
         </div>
       )}
 
