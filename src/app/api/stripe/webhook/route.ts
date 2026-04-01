@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
   if (moduloNumero === 'inscripcion') {
     const { error } = await supabase
       .from('alumnos')
-      .update({ inscripcion_pagada: true })
+      .update({ inscripcion_pagada: true, demo_activa: false })
       .eq('id', alumnoId)
 
     if (error) {
