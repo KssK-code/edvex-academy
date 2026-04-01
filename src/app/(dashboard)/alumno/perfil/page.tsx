@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Loader2, Eye, EyeOff, User, Lock, GraduationCap, Mail, Phone, Camera } from 'lucide-react'
+import Image from 'next/image'
 import { ESCUELA_CONFIG } from '@/lib/config'
 import { useToast, ToastContainer } from '@/components/ui/toast'
 import { useLanguage } from '@/context/LanguageContext'
@@ -136,9 +137,11 @@ export default function PerfilPage() {
           {/* Avatar preview */}
           <div className="relative flex-shrink-0">
             {avatarUrl ? (
-              <img
+              <Image
                 src={avatarUrl}
                 alt="Avatar"
+                width={64}
+                height={64}
                 className="w-16 h-16 rounded-full object-cover"
                 style={{ border: '2px solid #2A2F3E' }}
               />

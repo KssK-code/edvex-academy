@@ -1,6 +1,7 @@
 'use client'
 
 import { Menu } from 'lucide-react'
+import Image from 'next/image'
 import { LangToggle } from '@/components/ui/lang-toggle'
 import { useLanguage } from '@/context/LanguageContext'
 
@@ -64,9 +65,11 @@ export function Header({ pageTitle, userName, avatarUrl, onMenuToggle }: HeaderP
           {userName}
         </span>
         {avatarUrl ? (
-          <img
+          <Image
             src={avatarUrl}
             alt={userName}
+            width={32}
+            height={32}
             className="w-8 h-8 rounded-full object-cover flex-shrink-0"
             style={{ border: '2px solid #2A2F3E' }}
           />
