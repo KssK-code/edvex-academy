@@ -12,20 +12,25 @@ export async function GET() {
 
     const { data: alumno } = await admin
       .from('alumnos')
-      .select('id')
+      .select('id, planes_estudio(nombre)')
       .eq('usuario_id', user.id)
       .single()
 
     if (!alumno) return NextResponse.json({ error: 'Alumno no encontrado' }, { status: 404 })
 
+    const a = alumno as unknown as { id: string; planes_estudio: { nombre: string } | null }
+
     const { data: documentos, error } = await admin
       .from('documentos_alumno')
       .select('*')
-      .eq('alumno_id', alumno.id)
+      .eq('alumno_id', a.id)
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-    return NextResponse.json(documentos ?? [])
+    return NextResponse.json({
+      documentos: documentos ?? [],
+      plan_nombre: a.planes_estudio?.nombre ?? '',
+    })
   } catch {
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
@@ -54,13 +59,15 @@ export async function POST(req: NextRequest) {
 
     const admin = createAdminClient()
 
-    const { data: alumno } = await admin
+    const { data: alumnoPost } = await admin
       .from('alumnos')
       .select('id')
       .eq('usuario_id', user.id)
       .single()
 
-    if (!alumno) return NextResponse.json({ error: 'Alumno no encontrado' }, { status: 404 })
+    if (!alumnoPost) return NextResponse.json({ error: 'Alumno no encontrado' }, { status: 404 })
+
+    const alumno = alumnoPost as { id: string }
 
     const ext = archivo.name.split('.').pop()?.toLowerCase() ?? 'pdf'
     const storagePath = `${alumno.id}/${tipo}.${ext}`

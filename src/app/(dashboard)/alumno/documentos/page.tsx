@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Loader2, FolderOpen, Upload, CheckCircle2, XCircle, Clock } from 'lucide-react'
+import { Loader2, Upload, CheckCircle2, XCircle, Clock } from 'lucide-react'
 import { useToast, ToastContainer } from '@/components/ui/toast'
 import { useLanguage } from '@/context/LanguageContext'
 import type { TKey } from '@/lib/translations'
@@ -26,11 +26,18 @@ interface Documento {
   subido_en: string
 }
 
-const TIPOS: DocTipo[] = [
+const TIPOS_PREPA: DocTipo[] = [
+  'acta_nacimiento',
+  'curp',
+  'certificado_secundaria',
+  'identificacion_oficial',
+  'foto_perfil_doc',
+]
+
+const TIPOS_SECUNDARIA: DocTipo[] = [
   'acta_nacimiento',
   'curp',
   'certificado_primaria',
-  'certificado_secundaria',
   'identificacion_oficial',
   'foto_perfil_doc',
 ]
@@ -103,6 +110,7 @@ export default function DocumentosPage() {
   const { toasts, showToast, removeToast } = useToast()
 
   const [documentos, setDocumentos] = useState<Documento[]>([])
+  const [planNombre, setPlanNombre] = useState('')
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState<DocTipo | null>(null)
   const fileInputRefs = useRef<Partial<Record<DocTipo, HTMLInputElement | null>>>({})
@@ -110,7 +118,10 @@ export default function DocumentosPage() {
   useEffect(() => {
     fetch('/api/alumno/documentos')
       .then(r => r.json())
-      .then(data => setDocumentos(Array.isArray(data) ? data : []))
+      .then(data => {
+        setDocumentos(Array.isArray(data.documentos) ? data.documentos : [])
+        setPlanNombre(data.plan_nombre ?? '')
+      })
       .finally(() => setLoading(false))
   }, [])
 
@@ -126,7 +137,7 @@ export default function DocumentosPage() {
       showToast(t('docs.uploadSuccess'), 'success')
       // Reload docs
       const fresh = await fetch('/api/alumno/documentos').then(r => r.json())
-      setDocumentos(Array.isArray(fresh) ? fresh : [])
+      setDocumentos(Array.isArray(fresh.documentos) ? fresh.documentos : [])
     } catch {
       showToast(t('docs.uploadError'), 'error')
     } finally {
@@ -142,6 +153,9 @@ export default function DocumentosPage() {
     </div>
   )
 
+  const esSecundaria = planNombre.toLowerCase().includes('ecundaria')
+  const tiposActivos = esSecundaria ? TIPOS_SECUNDARIA : TIPOS_PREPA
+
   const docMap = new Map(documentos.map(d => [d.tipo, d]))
 
   return (
@@ -156,7 +170,7 @@ export default function DocumentosPage() {
 
       {/* Grid de documentos */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {TIPOS.map(tipo => {
+        {tiposActivos.map(tipo => {
           const doc = docMap.get(tipo)
           const isUploading = uploading === tipo
 
