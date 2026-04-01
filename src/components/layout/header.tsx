@@ -7,10 +7,11 @@ import { useLanguage } from '@/context/LanguageContext'
 interface HeaderProps {
   pageTitle: string
   userName:  string
+  avatarUrl?: string | null
   onMenuToggle: () => void
 }
 
-export function Header({ pageTitle, userName, onMenuToggle }: HeaderProps) {
+export function Header({ pageTitle, userName, avatarUrl, onMenuToggle }: HeaderProps) {
   const { t } = useLanguage()
 
   const initials = userName
@@ -62,12 +63,21 @@ export function Header({ pageTitle, userName, onMenuToggle }: HeaderProps) {
         <span className="hidden sm:block text-sm" style={{ color: '#94A3B8' }}>
           {userName}
         </span>
-        <div
-          className="flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold flex-shrink-0"
-          style={{ background: '#0055ff', color: '#fff' }}
-        >
-          {initials}
-        </div>
+        {avatarUrl ? (
+          <img
+            src={avatarUrl}
+            alt={userName}
+            className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+            style={{ border: '2px solid #2A2F3E' }}
+          />
+        ) : (
+          <div
+            className="flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold flex-shrink-0"
+            style={{ background: '#0055ff', color: '#fff' }}
+          >
+            {initials}
+          </div>
+        )}
       </div>
     </header>
   )

@@ -12,6 +12,7 @@ interface DashboardLayoutProps {
   children: React.ReactNode
   role: UserRole
   userName: string
+  avatarUrl?: string | null
   pageTitle: string
   showFooter?: boolean
 }
@@ -20,6 +21,7 @@ export function DashboardLayout({
   children,
   role,
   userName,
+  avatarUrl,
   pageTitle,
   showFooter = false,
 }: DashboardLayoutProps) {
@@ -44,6 +46,7 @@ export function DashboardLayout({
         <Header
           pageTitle={translatedTitle}
           userName={userName}
+          avatarUrl={avatarUrl}
           onMenuToggle={() => setSidebarOpen((prev) => !prev)}
         />
         <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto">

@@ -15,7 +15,7 @@ export default async function AlumnoLayout({
 
   const { data: usuario } = await supabase
     .from('usuarios')
-    .select('nombre_completo, rol')
+    .select('nombre_completo, rol, avatar_url')
     .eq('id', user.id)
     .single()
 
@@ -25,6 +25,7 @@ export default async function AlumnoLayout({
     <DashboardLayout
       role="ALUMNO"
       userName={usuario.nombre_completo}
+      avatarUrl={(usuario as unknown as { avatar_url?: string | null }).avatar_url ?? null}
       pageTitle="header.studentPortal"
       showFooter={true}
     >

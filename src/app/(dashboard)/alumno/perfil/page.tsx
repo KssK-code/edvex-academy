@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Loader2, Eye, EyeOff, User, Lock, GraduationCap, Mail, Phone } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Loader2, Eye, EyeOff, User, Lock, GraduationCap, Mail, Phone, Camera } from 'lucide-react'
 import { ESCUELA_CONFIG } from '@/lib/config'
 import { useToast, ToastContainer } from '@/components/ui/toast'
 import { useLanguage } from '@/context/LanguageContext'
@@ -14,6 +14,7 @@ interface Perfil {
   duracion_meses: number
   nombre_completo: string
   email: string
+  avatar_url?: string | null
   created_at?: string
 }
 
@@ -38,12 +39,40 @@ export default function PerfilPage() {
   const [passLoading, setPassLoading] = useState(false)
   const [passError, setPassError] = useState<string | null>(null)
 
+  // Avatar
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [avatarLoading, setAvatarLoading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   useEffect(() => {
     fetch('/api/alumno/perfil')
       .then(r => r.json())
-      .then(setPerfil)
+      .then(data => {
+        setPerfil(data)
+        setAvatarUrl(data.avatar_url ?? null)
+      })
       .finally(() => setLoading(false))
   }, [])
+
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setAvatarLoading(true)
+    try {
+      const form = new FormData()
+      form.append('avatar', file)
+      const res = await fetch('/api/alumno/avatar', { method: 'POST', body: form })
+      const data = await res.json()
+      if (!res.ok) { showToast(data.error ?? 'Error al subir foto', 'error'); return }
+      setAvatarUrl(data.url)
+      showToast('Foto de perfil actualizada', 'success')
+    } catch {
+      showToast('Error inesperado', 'error')
+    } finally {
+      setAvatarLoading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
 
   async function handleCambiarPassword(e: React.FormEvent) {
     e.preventDefault()
@@ -93,6 +122,64 @@ export default function PerfilPage() {
       <div>
         <h2 className="text-xl font-bold" style={{ color: '#F1F5F9' }}>{t('profile.title')}</h2>
         <p className="text-sm mt-0.5" style={{ color: '#94A3B8' }}>{t('profile.subtitle')}</p>
+      </div>
+
+      {/* Card Foto de perfil */}
+      <div className="rounded-xl overflow-hidden" style={CARD}>
+        <div className="flex items-center gap-3 px-5 py-4" style={{ borderBottom: '1px solid #2A2F3E' }}>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.15)' }}>
+            <Camera className="w-4 h-4" style={{ color: '#818CF8' }} />
+          </div>
+          <h3 className="text-sm font-semibold" style={{ color: '#F1F5F9' }}>Foto de perfil</h3>
+        </div>
+        <div className="p-5 flex items-center gap-5">
+          {/* Avatar preview */}
+          <div className="relative flex-shrink-0">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt="Avatar"
+                className="w-16 h-16 rounded-full object-cover"
+                style={{ border: '2px solid #2A2F3E' }}
+              />
+            ) : (
+              <div
+                className="w-16 h-16 rounded-full flex items-center justify-center text-lg font-bold"
+                style={{ background: '#0055ff', color: '#fff' }}
+              >
+                {perfil?.nombre_completo.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase() ?? '?'}
+              </div>
+            )}
+            {avatarLoading && (
+              <div className="absolute inset-0 rounded-full flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                <Loader2 className="w-5 h-5 animate-spin text-white" />
+              </div>
+            )}
+          </div>
+
+          {/* Upload button */}
+          <div className="space-y-1.5">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={handleAvatarChange}
+            />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={avatarLoading}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              style={{ background: 'rgba(91,108,255,0.12)', color: '#7B8AFF', border: '1px solid rgba(91,108,255,0.3)' }}
+              onMouseEnter={e => { if (!avatarLoading) (e.currentTarget as HTMLElement).style.background = 'rgba(91,108,255,0.22)' }}
+              onMouseLeave={e => { if (!avatarLoading) (e.currentTarget as HTMLElement).style.background = 'rgba(91,108,255,0.12)' }}
+            >
+              <Camera className="w-4 h-4" />
+              {avatarLoading ? 'Subiendo...' : 'Cambiar foto'}
+            </button>
+            <p className="text-xs" style={{ color: '#475569' }}>JPG, PNG o WebP · máx. 2 MB</p>
+          </div>
+        </div>
       </div>
 
       {/* Card Información Personal */}

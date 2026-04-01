@@ -9,7 +9,7 @@ export async function GET() {
 
     const { data, error } = await supabase
       .from('alumnos')
-      .select('*, planes_estudio(nombre, duracion_meses), usuarios(nombre_completo, email)')
+      .select('*, planes_estudio(nombre, duracion_meses), usuarios(nombre_completo, email, avatar_url)')
       .eq('usuario_id', user.id)
       .single()
 
@@ -23,7 +23,7 @@ export async function GET() {
       modulos_desbloqueados?: number[]
       created_at: string
       planes_estudio: { nombre: string; duracion_meses: number } | null
-      usuarios: { nombre_completo: string; email: string } | null
+      usuarios: { nombre_completo: string; email: string; avatar_url?: string | null } | null
     }
 
     return NextResponse.json({
@@ -37,6 +37,7 @@ export async function GET() {
       duracion_meses: a.planes_estudio?.duracion_meses ?? 0,
       nombre_completo: a.usuarios?.nombre_completo ?? '',
       email: a.usuarios?.email ?? '',
+      avatar_url: a.usuarios?.avatar_url ?? null,
     })
   } catch {
     return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
