@@ -17,18 +17,19 @@ export async function POST(req: NextRequest) {
     const arrayBuffer = await file.arrayBuffer()
     const buffer = new Uint8Array(arrayBuffer)
 
-    const { error: uploadError } = await supabase.storage
+    const admin = createAdminClient()
+
+    const { error: uploadError } = await admin.storage
       .from('avatars')
       .upload(path, buffer, { contentType: file.type, upsert: true })
 
     if (uploadError) return NextResponse.json({ error: uploadError.message }, { status: 500 })
 
-    const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
+    const { data: { publicUrl } } = admin.storage.from('avatars').getPublicUrl(path)
 
     // Añadir cache-busting para forzar recarga del navegador
     const urlConTimestamp = `${publicUrl}?t=${Date.now()}`
 
-    const admin = createAdminClient()
     const { error: updateError } = await admin
       .from('usuarios')
       .update({ avatar_url: urlConTimestamp })
