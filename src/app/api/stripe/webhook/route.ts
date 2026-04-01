@@ -43,7 +43,6 @@ export async function POST(req: NextRequest) {
 
   const supabase = createAdminClient()
 
-  const PRICE_MODULO_ESTANDAR = process.env.STRIPE_PRICE_MODULO_ESTANDAR!  // +1 mes
   const PRICE_MODULO_ACELERADO = process.env.STRIPE_PRICE_MODULO_ACELERADO! // +2 meses
 
   if (moduloNumero === 'inscripcion') {
