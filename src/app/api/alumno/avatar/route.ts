@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,7 +28,8 @@ export async function POST(req: NextRequest) {
     // Añadir cache-busting para forzar recarga del navegador
     const urlConTimestamp = `${publicUrl}?t=${Date.now()}`
 
-    const { error: updateError } = await supabase
+    const admin = createAdminClient()
+    const { error: updateError } = await admin
       .from('usuarios')
       .update({ avatar_url: urlConTimestamp })
       .eq('id', user.id)
