@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { ArrowLeft, Loader2, PlayCircle } from 'lucide-react'
 import { useLanguage } from '@/context/LanguageContext'
@@ -13,6 +13,10 @@ import FadeIn from '@/components/ui/FadeIn'
 import SplitTitle from '@/components/ui/SplitTitle'
 import SemanaQuiz from '@/components/alumno/SemanaQuiz'
 import NotasPersonales from '@/components/alumno/NotasPersonales'
+import gsap from 'gsap'
+import { useGSAP } from '@gsap/react'
+
+gsap.registerPlugin(useGSAP)
 
 interface Video { titulo: string; titulo_en: string; url: string; url_en: string; duracion: string }
 interface Semana {
@@ -82,6 +86,21 @@ export default function MateriaPage() {
   const [semanasCompletadas, setSemanasCompletadas] = useState<Set<string>>(new Set())
   const [materiaAcreditada, setMateriaAcreditada] = useState(false)
   const [glosario, setGlosario] = useState<{ id: string; termino: string; termino_en: string; definicion: string; definicion_en: string }[]>([])
+
+  const cardSigueRef = useRef<HTMLDivElement>(null)
+  const todasCompletas = materia
+    ? semanasCompletadas.size === materia.semanas.length && materia.semanas.length > 0
+    : false
+
+  useGSAP(() => {
+    if (todasCompletas && cardSigueRef.current) {
+      gsap.fromTo(
+        cardSigueRef.current,
+        { scale: 0.95, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.5, ease: 'back.out(1.4)' }
+      )
+    }
+  }, { dependencies: [todasCompletas] })
 
   useEffect(() => {
     fetch(`/api/alumno/materia/${id}`)
@@ -235,7 +254,7 @@ export default function MateriaPage() {
               </div>
 
               {/* Columna derecha: contenido de la semana seleccionada */}
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 space-y-4">
                 {(() => {
                   const semana = materia.semanas.find(s => s.id === semanaSeleccionada)
                   if (!semana) return (
@@ -353,6 +372,55 @@ export default function MateriaPage() {
                     </div>
                   )
                 })()}
+
+                {/* Card ¿Qué sigue? — aparece cuando todas las semanas están completadas */}
+                {todasCompletas && (
+                  <div
+                    ref={cardSigueRef}
+                    className="rounded-xl p-6 flex flex-col items-center text-center gap-4"
+                    style={{
+                      background: '#1E2535',
+                      border: '1px solid rgba(99,102,241,0.35)',
+                      boxShadow: '0 0 24px rgba(99,102,241,0.08)',
+                    }}
+                  >
+                    {/* Ícono */}
+                    <span style={{ fontSize: '2.5rem', lineHeight: 1 }}>🎯</span>
+
+                    {/* Título */}
+                    <div className="space-y-1">
+                      <h3 className="text-base font-bold" style={{ color: '#F1F5F9' }}>
+                        {lang === 'en' ? 'Subject completed!' : '¡Materia completada!'}
+                      </h3>
+                      <p className="text-sm" style={{ color: '#94A3B8' }}>
+                        {lang === 'en'
+                          ? 'You can now take your final exam'
+                          : 'Ya puedes presentar tu examen final'}
+                      </p>
+                    </div>
+
+                    {/* Botón primario */}
+                    <button
+                      onClick={() => setTab('examen')}
+                      className="w-full py-2.5 rounded-lg text-sm font-semibold transition-all"
+                      style={{ background: '#5B6CFF', color: '#fff', border: 'none' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = '#7B8AFF' }}
+                      onMouseLeave={e => { e.currentTarget.style.background = '#5B6CFF' }}
+                    >
+                      {lang === 'en' ? 'Go to exam →' : 'Ir al examen →'}
+                    </button>
+
+                    {/* Separador */}
+                    <p className="text-xs" style={{ color: '#475569' }}>— {lang === 'en' ? 'or' : 'o'} —</p>
+
+                    {/* Texto secundario */}
+                    <p className="text-xs leading-relaxed" style={{ color: '#64748B' }}>
+                      {lang === 'en'
+                        ? "Continue to the next month when you're ready"
+                        : 'Continúa con el siguiente mes cuando estés listo'}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           )}
