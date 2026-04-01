@@ -81,6 +81,7 @@ export default function MateriaPage() {
   const [alumnoId, setAlumnoId] = useState<string>('')
   const [semanasCompletadas, setSemanasCompletadas] = useState<Set<string>>(new Set())
   const [materiaAcreditada, setMateriaAcreditada] = useState(false)
+  const [glosario, setGlosario] = useState<{ id: string; termino: string; termino_en: string; definicion: string; definicion_en: string }[]>([])
 
   useEffect(() => {
     fetch(`/api/alumno/materia/${id}`)
@@ -92,6 +93,11 @@ export default function MateriaPage() {
         setMateria(data)
         // Default: primera semana hasta que cargue el progreso
         if (data.semanas?.length > 0) setSemanaSeleccionada(data.semanas[0].id)
+        // Cargar glosario en paralelo
+        fetch(`/api/alumno/glosario/${id}`)
+          .then(r => r.json())
+          .then(g => { if (g.terminos) setGlosario(g.terminos) })
+          .catch(() => {})
       })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
@@ -491,6 +497,37 @@ export default function MateriaPage() {
                   )
                 })}
               </ul>
+            </div>
+          )}
+
+          {/* Glosario */}
+          {glosario.length > 0 && (
+            <div className="rounded-xl p-5 space-y-4" style={CARD}>
+              <h3 className="text-sm font-semibold" style={{ color: '#F1F5F9' }}>
+                {lang === 'en' ? 'Glossary' : 'Glosario'}
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {glosario.map(t => (
+                  <div
+                    key={t.id}
+                    className="px-4 py-3 rounded-lg space-y-1"
+                    style={{
+                      background: 'rgba(91,108,255,0.04)',
+                      borderLeft: '3px solid rgba(91,108,255,0.4)',
+                      border: '1px solid #2A2F3E',
+                      borderLeftWidth: '3px',
+                      borderLeftColor: 'rgba(91,108,255,0.5)',
+                    }}
+                  >
+                    <p className="text-sm font-semibold" style={{ color: '#7B8AFF' }}>
+                      {lang === 'en' ? t.termino_en : t.termino}
+                    </p>
+                    <p className="text-xs leading-relaxed" style={{ color: '#94A3B8' }}>
+                      {lang === 'en' ? t.definicion_en : t.definicion}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
