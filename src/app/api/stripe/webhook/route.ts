@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
   }
 
   const session = event.data.object as Stripe.Checkout.Session
-  const { alumnoId, moduloNumero } = session.metadata || {}
+  const { alumnoId, moduloNumero, priceId } = session.metadata || {}
 
   if (!alumnoId) {
     console.error('[Stripe Webhook] metadata.alumnoId faltante')
@@ -43,21 +43,30 @@ export async function POST(req: NextRequest) {
 
   const supabase = createAdminClient()
 
+  const PRICE_MODULO_ESTANDAR = process.env.STRIPE_PRICE_MODULO_ESTANDAR!  // +1 mes
+  const PRICE_MODULO_ACELERADO = process.env.STRIPE_PRICE_MODULO_ACELERADO! // +2 meses
+
   if (moduloNumero === 'inscripcion') {
+    // Pago de inscripción: activar cuenta + desbloquear Mes 1 + salir de demo
     const { error } = await supabase
       .from('alumnos')
-      .update({ inscripcion_pagada: true, demo_activa: false })
+      .update({ inscripcion_pagada: true, demo_activa: false, meses_desbloqueados: 1 })
       .eq('id', alumnoId)
 
     if (error) {
       console.error('[Stripe Webhook] Error actualizando inscripcion_pagada', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
+    console.log(`[Stripe Webhook] Inscripción pagada — alumno ${alumnoId} → meses_desbloqueados = 1`)
+
   } else if (moduloNumero === 'certificacion') {
     // Pago de certificación: solo registrar éxito (opcional: columna certificacion_pagada)
     // Sin actualización en BD por ahora.
+
   } else {
-    // módulo numérico: agregar a modulos_desbloqueados
+    // Módulo estándar (+1 mes) o acelerado (+2 meses)
+    const incremento = priceId === PRICE_MODULO_ACELERADO ? 2 : 1
+
     const num = parseInt(moduloNumero, 10)
     if (Number.isNaN(num) || num < 1) {
       console.error('[Stripe Webhook] moduloNumero inválido:', moduloNumero)
@@ -66,24 +75,30 @@ export async function POST(req: NextRequest) {
 
     const { data: alumno } = await supabase
       .from('alumnos')
-      .select('modulos_desbloqueados')
+      .select('modulos_desbloqueados, meses_desbloqueados')
       .eq('id', alumnoId)
       .single()
 
-    const current = Array.isArray(alumno?.modulos_desbloqueados)
+    const currentModulos = Array.isArray(alumno?.modulos_desbloqueados)
       ? (alumno.modulos_desbloqueados as number[])
       : []
-    const next = current.includes(num) ? current : [...current, num].sort((a, b) => a - b)
+    const nextModulos = currentModulos.includes(num)
+      ? currentModulos
+      : [...currentModulos, num].sort((a, b) => a - b)
+
+    const currentMeses = (alumno?.meses_desbloqueados as number) ?? 0
+    const nextMeses = currentMeses + incremento
 
     const { error } = await supabase
       .from('alumnos')
-      .update({ modulos_desbloqueados: next })
+      .update({ modulos_desbloqueados: nextModulos, meses_desbloqueados: nextMeses })
       .eq('id', alumnoId)
 
     if (error) {
-      console.error('[Stripe Webhook] Error actualizando modulos_desbloqueados', error)
+      console.error('[Stripe Webhook] Error actualizando módulo', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
+    console.log(`[Stripe Webhook] Módulo ${num} pagado (${priceId === PRICE_MODULO_ACELERADO ? 'acelerado +2' : 'estándar +1'}) — alumno ${alumnoId} → meses_desbloqueados = ${nextMeses}`)
   }
 
   return NextResponse.json({ received: true })
