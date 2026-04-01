@@ -10,16 +10,18 @@ export async function GET(
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
-    // Obtener alumno para verificar acceso
+    const DEMO_MATERIA_ID = 'e3f004d8-4451-4a65-9c91-bac3f87d2378' // TUT101
+
+    // Obtener alumno para verificar acceso (incluye inscripcion_pagada para modo demo)
     const { data: alumnoData } = await supabase
       .from('alumnos')
-      .select('id, meses_desbloqueados')
+      .select('id, meses_desbloqueados, inscripcion_pagada')
       .eq('usuario_id', user.id)
       .single()
 
     if (!alumnoData) return NextResponse.json({ error: 'Alumno no encontrado' }, { status: 404 })
 
-    const alumno = alumnoData as { id: string; meses_desbloqueados: number }
+    const alumno = alumnoData as { id: string; meses_desbloqueados: number; inscripcion_pagada: boolean }
 
     // Verificar que la materia pertenece a un mes desbloqueado
     const { data: mesData } = await supabase
@@ -36,8 +38,14 @@ export async function GET(
     }
 
     const numeroMes = mes.meses_contenido?.numero ?? 0
+    const esDemo = !alumno.inscripcion_pagada && alumno.meses_desbloqueados === 0
+    const esMateriaDemo = params.id === DEMO_MATERIA_ID
+
     if (numeroMes > alumno.meses_desbloqueados) {
-      return NextResponse.json({ error: 'No tienes acceso a esta materia' }, { status: 403 })
+      // Permitir acceso a TUT101 en modo demo
+      if (!(esDemo && esMateriaDemo)) {
+        return NextResponse.json({ error: 'No tienes acceso a esta materia' }, { status: 403 })
+      }
     }
 
     // Obtener materia completa con semanas y evaluaciones

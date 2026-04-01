@@ -51,6 +51,7 @@ export default function AlumnoDashboard() {
   const { toasts, showToast, removeToast } = useToast()
   const [perfil, setPerfil] = useState<Perfil | null>(null)
   const [meses, setMeses] = useState<Mes[]>([])
+  const [demo, setDemo] = useState(false)
   const [materiasAcreditadas, setMateriasAcreditadas] = useState(0)
   const [logros, setLogros] = useState<Array<{ tipo: string; obtenido_en: string; metadata?: Record<string, unknown> }>>([])
   const [loading, setLoading] = useState(true)
@@ -152,7 +153,13 @@ export default function AlumnoDashboard() {
       fetch('/api/alumno/calificaciones').then(r => r.json()),
     ]).then(([p, m, c]) => {
       setPerfil(p)
-      setMeses(Array.isArray(m) ? m : [])
+      if (m && m.demo === true) {
+        setDemo(true)
+        setMeses([])
+      } else {
+        setDemo(false)
+        setMeses(Array.isArray(m) ? m : [])
+      }
       setMateriasAcreditadas(c?.resumen?.materias_acreditadas ?? 0)
     }).finally(() => setLoading(false))
   }, [])
@@ -202,8 +209,52 @@ export default function AlumnoDashboard() {
     <div className="space-y-8 max-w-5xl">
       <ToastContainer toasts={toasts} onClose={removeToast} />
 
-      {/* Banner: Inscripción pendiente */}
-      {perfil.inscripcion_pagada === false && (
+      {/* Banner: Modo DEMO — alumno sin pago y sin meses */}
+      {demo && (
+        <FadeIn delay={0}>
+          <div
+            className="rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4"
+            style={{
+              background: 'linear-gradient(135deg, rgba(91,108,255,0.14) 0%, rgba(99,102,241,0.08) 100%)',
+              border: '1px solid rgba(91,108,255,0.4)',
+            }}
+          >
+            <div
+              className="flex items-center justify-center w-11 h-11 rounded-xl flex-shrink-0"
+              style={{ background: 'rgba(91,108,255,0.18)', border: '1px solid rgba(91,108,255,0.45)' }}
+            >
+              <GraduationCap className="w-5 h-5" style={{ color: '#7B8AFF' }} />
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm leading-snug" style={{ color: '#A5B4FC' }}>
+                {lang === 'en' ? '🎓 Welcome to EDVEX Academy' : '🎓 Bienvenido a EDVEX Academy'}
+              </p>
+              <p className="text-xs mt-1 leading-relaxed" style={{ color: '#94A3B8' }}>
+                {lang === 'en'
+                  ? "You're in demo mode — explore the platform for free"
+                  : 'Estás en modo demo — explora la plataforma gratis'}
+              </p>
+            </div>
+
+            <div className="flex-shrink-0">
+              <Link
+                href="/alumno/pagar"
+                className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all whitespace-nowrap"
+                style={{ background: '#5B6CFF', color: '#fff' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#7B8AFF' }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#5B6CFF' }}
+              >
+                <CreditCard className="w-4 h-4" />
+                {lang === 'en' ? 'Activate my account — $50 enrollment →' : 'Activar mi cuenta — $50 inscripción →'}
+              </Link>
+            </div>
+          </div>
+        </FadeIn>
+      )}
+
+      {/* Banner: Inscripción pendiente (alumno con meses pero sin pagar) */}
+      {!demo && perfil.inscripcion_pagada === false && (
         <FadeIn delay={0}>
           <div
             className="rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4"
@@ -358,81 +409,130 @@ export default function AlumnoDashboard() {
         </div>
       </FadeIn>
 
-      {/* SECCIÓN 3 — Botón continuar estudiando */}
-      <FadeIn delay={perfil.inscripcion_pagada === false ? 300 : 200}>
-        <div>
-          {mesActivo > 0 && (
-            <button
-              ref={btnContinuarRef}
-              onClick={() => router.push(`/alumno/mes/${mesActivo}`)}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm"
-              style={{ background: '#5B6CFF', color: '#fff' }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#7B8AFF' }}
-              onMouseMove={handleMagneticMove}
-              onMouseLeave={handleMagneticLeave}
-            >
-              {lang === 'en' ? 'Continue studying' : 'Continuar estudiando'}
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-      </FadeIn>
-
-      {/* SECCIÓN 4 — Grid de meses */}
-      <FadeIn delay={perfil.inscripcion_pagada === false ? 400 : 300}>
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: '#475569' }}>
-              {t('dashboard.programMonths')}
-            </p>
-            <div className="flex-1 h-px" style={{ background: '#2A2F3E' }} />
+      {/* SECCIÓN 3 — Botón continuar estudiando (solo modo normal) */}
+      {!demo && (
+        <FadeIn delay={perfil.inscripcion_pagada === false ? 300 : 200}>
+          <div>
+            {mesActivo > 0 && (
+              <button
+                ref={btnContinuarRef}
+                onClick={() => router.push(`/alumno/mes/${mesActivo}`)}
+                className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm"
+                style={{ background: '#5B6CFF', color: '#fff' }}
+                onMouseEnter={e => { e.currentTarget.style.background = '#7B8AFF' }}
+                onMouseMove={handleMagneticMove}
+                onMouseLeave={handleMagneticLeave}
+              >
+                {lang === 'en' ? 'Continue studying' : 'Continuar estudiando'}
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            )}
           </div>
-          <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {meses.map((mes) => (
-              <div
-                key={mes.id}
-                onClick={() => mes.desbloqueado && router.push(`/alumno/mes/${mes.numero}`)}
-                className="mes-card rounded-xl p-4 transition-all duration-200"
-                style={{
-                  background: '#181C26',
-                  border: mes.desbloqueado ? '1px solid rgba(91,108,255,0.35)' : '1px solid #2A2F3E',
-                  opacity: mes.desbloqueado ? 1 : 0.5,
-                  cursor: mes.desbloqueado ? 'pointer' : 'default',
-                }}
+        </FadeIn>
+      )}
+
+      {/* SECCIÓN 4a — Card de materia DEMO */}
+      {demo && (
+        <FadeIn delay={200}>
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: '#475569' }}>
+                {lang === 'en' ? 'Demo subject' : 'Materia de demostración'}
+              </p>
+              <div className="flex-1 h-px" style={{ background: '#2A2F3E' }} />
+            </div>
+            <div
+              className="rounded-xl p-5 flex flex-col sm:flex-row sm:items-center gap-4"
+              style={{ background: '#181C26', border: '1px solid rgba(91,108,255,0.3)' }}
+            >
+              <div className="flex-1 min-w-0 space-y-1">
+                <p className="text-xs font-mono" style={{ color: '#5B6CFF' }}>TUT101</p>
+                <p className="text-base font-bold" style={{ color: '#F1F5F9' }}>
+                  {lang === 'en' ? 'University Entry Tutoring I' : 'Tutoría de ingreso I'}
+                </p>
+                <p className="text-sm" style={{ color: '#64748B' }}>
+                  {lang === 'en'
+                    ? 'Get familiar with the platform, your study plan and virtual high school methodology.'
+                    : 'Familiarízate con la plataforma, tu plan de estudio y la metodología del bachillerato virtual.'}
+                </p>
+              </div>
+              <Link
+                href="/alumno/materia/e3f004d8-4451-4a65-9c91-bac3f87d2378"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all whitespace-nowrap flex-shrink-0"
+                style={{ background: 'rgba(91,108,255,0.15)', color: '#7B8AFF', border: '1px solid rgba(91,108,255,0.35)' }}
                 onMouseEnter={e => {
-                  if (mes.desbloqueado) (e.currentTarget as HTMLElement).style.background = 'rgba(91,108,255,0.07)'
+                  (e.currentTarget as HTMLElement).style.background = 'rgba(91,108,255,0.25)'
+                  ;(e.currentTarget as HTMLElement).style.borderColor = '#7B8AFF'
                 }}
                 onMouseLeave={e => {
-                  if (mes.desbloqueado) (e.currentTarget as HTMLElement).style.background = '#181C26'
+                  (e.currentTarget as HTMLElement).style.background = 'rgba(91,108,255,0.15)'
+                  ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(91,108,255,0.35)'
                 }}
               >
-                <div className="flex items-start justify-between">
-                  <div className="space-y-0.5">
-                    <span
-                      className="text-3xl font-bold leading-none"
-                      style={{ color: mes.desbloqueado ? '#5B6CFF' : '#475569' }}
-                    >
-                      {mes.numero}
-                    </span>
-                    <p
-                      className="text-sm font-semibold"
-                      style={{ color: mes.desbloqueado ? '#F1F5F9' : '#64748B' }}
-                    >
-                      {mes.titulo || `Mes ${mes.numero}`}
-                    </p>
-                    <p className="text-xs" style={{ color: '#475569' }}>
-                      {(mes.materias ?? []).length} {lang === 'en' ? 'subjects' : 'materias'}
-                    </p>
-                  </div>
-                  {!mes.desbloqueado && (
-                    <Lock className="w-4 h-4 mt-1 flex-shrink-0" style={{ color: '#475569' }} />
-                  )}
-                </div>
-              </div>
-            ))}
+                {lang === 'en' ? 'Explore subject →' : 'Explorar materia →'}
+              </Link>
+            </div>
           </div>
-        </div>
-      </FadeIn>
+        </FadeIn>
+      )}
+
+      {/* SECCIÓN 4b — Grid de meses (solo modo normal) */}
+      {!demo && (
+        <FadeIn delay={perfil.inscripcion_pagada === false ? 400 : 300}>
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: '#475569' }}>
+                {t('dashboard.programMonths')}
+              </p>
+              <div className="flex-1 h-px" style={{ background: '#2A2F3E' }} />
+            </div>
+            <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {meses.map((mes) => (
+                <div
+                  key={mes.id}
+                  onClick={() => mes.desbloqueado && router.push(`/alumno/mes/${mes.numero}`)}
+                  className="mes-card rounded-xl p-4 transition-all duration-200"
+                  style={{
+                    background: '#181C26',
+                    border: mes.desbloqueado ? '1px solid rgba(91,108,255,0.35)' : '1px solid #2A2F3E',
+                    opacity: mes.desbloqueado ? 1 : 0.5,
+                    cursor: mes.desbloqueado ? 'pointer' : 'default',
+                  }}
+                  onMouseEnter={e => {
+                    if (mes.desbloqueado) (e.currentTarget as HTMLElement).style.background = 'rgba(91,108,255,0.07)'
+                  }}
+                  onMouseLeave={e => {
+                    if (mes.desbloqueado) (e.currentTarget as HTMLElement).style.background = '#181C26'
+                  }}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-0.5">
+                      <span
+                        className="text-3xl font-bold leading-none"
+                        style={{ color: mes.desbloqueado ? '#5B6CFF' : '#475569' }}
+                      >
+                        {mes.numero}
+                      </span>
+                      <p
+                        className="text-sm font-semibold"
+                        style={{ color: mes.desbloqueado ? '#F1F5F9' : '#64748B' }}
+                      >
+                        {mes.titulo || `Mes ${mes.numero}`}
+                      </p>
+                      <p className="text-xs" style={{ color: '#475569' }}>
+                        {(mes.materias ?? []).length} {lang === 'en' ? 'subjects' : 'materias'}
+                      </p>
+                    </div>
+                    {!mes.desbloqueado && (
+                      <Lock className="w-4 h-4 mt-1 flex-shrink-0" style={{ color: '#475569' }} />
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </FadeIn>
+      )}
 
       {/* SECCIÓN 5 — Logros */}
       <FadeIn delay={perfil.inscripcion_pagada === false ? 500 : 400}>
