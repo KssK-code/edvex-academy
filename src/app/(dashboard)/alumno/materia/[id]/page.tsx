@@ -93,8 +93,8 @@ export default function MateriaPage() {
         setMateria(data)
         // Default: primera semana hasta que cargue el progreso
         if (data.semanas?.length > 0) setSemanaSeleccionada(data.semanas[0].id)
-        // Cargar glosario en paralelo
-        fetch(`/api/alumno/glosario/${id}`)
+        // Cargar glosario en paralelo (data.id = materia.id, no el id del mes)
+        fetch(`/api/alumno/glosario/${data.id}`)
           .then(r => r.json())
           .then(g => { if (g.terminos) setGlosario(g.terminos) })
           .catch(() => {})
