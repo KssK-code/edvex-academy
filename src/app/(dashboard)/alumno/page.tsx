@@ -237,7 +237,7 @@ export default function AlumnoDashboard() {
               </p>
             </div>
 
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 flex flex-col items-center gap-2">
               <Link
                 href="/alumno/pagar"
                 className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all whitespace-nowrap"
@@ -248,6 +248,17 @@ export default function AlumnoDashboard() {
                 <CreditCard className="w-4 h-4" />
                 {lang === 'en' ? 'Activate my account — $50 enrollment →' : 'Activar mi cuenta — $50 inscripción →'}
               </Link>
+              <a
+                href="https://cal.com/soluciones-academicas/asesoria-edvex-academy-30-min"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs transition-colors whitespace-nowrap"
+                style={{ color: '#7B8AFF' }}
+                onMouseEnter={e => { e.currentTarget.style.color = '#A5B4FC' }}
+                onMouseLeave={e => { e.currentTarget.style.color = '#7B8AFF' }}
+              >
+                {lang === 'en' ? 'or schedule a free video call →' : 'o agenda una videollamada gratis →'}
+              </a>
             </div>
           </div>
         </FadeIn>
