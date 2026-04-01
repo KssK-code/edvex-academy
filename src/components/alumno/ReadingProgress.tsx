@@ -7,6 +7,21 @@ import { useGSAP } from '@gsap/react'
 
 gsap.registerPlugin(useGSAP)
 
+const MSGS_ES = [
+  '¡Sigue así, vas excelente!',
+  'Un paso más cerca de tu certificado.',
+  '¡Eso es dedicación!',
+  'Tu esfuerzo vale la pena.',
+  '¡Semana dominada!',
+]
+const MSGS_EN = [
+  'Keep it up, you\'re doing great!',
+  'One step closer to your certificate.',
+  'That\'s dedication!',
+  'Your effort is worth it.',
+  'Week mastered!',
+]
+
 interface ReadingProgressProps {
   semanaId: string
   alumnoId: string
@@ -24,10 +39,16 @@ export default function ReadingProgress({
   const [scrollPct, setScrollPct] = useState(0)
   const [completada, setCompletada] = useState(yaCompletada)
   const [cargando, setCargando] = useState(false)
-  const btnRef = useRef<HTMLButtonElement>(null)
-  const badgeRef = useRef<HTMLDivElement>(null)
+  const [mostrarResumen, setMostrarResumen] = useState(false)
+  const [minLectura, setMinLectura] = useState(1)
+  const [mensaje, setMensaje] = useState('')
 
-  // Badge de "Semana completada" entra con back.out cuando completada cambia a true
+  const btnRef    = useRef<HTMLButtonElement>(null)
+  const badgeRef  = useRef<HTMLDivElement>(null)
+  const resumenRef = useRef<HTMLDivElement>(null)
+  const mountedAt = useRef(Date.now())
+
+  // Badge verde entra con back.out cuando completada cambia a true
   useGSAP(() => {
     if (completada && badgeRef.current) {
       gsap.fromTo(
@@ -37,6 +58,30 @@ export default function ReadingProgress({
       )
     }
   }, { dependencies: [completada] })
+
+  // Card de resumen: entra desde y:20 opacity:0, sale después de 3s
+  useGSAP(() => {
+    if (mostrarResumen && resumenRef.current) {
+      gsap.fromTo(
+        resumenRef.current,
+        { opacity: 0, y: 20 },
+        {
+          opacity: 1, y: 0, duration: 0.4, ease: 'power2.out',
+          onComplete: () => {
+            gsap.to(resumenRef.current, {
+              opacity: 0, y: -10, duration: 0.35, ease: 'power2.in',
+              delay: 3,
+              onComplete: () => {
+                setMostrarResumen(false)
+                setCompletada(true)
+                onCompletada?.()
+              },
+            })
+          },
+        }
+      )
+    }
+  }, { dependencies: [mostrarResumen] })
 
   const calcularScroll = useCallback(() => {
     const scrollTop = window.scrollY
@@ -65,21 +110,30 @@ export default function ReadingProgress({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ semana_id: semanaId }),
       })
-      // Animación del botón: scale 1 → 1.15 → 1
+
+      // Calcular tiempo transcurrido desde que se montó el componente
+      const segundos = Math.round((Date.now() - mountedAt.current) / 1000)
+      const mins = Math.max(1, Math.ceil(segundos / 60))
+      setMinLectura(mins)
+
+      // Mensaje motivacional aleatorio
+      const msgs = lang === 'en' ? MSGS_EN : MSGS_ES
+      setMensaje(msgs[Math.floor(Math.random() * msgs.length)])
+
+      // Animación del botón
       if (btnRef.current) {
         gsap.timeline()
           .to(btnRef.current, { scale: 1.15, duration: 0.15, ease: 'power2.out' })
           .to(btnRef.current, { scale: 1, duration: 0.15, ease: 'power2.in' })
-          .then(() => {
-            setCompletada(true)
-            onCompletada?.()
-          })
-      } else {
-        setCompletada(true)
-        onCompletada?.()
       }
+
+      // Mostrar card de resumen (el badge verde aparece después, via useGSAP)
+      setMostrarResumen(true)
+
     } catch {
       // silencioso — no bloquear al alumno
+      setCompletada(true)
+      onCompletada?.()
     } finally {
       setCargando(false)
     }
@@ -111,8 +165,48 @@ export default function ReadingProgress({
         />
       </div>
 
+      {/* Card de resumen — aparece antes del badge verde */}
+      {mostrarResumen && (
+        <div
+          ref={resumenRef}
+          style={{
+            position: 'fixed',
+            bottom: '1.5rem',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 9999,
+            minWidth: '260px',
+            maxWidth: '90vw',
+          }}
+        >
+          <div
+            className="rounded-2xl px-5 py-4 shadow-2xl flex flex-col gap-1"
+            style={{
+              background: '#0F1629',
+              border: '1px solid rgba(99,102,241,0.4)',
+              boxShadow: '0 8px 40px rgba(99,102,241,0.25)',
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color: '#86EFAC' }} />
+              <span className="text-sm font-bold" style={{ color: '#F1F5F9' }}>
+                {lang === 'en' ? 'Week completed!' : '¡Semana completada!'}
+              </span>
+            </div>
+            <p className="text-xs" style={{ color: '#94A3B8' }}>
+              {lang === 'en'
+                ? `📖 ${minLectura} min reading today`
+                : `📖 ${minLectura} min de lectura hoy`}
+            </p>
+            <p className="text-xs font-medium" style={{ color: '#818CF8' }}>
+              {mensaje}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Botón / badge sticky al fondo */}
-      {mostrarUI && (
+      {mostrarUI && !mostrarResumen && (
         <div
           style={{
             position: 'fixed',
