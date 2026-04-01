@@ -11,6 +11,8 @@ import WeekRoadmap from '@/components/alumno/WeekRoadmap'
 import CelebrationBanner from '@/components/alumno/CelebrationBanner'
 import FadeIn from '@/components/ui/FadeIn'
 import SplitTitle from '@/components/ui/SplitTitle'
+import SemanaQuiz from '@/components/alumno/SemanaQuiz'
+import NotasPersonales from '@/components/alumno/NotasPersonales'
 
 interface Video { titulo: string; titulo_en: string; url: string; url_en: string; duracion: string }
 interface Semana {
@@ -271,6 +273,15 @@ export default function MateriaPage() {
                         }}
                       />
 
+                      {/* Mini quiz de refuerzo */}
+                      {alumnoId && (
+                        <SemanaQuiz
+                          semanaId={semana.id}
+                          alumnoId={alumnoId}
+                          lang={lang}
+                        />
+                      )}
+
                       {/* Videos */}
                       {(semana.videos?.length > 0 || (lang === 'en' && semana.url_en)) && (
                         <div className="space-y-2 pt-2">
@@ -304,6 +315,15 @@ export default function MateriaPage() {
                             />
                           ))}
                         </div>
+                      )}
+
+                      {/* Notas personales */}
+                      {alumnoId && (
+                        <NotasPersonales
+                          semanaId={semana.id}
+                          alumnoId={alumnoId}
+                          lang={lang}
+                        />
                       )}
                     </div>
                   )
