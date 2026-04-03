@@ -412,31 +412,10 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <div className="docs-banner">
-          <div className="docs-banner-icon">✅</div>
-          <div className="docs-banner-title">
-            <span className="es">Sin trámites. Sin filas. Sin complicaciones.</span>
-            <span className="en">No paperwork. No lines. No hassle.</span>
-          </div>
-          <div className="docs-banner-sub">
-            <span className="es">Nosotros nos encargamos de todo — tú solo enfócate en estudiar.</span>
-            <span className="en">We handle everything — you just focus on studying.</span>
-          </div>
-          <ul className="docs-checks">
-            <li>
-              <span className="es">Nosotros gestionamos el transcript con la institución americana</span>
-              <span className="en">We manage the transcript with the American institution</span>
-            </li>
-            <li>
-              <span className="es">Nosotros realizamos la revalidación ante la SEP por ti</span>
-              <span className="en">We handle the SEP revalidation for you</span>
-            </li>
-            <li>
-              <span className="es">Tú solo recibes tus documentos oficiales al finalizar</span>
-              <span className="en">You simply receive your official documents upon completion</span>
-            </li>
-          </ul>
-        </div>
+        <p className="docs-note">
+          <span className="es">Nosotros gestionamos ambos documentos por ti — sin filas, sin trámites. Al graduarte los recibes directamente.</span>
+          <span className="en">We handle both documents for you — no lines, no paperwork. You receive them directly upon graduation.</span>
+        </p>
       </section>
 
       {/* ── PLANES ── */}
