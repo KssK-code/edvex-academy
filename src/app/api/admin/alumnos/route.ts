@@ -121,26 +121,33 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: usuarioError.message }, { status: 500 })
     }
 
-    // Generar matrícula única
+    // Insertar en tabla alumnos con reintento en colisión de matrícula (código 23505)
     const year = new Date().getFullYear()
-    const rand = Math.floor(1000 + Math.random() * 9000)
-    const matricula = `ALU-${year}-${rand}`
+    let alumnoData = null
+    for (let i = 0; i < 5; i++) {
+      const rand = Math.floor(Math.random() * 9000) + 1000
+      const matricula = `ALU-${year}-${rand}`
+      const { data, error } = await admin
+        .from('alumnos')
+        .insert({
+          usuario_id: newUserId,
+          matricula,
+          plan_estudio_id,
+          meses_desbloqueados: 0,
+        })
+        .select()
+        .single()
+      if (!error) { alumnoData = data; break }
+      if (error.code !== '23505') {
+        await admin.auth.admin.deleteUser(newUserId)
+        return NextResponse.json({ error: error.message }, { status: 500 })
+      }
+      // Colisión de matrícula → reintentar con otro número aleatorio
+    }
 
-    // Insertar en tabla alumnos
-    const { data: alumnoData, error: alumnoError } = await admin
-      .from('alumnos')
-      .insert({
-        usuario_id: newUserId,
-        matricula,
-        plan_estudio_id,
-        meses_desbloqueados: 0,
-      })
-      .select()
-      .single()
-
-    if (alumnoError) {
+    if (!alumnoData) {
       await admin.auth.admin.deleteUser(newUserId)
-      return NextResponse.json({ error: alumnoError.message }, { status: 500 })
+      return NextResponse.json({ error: 'No se pudo generar matrícula única' }, { status: 500 })
     }
 
     return NextResponse.json(alumnoData, { status: 201 })
