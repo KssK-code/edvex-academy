@@ -95,21 +95,39 @@ export async function PUT(
     if (denied) return denied
 
     const body = await request.json()
+    const { activo, nombre_completo, plan_estudio_id, matricula } = body
 
-    const { data: alumno, error: fetchError } = await supabase
+    const admin = createAdminClient()
+
+    const { data: alumnoRow, error: fetchError } = await admin
       .from('alumnos')
       .select('usuario_id')
       .eq('id', params.id)
       .single()
 
-    if (fetchError || !alumno) return NextResponse.json({ error: 'Alumno no encontrado' }, { status: 404 })
+    if (fetchError || !alumnoRow) return NextResponse.json({ error: 'Alumno no encontrado' }, { status: 404 })
 
-    const { error } = await supabase
-      .from('usuarios')
-      .update({ activo: body.activo })
-      .eq('id', (alumno as { usuario_id: string }).usuario_id)
+    const usuarioId = (alumnoRow as { usuario_id: string }).usuario_id
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    // Actualizar campos de la tabla usuarios
+    const usuarioUpdate: Record<string, unknown> = {}
+    if (activo !== undefined) usuarioUpdate.activo = activo
+    if (nombre_completo !== undefined) usuarioUpdate.nombre_completo = nombre_completo
+
+    if (Object.keys(usuarioUpdate).length > 0) {
+      const { error } = await admin.from('usuarios').update(usuarioUpdate).eq('id', usuarioId)
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    // Actualizar campos de la tabla alumnos
+    const alumnoUpdate: Record<string, unknown> = {}
+    if (plan_estudio_id !== undefined) alumnoUpdate.plan_estudio_id = plan_estudio_id
+    if (matricula !== undefined) alumnoUpdate.matricula = matricula
+
+    if (Object.keys(alumnoUpdate).length > 0) {
+      const { error } = await admin.from('alumnos').update(alumnoUpdate).eq('id', params.id)
+      if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    }
 
     return NextResponse.json({ success: true })
   } catch {
