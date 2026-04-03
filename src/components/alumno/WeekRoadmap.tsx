@@ -18,6 +18,7 @@ interface WeekRoadmapProps {
   semanaActivaId?: string
   onSemanaClick: (semanaId: string) => void
   lang: string
+  esTutorial?: boolean
 }
 
 type EstadoSemana = 'completado' | 'activo' | 'bloqueado'
@@ -45,6 +46,7 @@ export default function WeekRoadmap({
   semanasCompletadas,
   onSemanaClick,
   lang,
+  esTutorial = false,
 }: WeekRoadmapProps) {
   const loc = (es: string, en?: string) => lang === 'en' && en ? en : es
   const containerRef = useRef<HTMLDivElement>(null)
@@ -88,7 +90,7 @@ export default function WeekRoadmap({
               <button
                 onClick={() => clickable && onSemanaClick(semana.id)}
                 disabled={!clickable}
-                aria-label={`${lang === 'en' ? 'Week' : 'Semana'} ${semana.numero}: ${loc(semana.titulo, semana.titulo_en)}`}
+                aria-label={`${esTutorial ? (lang === 'en' ? 'Day' : 'Día') : (lang === 'en' ? 'Week' : 'Semana')} ${semana.numero}: ${loc(semana.titulo, semana.titulo_en)}`}
                 className={[
                   'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-500 relative z-10',
                   estado === 'completado'
@@ -141,7 +143,7 @@ export default function WeekRoadmap({
                   className="text-xs font-mono transition-all duration-500"
                   style={{ color: estado === 'bloqueado' ? '#475569' : '#6366F1' }}
                 >
-                  {lang === 'en' ? 'Week' : 'Semana'} {semana.numero}
+                  {esTutorial ? (lang === 'en' ? 'Day' : 'Día') : (lang === 'en' ? 'Week' : 'Semana')} {semana.numero}
                 </span>
 
                 {estado === 'activo' && (

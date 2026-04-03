@@ -270,6 +270,7 @@ export default function MateriaPage() {
                     semanaActivaId={semanaSeleccionada ?? undefined}
                     onSemanaClick={setSemanaSeleccionada}
                     lang={lang}
+                    esTutorial={materia.codigo?.toUpperCase().startsWith('TUT')}
                   />
                 </div>
               </div>
