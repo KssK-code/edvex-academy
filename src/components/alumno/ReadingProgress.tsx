@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { CheckCircle, Loader2 } from 'lucide-react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
@@ -43,10 +43,11 @@ export default function ReadingProgress({
   const [minLectura, setMinLectura] = useState(1)
   const [mensaje, setMensaje] = useState('')
 
-  const btnRef    = useRef<HTMLButtonElement>(null)
-  const badgeRef  = useRef<HTMLDivElement>(null)
+  const btnRef     = useRef<HTMLButtonElement>(null)
+  const badgeRef   = useRef<HTMLDivElement>(null)
   const resumenRef = useRef<HTMLDivElement>(null)
-  const mountedAt = useRef(Date.now())
+  const anchorRef  = useRef<HTMLSpanElement>(null)   // ancla DOM para encontrar el contenedor con scroll
+  const mountedAt  = useRef(Date.now())
 
   // Badge verde entra con back.out cuando completada cambia a true
   useGSAP(() => {
@@ -83,18 +84,35 @@ export default function ReadingProgress({
     }
   }, { dependencies: [mostrarResumen] })
 
-  const calcularScroll = useCallback(() => {
-    const scrollTop = window.scrollY
-    const docHeight = document.documentElement.scrollHeight - window.innerHeight
-    const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0
-    setScrollPct(Math.round(pct))
-  }, [])
-
+  // Escuchar el scroll del contenedor real (puede ser overflow-y:auto en lugar de window)
   useEffect(() => {
-    window.addEventListener('scroll', calcularScroll, { passive: true })
+    // Caminar hacia arriba desde el ancla para encontrar el primer ancestro con scroll
+    let el: HTMLElement | null = anchorRef.current?.parentElement ?? null
+    while (el && el !== document.body) {
+      const { overflowY } = window.getComputedStyle(el)
+      if (overflowY === 'auto' || overflowY === 'scroll') break
+      el = el.parentElement
+    }
+    const container = el && el !== document.body ? el : null
+
+    const calcularScroll = () => {
+      if (container) {
+        const scrollable = container.scrollHeight - container.clientHeight
+        const pct = scrollable > 0 ? Math.min(100, (container.scrollTop / scrollable) * 100) : 0
+        setScrollPct(Math.round(pct))
+      } else {
+        // Fallback: window
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight
+        const pct = docHeight > 0 ? Math.min(100, (window.scrollY / docHeight) * 100) : 0
+        setScrollPct(Math.round(pct))
+      }
+    }
+
+    const target = container ?? window
+    target.addEventListener('scroll', calcularScroll, { passive: true })
     calcularScroll()
-    return () => window.removeEventListener('scroll', calcularScroll)
-  }, [calcularScroll])
+    return () => target.removeEventListener('scroll', calcularScroll)
+  }, [semanaId]) // re-adjuntar si la semana (y por tanto el contenido) cambia
 
   // Sincronizar prop externa
   useEffect(() => {
@@ -146,6 +164,9 @@ export default function ReadingProgress({
 
   return (
     <>
+      {/* Ancla invisible — permite encontrar el contenedor scrollable en el DOM */}
+      <span ref={anchorRef} aria-hidden="true" style={{ display: 'none' }} />
+
       {/* Barra de progreso fija en la parte superior */}
       <div
         style={{
