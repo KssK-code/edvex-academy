@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Mail, Lock, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { ROLE_REDIRECTS, APP_NAME } from '@/lib/constants'
@@ -11,13 +11,22 @@ import { LangToggle } from '@/components/ui/lang-toggle'
 import { useLanguage } from '@/context/LanguageContext'
 
 export default function LoginPage() {
-  const router = useRouter()
-  const { t }  = useLanguage()
+  const router       = useRouter()
+  const searchParams = useSearchParams()
+  const { t }        = useLanguage()
 
   const [email,    setEmail]    = useState('')
   const [password, setPassword] = useState('')
   const [error,    setError]    = useState<string | null>(null)
   const [loading,  setLoading]  = useState(false)
+
+  // Mostrar error proveniente de query param (ej: ?error=setup_failed desde /auth/confirm)
+  useEffect(() => {
+    const param = searchParams.get('error')
+    if (param === 'setup_failed') {
+      setError(t('auth.errSetupFailed'))
+    }
+  }, [searchParams, t])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()

@@ -61,6 +61,7 @@ const dict = {
       errNoUser:         'No se pudo obtener la información del usuario.',
       errNoProfile:      'No se encontró el perfil de usuario. Contacta al administrador.',
       errUnexpected:     'Ocurrió un error inesperado. Intenta de nuevo.',
+      errSetupFailed:    'Hubo un problema al configurar tu cuenta. Contacta al administrador.',
       // Recuperar contraseña
       forgotTitle:       'Recuperar contraseña',
       forgotDesc:        'Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.',
@@ -411,6 +412,7 @@ const dict = {
       errNoUser:         'Could not retrieve user information.',
       errNoProfile:      'User profile not found. Contact your administrator.',
       errUnexpected:     'An unexpected error occurred. Please try again.',
+      errSetupFailed:    'There was a problem setting up your account. Contact your administrator.',
       // Forgot password
       forgotTitle:       'Reset password',
       forgotDesc:        'Enter your email and we will send you a reset link.',
