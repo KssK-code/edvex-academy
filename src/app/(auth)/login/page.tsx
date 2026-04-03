@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Mail, Lock, Loader2 } from 'lucide-react'
+import { Mail, Lock, Loader2, Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { ROLE_REDIRECTS, APP_NAME } from '@/lib/constants'
 import { ESCUELA_CONFIG } from '@/lib/config'
@@ -17,6 +17,7 @@ export default function LoginPage() {
 
   const [email,    setEmail]    = useState('')
   const [password, setPassword] = useState('')
+  const [showPw,   setShowPw]   = useState(false)
   const [error,    setError]    = useState<string | null>(null)
   const [loading,  setLoading]  = useState(false)
 
@@ -152,13 +153,13 @@ export default function LoginPage() {
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#94A3B8' }} />
               <input
                 id="password"
-                type="password"
+                type={showPw ? 'text' : 'password'}
                 required
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={t('auth.passwordPlaceholder')}
-                className="w-full pl-10 pr-4 py-3 rounded-lg text-sm outline-none transition-all"
+                className="w-full pl-10 pr-10 py-3 rounded-lg text-sm outline-none transition-all"
                 style={{
                   background: 'rgba(255,255,255,0.04)',
                   border:     '1px solid rgba(255,255,255,0.1)',
@@ -173,6 +174,9 @@ export default function LoginPage() {
                   e.currentTarget.style.boxShadow = 'none'
                 }}
               />
+              <button type="button" onClick={() => setShowPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5" style={{ color: '#64748B' }}>
+                {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
           </div>
 

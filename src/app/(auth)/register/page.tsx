@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Mail, Lock, Loader2, User, Phone } from 'lucide-react'
+import { Mail, Lock, Loader2, User, Phone, Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { APP_NAME } from '@/lib/constants'
 import { ESCUELA_CONFIG } from '@/lib/config'
@@ -34,6 +34,8 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPw, setShowPw] = useState(false)
+  const [showConfirmPw, setShowConfirmPw] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
@@ -225,17 +227,20 @@ export default function RegisterPage() {
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#94A3B8' }} />
               <input
                 id="password"
-                type="password"
+                type={showPw ? 'text' : 'password'}
                 required
                 autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={t('register.passwordPlaceholder')}
-                className="w-full pl-10 pr-4 py-3 rounded-lg text-sm outline-none transition-all"
+                className="w-full pl-10 pr-10 py-3 rounded-lg text-sm outline-none transition-all"
                 style={inputStyle}
                 onFocus={(e) => Object.assign(e.currentTarget.style, focusStyle)}
                 onBlur={(e) => Object.assign(e.currentTarget.style, blurStyle)}
               />
+              <button type="button" onClick={() => setShowPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5" style={{ color: '#64748B' }}>
+                {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
           </div>
 
@@ -247,17 +252,20 @@ export default function RegisterPage() {
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#94A3B8' }} />
               <input
                 id="confirmPassword"
-                type="password"
+                type={showConfirmPw ? 'text' : 'password'}
                 required
                 autoComplete="new-password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder={t('register.confirmPlaceholder')}
-                className="w-full pl-10 pr-4 py-3 rounded-lg text-sm outline-none transition-all"
+                className="w-full pl-10 pr-10 py-3 rounded-lg text-sm outline-none transition-all"
                 style={inputStyle}
                 onFocus={(e) => Object.assign(e.currentTarget.style, focusStyle)}
                 onBlur={(e) => Object.assign(e.currentTarget.style, blurStyle)}
               />
+              <button type="button" onClick={() => setShowConfirmPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5" style={{ color: '#64748B' }}>
+                {showConfirmPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
           </div>
 

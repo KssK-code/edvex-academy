@@ -99,7 +99,7 @@ export async function PUT(
     if (denied) return denied
 
     const body = await request.json()
-    const { activo, nombre_completo, plan_estudio_id, matricula } = body
+    const { activo, nombre_completo, plan_estudio_id, matricula, telefono } = body
 
     const admin = createAdminClient()
 
@@ -127,6 +127,7 @@ export async function PUT(
     const alumnoUpdate: Record<string, unknown> = {}
     if (plan_estudio_id !== undefined) alumnoUpdate.plan_estudio_id = plan_estudio_id
     if (matricula !== undefined) alumnoUpdate.matricula = matricula
+    if (telefono !== undefined) alumnoUpdate.telefono = telefono
 
     if (Object.keys(alumnoUpdate).length > 0) {
       const { error } = await admin.from('alumnos').update(alumnoUpdate).eq('id', params.id)
