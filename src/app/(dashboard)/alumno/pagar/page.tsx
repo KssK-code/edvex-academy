@@ -20,7 +20,6 @@ const OPCIONES: {
   titleKey: 'payment.inscription' | 'payment.moduloEstandar' | 'payment.moduloAcelerado' | 'payment.certificacion'
   descKey: 'payment.inscriptionDesc' | 'payment.moduloEstandarDesc' | 'payment.moduloAceleradoDesc' | 'payment.certificacionDesc'
   moduloNumero: number | 'inscripcion' | 'certificacion'
-  visible: (p: Perfil) => boolean
 }[] = [
   {
     id: 'inscripcion',
@@ -30,7 +29,6 @@ const OPCIONES: {
     titleKey: 'payment.inscription',
     descKey: 'payment.inscriptionDesc',
     moduloNumero: 'inscripcion',
-    visible: (p) => !p.inscripcion_pagada,
   },
   {
     id: 'modulo-estandar',
@@ -40,7 +38,6 @@ const OPCIONES: {
     titleKey: 'payment.moduloEstandar',
     descKey: 'payment.moduloEstandarDesc',
     moduloNumero: 1,
-    visible: () => true,
   },
   {
     id: 'modulo-acelerado',
@@ -50,7 +47,6 @@ const OPCIONES: {
     titleKey: 'payment.moduloAcelerado',
     descKey: 'payment.moduloAceleradoDesc',
     moduloNumero: 2,
-    visible: () => true,
   },
   {
     id: 'certificacion',
@@ -60,7 +56,6 @@ const OPCIONES: {
     titleKey: 'payment.certificacion',
     descKey: 'payment.certificacionDesc',
     moduloNumero: 'certificacion',
-    visible: (p) => (p.modulos_desbloqueados?.length ?? 0) >= 6,
   },
 ]
 
