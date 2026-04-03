@@ -64,7 +64,11 @@ export default function LoginPage() {
         return
       }
 
-      const redirect = ROLE_REDIRECTS[usuario.rol] ?? '/login'
+      const redirect = ROLE_REDIRECTS[usuario.rol]
+      if (!redirect) {
+        setError(t('auth.errUnknownRole'))
+        return
+      }
       router.push(redirect)
     } catch {
       setError(t('auth.errUnexpected'))
