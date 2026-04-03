@@ -31,17 +31,6 @@ export async function POST(req: NextRequest) {
 
     const admin = createAdminClient()
 
-    const { data: planes } = await admin
-      .from('planes_estudio')
-      .select('id')
-      .eq('activo', true)
-      .limit(1)
-
-    const planId = planes?.[0]?.id
-    if (!planId) {
-      return NextResponse.json({ error: 'No hay plan de estudio activo' }, { status: 500 })
-    }
-
     const { error: usuarioError } = await admin
       .from('usuarios')
       .insert({
@@ -67,7 +56,7 @@ export async function POST(req: NextRequest) {
         .insert({
           usuario_id: user.id,
           matricula,
-          plan_estudio_id: planId,
+          plan_estudio_id: null,
           meses_desbloqueados: 0,
           inscripcion_pagada: false,
           modulos_desbloqueados: [],

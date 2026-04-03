@@ -60,60 +60,48 @@ export async function GET(request: NextRequest) {
     const telefono =
       (user.user_metadata?.telefono as string | undefined)?.trim() || null
 
-    const { data: planes, error: planesError } = await admin
-      .from('planes_estudio')
-      .select('id')
-      .eq('activo', true)
-      .limit(1)
+    if (!user.email) {
+      console.error('[auth/confirm] SKIP inserts - email is null')
+      return NextResponse.redirect(`${base}/login?error=setup_failed`)
+    }
 
-    console.log('[auth/confirm] plan_id:', planes?.[0]?.id ?? 'NULL', '| planesError:', planesError?.message ?? 'none')
+    const { error: usuarioError } = await admin.from('usuarios').insert({
+      id: user.id,
+      email: user.email,
+      nombre_completo,
+      rol: 'ALUMNO',
+      activo: true,
+    })
 
-    const planId = planes?.[0]?.id
+    console.log('[auth/confirm] INSERT usuario - error:', usuarioError?.message ?? 'OK', '| code:', usuarioError?.code ?? '-')
 
-    if (planId && user.email) {
-      const { error: usuarioError } = await admin.from('usuarios').insert({
-        id: user.id,
-        email: user.email,
-        nombre_completo,
-        rol: 'ALUMNO',
-        activo: true,
-      })
-
-      console.log('[auth/confirm] INSERT usuario - error:', usuarioError?.message ?? 'OK', '| code:', usuarioError?.code ?? '-')
-
-      if (!usuarioError || usuarioError.code === '23505') {
-        let matricula = matriculaUnica()
-        let alumnoError = null
-        for (let i = 0; i < 10; i++) {
-          const result = await admin.from('alumnos').insert({
-            usuario_id: user.id,
-            matricula,
-            plan_estudio_id: planId,
-            meses_desbloqueados: 0,
-            inscripcion_pagada: false,
-            modulos_desbloqueados: [],
-            telefono,
-          })
-          alumnoError = result.error
-          if (!alumnoError) break
-          if (alumnoError.code === '23505') { matricula = matriculaUnica(); continue }
-          break
-        }
-        console.log('[auth/confirm] INSERT alumno - error:', alumnoError?.message ?? 'OK', '| matricula:', matricula)
-      } else {
-        // Error inesperado en INSERT usuarios (no es duplicado): el perfil no se creó
-        console.error('[auth/confirm] ERROR no recuperable en INSERT usuarios - code:', usuarioError.code)
-        return NextResponse.redirect(`${base}/login?error=setup_failed`)
+    if (!usuarioError || usuarioError.code === '23505') {
+      let matricula = matriculaUnica()
+      let alumnoError = null
+      for (let i = 0; i < 10; i++) {
+        const result = await admin.from('alumnos').insert({
+          usuario_id: user.id,
+          matricula,
+          plan_estudio_id: null,
+          meses_desbloqueados: 0,
+          inscripcion_pagada: false,
+          modulos_desbloqueados: [],
+          telefono,
+        })
+        alumnoError = result.error
+        if (!alumnoError) break
+        if (alumnoError.code === '23505') { matricula = matriculaUnica(); continue }
+        break
       }
+      console.log('[auth/confirm] INSERT alumno - error:', alumnoError?.message ?? 'OK', '| matricula:', matricula)
     } else {
-      // Sin plan activo o sin email: no se pueden crear los registros
-      console.error('[auth/confirm] SKIP inserts - planId:', planId, '| email:', user.email)
+      console.error('[auth/confirm] ERROR no recuperable en INSERT usuarios - code:', usuarioError.code)
       return NextResponse.redirect(`${base}/login?error=setup_failed`)
     }
   } else {
     console.log('[auth/confirm] usuario ya existe, skipping inserts')
   }
 
-  console.log('[auth/confirm] DONE - redirecting to /alumno/pagar')
-  return NextResponse.redirect(`${base}/alumno/pagar`)
+  console.log('[auth/confirm] DONE - redirecting to /alumno/elegir-plan')
+  return NextResponse.redirect(`${base}/alumno/elegir-plan`)
 }

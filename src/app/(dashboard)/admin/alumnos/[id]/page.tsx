@@ -352,8 +352,8 @@ export default function AlumnoDetallePage() {
       <div className="rounded-xl p-5 space-y-3" style={CARD_STYLE}>
         <h3 className="text-sm font-semibold" style={{ color: '#F1F5F9' }}>Información General</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-          <div><p style={{ color: '#94A3B8' }}>Plan de estudio</p><p className="mt-0.5 font-medium" style={{ color: '#F1F5F9' }}>{alumno.plan.nombre}</p></div>
-          <div><p style={{ color: '#94A3B8' }}>Duración total</p><p className="mt-0.5 font-medium" style={{ color: '#F1F5F9' }}>{alumno.plan.duracion_meses} meses</p></div>
+          <div><p style={{ color: '#94A3B8' }}>Plan de estudio</p><p className="mt-0.5 font-medium" style={{ color: alumno.plan.nombre ? '#F1F5F9' : '#64748B' }}>{alumno.plan.nombre || 'Sin plan asignado'}</p></div>
+          <div><p style={{ color: '#94A3B8' }}>Duración total</p><p className="mt-0.5 font-medium" style={{ color: '#F1F5F9' }}>{alumno.plan.duracion_meses ? `${alumno.plan.duracion_meses} meses` : '—'}</p></div>
           <div><p style={{ color: '#94A3B8' }}>Fecha de registro</p><p className="mt-0.5 font-medium" style={{ color: '#F1F5F9' }}>{new Date(alumno.created_at).toLocaleDateString('es-MX')}</p></div>
           <div><p style={{ color: '#94A3B8' }}>Teléfono / WhatsApp</p><p className="mt-0.5 font-medium" style={{ color: alumno.telefono ? '#F1F5F9' : '#475569' }}>{alumno.telefono || '—'}</p></div>
         </div>
