@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Mail, Lock, Loader2, User } from 'lucide-react'
+import { Mail, Lock, Loader2, User, Phone } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { APP_NAME } from '@/lib/constants'
 import { ESCUELA_CONFIG } from '@/lib/config'
@@ -30,6 +30,7 @@ export default function RegisterPage() {
   const { t } = useLanguage()
 
   const [nombreCompleto, setNombreCompleto] = useState('')
+  const [telefono, setTelefono] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -56,7 +57,7 @@ export default function RegisterPage() {
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: email.trim(),
         password,
-        options: { data: { nombre_completo: nombreCompleto.trim() } },
+        options: { data: { nombre_completo: nombreCompleto.trim(), telefono: telefono.trim() || null } },
       })
 
       if (signUpError) {
@@ -77,7 +78,7 @@ export default function RegisterPage() {
       const res = await fetch('/api/auth/register-complete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre_completo: nombreCompleto.trim() }),
+        body: JSON.stringify({ nombre_completo: nombreCompleto.trim(), telefono: telefono.trim() || null }),
       })
       const data = await res.json()
 
@@ -165,6 +166,27 @@ export default function RegisterPage() {
                 value={nombreCompleto}
                 onChange={(e) => setNombreCompleto(e.target.value)}
                 placeholder={t('register.fullNamePlaceholder')}
+                className="w-full pl-10 pr-4 py-3 rounded-lg text-sm outline-none transition-all"
+                style={inputStyle}
+                onFocus={(e) => Object.assign(e.currentTarget.style, focusStyle)}
+                onBlur={(e) => Object.assign(e.currentTarget.style, blurStyle)}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label htmlFor="telefono" className="block text-sm font-medium" style={{ color: '#94A3B8' }}>
+              {t('register.phone')} <span style={{ color: '#475569' }}>{t('register.phoneOptional')}</span>
+            </label>
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: '#94A3B8' }} />
+              <input
+                id="telefono"
+                type="tel"
+                autoComplete="tel"
+                value={telefono}
+                onChange={(e) => setTelefono(e.target.value)}
+                placeholder={t('register.phonePlaceholder')}
                 className="w-full pl-10 pr-4 py-3 rounded-lg text-sm outline-none transition-all"
                 style={inputStyle}
                 onFocus={(e) => Object.assign(e.currentTarget.style, focusStyle)}

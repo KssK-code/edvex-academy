@@ -27,6 +27,9 @@ export async function GET() {
         created_at,
         plan_estudio_id,
         usuario_id,
+        telefono,
+        contactado_whatsapp,
+        inscripcion_pagada,
         usuarios (nombre_completo, email, activo),
         planes_estudio (nombre, duracion_meses)
       `)
@@ -44,6 +47,9 @@ export async function GET() {
         created_at: string
         plan_estudio_id: string
         usuario_id: string
+        telefono: string | null
+        contactado_whatsapp: boolean
+        inscripcion_pagada: boolean
         usuarios: { nombre_completo: string; email: string; activo: boolean } | { nombre_completo: string; email: string; activo: boolean }[] | null
         planes_estudio: { nombre: string; duracion_meses: number } | null
       }
@@ -59,6 +65,9 @@ export async function GET() {
         nombre_completo: usuariosData?.nombre_completo ?? '',
         email: usuariosData?.email ?? '',
         activo: usuariosData?.activo ?? true,
+        telefono: a.telefono ?? null,
+        contactado_whatsapp: a.contactado_whatsapp ?? false,
+        inscripcion_pagada: a.inscripcion_pagada ?? false,
         plan_nombre: a.planes_estudio?.nombre ?? '',
         duracion_meses: a.planes_estudio?.duracion_meses ?? 0,
       }
@@ -81,7 +90,7 @@ export async function POST(request: NextRequest) {
     if (denied) return denied
 
     const body = await request.json()
-    const { nombre_completo, email, password, plan_estudio_id } = body
+    const { nombre_completo, email, password, plan_estudio_id, telefono } = body
 
     if (!nombre_completo || !email || !password || !plan_estudio_id) {
       return NextResponse.json({ error: 'Todos los campos son requeridos' }, { status: 400 })
@@ -134,6 +143,7 @@ export async function POST(request: NextRequest) {
           matricula,
           plan_estudio_id,
           meses_desbloqueados: 0,
+          telefono: telefono?.trim() || null,
         })
         .select()
         .single()
