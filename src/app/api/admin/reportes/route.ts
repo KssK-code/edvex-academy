@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { verifyAdmin } from '@/lib/supabase/verify-admin'
 
 export async function GET() {
@@ -11,13 +12,16 @@ export async function GET() {
     const denied = await verifyAdmin(supabase, user.id)
     if (denied) return denied
 
+    // Usar service role para todas las queries de datos (bypass RLS)
+    const admin = createAdminClient()
+
     // Total alumnos
-    const { count: totalAlumnos } = await supabase
+    const { count: totalAlumnos } = await admin
       .from('alumnos')
       .select('*', { count: 'exact', head: true })
 
     // Alumnos activos (join con usuarios)
-    const { data: alumnosData } = await supabase
+    const { data: alumnosData } = await admin
       .from('alumnos')
       .select('meses_desbloqueados, usuarios(activo)')
 
@@ -29,7 +33,7 @@ export async function GET() {
       : 0
 
     // Total ingresos
-    const { data: pagosData } = await supabase.from('pagos').select('monto, alumno_id, metodo_pago, created_at, alumnos(usuarios(nombre_completo))')
+    const { data: pagosData } = await admin.from('pagos').select('monto, alumno_id, metodo_pago, created_at, alumnos(usuarios(nombre_completo))')
     type PagoR = { monto: number; alumno_id: string; metodo_pago: string; created_at: string; alumnos: { usuarios: { nombre_completo: string } | null } | null }
     const pagosList = (pagosData ?? []) as unknown as PagoR[]
     const totalIngresos = pagosList.reduce((s, p) => s + (p.monto ?? 0), 0)
@@ -46,7 +50,7 @@ export async function GET() {
       }))
 
     // Rendimiento por materia
-    const { data: califs } = await supabase
+    const { data: califs } = await admin
       .from('calificaciones')
       .select('materia_id, aprobada, materias(codigo, nombre)')
 
