@@ -64,6 +64,7 @@ export default function AlumnoDetallePage() {
   const [submitting, setSubmitting] = useState(false)
   const [resettingPass, setResettingPass] = useState(false)
   const [togglingActivo, setTogglingActivo] = useState(false)
+  const [modalConfirmToggle, setModalConfirmToggle] = useState(false)
   const [pagoError, setPagoError] = useState<string | null>(null)
   const [resetError, setResetError] = useState<string | null>(null)
   const [resetSuccess, setResetSuccess] = useState<string | null>(null)
@@ -164,6 +165,7 @@ export default function AlumnoDetallePage() {
 
   async function handleToggleActivo() {
     if (!alumno) return
+    setModalConfirmToggle(false)
     const nuevoEstado = !alumno.usuario.activo
     setTogglingActivo(true)
     try {
@@ -274,7 +276,7 @@ export default function AlumnoDetallePage() {
             Resetear contraseña
           </button>
           <button
-            onClick={handleToggleActivo}
+            onClick={() => setModalConfirmToggle(true)}
             disabled={togglingActivo}
             className="px-4 py-2 rounded-lg text-sm font-medium transition-all disabled:opacity-60"
             style={alumno.usuario.activo
@@ -506,6 +508,59 @@ export default function AlumnoDetallePage() {
           })}
         </div>
       </div>
+
+      {/* Modal Confirmar Activar/Desactivar */}
+      {modalConfirmToggle && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.7)' }}>
+          <div className="w-full max-w-sm rounded-2xl p-6 shadow-2xl" style={CARD_STYLE}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold" style={{ color: '#F1F5F9' }}>
+                {alumno.usuario.activo ? 'Desactivar alumno' : 'Activar alumno'}
+              </h3>
+              <button
+                onClick={() => setModalConfirmToggle(false)}
+                className="p-1.5 rounded-lg"
+                style={{ color: '#94A3B8' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-sm mb-6" style={{ color: '#94A3B8' }}>
+              {alumno.usuario.activo
+                ? <>¿Desactivar a <span style={{ color: '#F1F5F9', fontWeight: 600 }}>{alumno.usuario.nombre_completo}</span>? Perderá acceso inmediatamente.</>
+                : <>¿Activar a <span style={{ color: '#F1F5F9', fontWeight: 600 }}>{alumno.usuario.nombre_completo}</span>? Recuperará acceso a la plataforma.</>
+              }
+            </p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setModalConfirmToggle(false)}
+                className="flex-1 py-2.5 rounded-lg text-sm font-medium"
+                style={{ background: 'rgba(255,255,255,0.05)', color: '#94A3B8', border: '1px solid #2A2F3E' }}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleToggleActivo}
+                disabled={togglingActivo}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold disabled:opacity-60"
+                style={alumno.usuario.activo
+                  ? { background: '#EF4444', color: '#fff' }
+                  : { background: '#10B981', color: '#fff' }
+                }
+              >
+                {togglingActivo
+                  ? <><Loader2 className="w-4 h-4 animate-spin" />Procesando...</>
+                  : 'Confirmar'
+                }
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal Resetear Contraseña */}
       {modalReset && (
