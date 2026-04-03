@@ -238,7 +238,7 @@ export default function ReadingProgress({
               ) : (
                 <span>✓</span>
               )}
-              {lang === 'en' ? 'Mark as read — watch videos' : 'Marcar como leído — ver videos'}
+              {lang === 'en' ? 'Complete and unlock next subject' : 'Completar y desbloquear siguiente materia'}
             </button>
           ) : null}
         </div>
