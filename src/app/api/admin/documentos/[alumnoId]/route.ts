@@ -24,14 +24,14 @@ export async function GET(
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-    // Generar URLs firmadas para cada documento (válidas 1 hora)
+    // Generar URLs firmadas para cada documento (válidas 24 horas)
     const docs = await Promise.all(
       (documentos ?? []).map(async (doc) => {
         const ext = doc.nombre_archivo.split('.').pop()?.toLowerCase() ?? 'pdf'
         const storagePath = `${params.alumnoId}/${doc.tipo}.${ext}`
         const { data: signed } = await admin.storage
           .from('documentos')
-          .createSignedUrl(storagePath, 3600)
+          .createSignedUrl(storagePath, 86400)
         return { ...doc, signed_url: signed?.signedUrl ?? null }
       })
     )

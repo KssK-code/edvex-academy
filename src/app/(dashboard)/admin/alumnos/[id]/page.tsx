@@ -479,9 +479,22 @@ export default function AlumnoDetallePage() {
 
       {/* Documentos */}
       <div className="rounded-xl overflow-hidden" style={CARD_STYLE}>
-        <div className="flex items-center gap-3 px-5 py-4" style={{ borderBottom: '1px solid #2A2F3E' }}>
-          <FileText className="w-4 h-4" style={{ color: '#7B8AFF' }} />
-          <h3 className="text-sm font-semibold" style={{ color: '#F1F5F9' }}>Documentos del Alumno</h3>
+        <div className="flex items-center justify-between gap-3 px-5 py-4" style={{ borderBottom: '1px solid #2A2F3E' }}>
+          <div className="flex items-center gap-3">
+            <FileText className="w-4 h-4" style={{ color: '#7B8AFF' }} />
+            <h3 className="text-sm font-semibold" style={{ color: '#F1F5F9' }}>Documentos del Alumno</h3>
+          </div>
+          <button
+            onClick={cargar}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+            style={{ background: 'rgba(255,255,255,0.04)', color: '#94A3B8', border: '1px solid #2A2F3E' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)' }}
+            title="Regenerar links de descarga"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Refrescar links
+          </button>
         </div>
         <div className="divide-y" style={{ borderColor: '#2A2F3E' }}>
           {DOC_TIPOS.map(tipo => {
