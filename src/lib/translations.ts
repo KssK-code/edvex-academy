@@ -108,6 +108,8 @@ const dict = {
       errShortPassword:   'La contraseña debe tener al menos 6 caracteres.',
       errRegister:        'Error al crear la cuenta. Intenta de nuevo.',
       errEmailExists:     'Ya existe una cuenta con ese correo.',
+      emailConfirmTitle:  '¡Cuenta creada!',
+      emailConfirmDesc:   'Revisa tu correo electrónico y haz clic en el enlace de confirmación para activar tu cuenta.',
     },
     dashboard: {
       welcome:          'Bienvenido',
@@ -456,6 +458,8 @@ const dict = {
       errShortPassword:   'Password must be at least 6 characters.',
       errRegister:        'Error creating account. Please try again.',
       errEmailExists:     'An account with that email already exists.',
+      emailConfirmTitle:  'Account created!',
+      emailConfirmDesc:   'Check your email and click the confirmation link to activate your account.',
     },
     dashboard: {
       welcome:          'Welcome',
