@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Users, Search, Plus, X, Loader2, Eye, MessageCircle, Phone } from 'lucide-react'
+import { Users, Search, Plus, X, Loader2, Eye, EyeOff, MessageCircle, Phone } from 'lucide-react'
 import { useToast, ToastContainer } from '@/components/ui/toast'
 
 interface Alumno {
@@ -51,6 +51,7 @@ export default function AlumnosPage() {
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
   const [contactando, setContactando] = useState<string | null>(null)
+  const [showPw, setShowPw] = useState(false)
   const [form, setForm] = useState({
     nombre_completo: '',
     email: '',
@@ -112,6 +113,7 @@ export default function AlumnosPage() {
     setModalOpen(false)
     setForm({ nombre_completo: '', email: '', password: '', plan_estudio_id: '', telefono: '' })
     setFormError(null)
+    setShowPw(false)
   }
 
   async function handleCrear(e: React.FormEvent) {
@@ -423,7 +425,6 @@ export default function AlumnosPage() {
               {[
                 { label: 'Nombre completo', key: 'nombre_completo', type: 'text', placeholder: 'Juan Pérez García' },
                 { label: 'Correo electrónico', key: 'email', type: 'email', placeholder: 'alumno@ejemplo.com' },
-                { label: 'Contraseña temporal', key: 'password', type: 'password', placeholder: '••••••••' },
               ].map(({ label, key, type, placeholder }) => (
                 <div key={key} className="space-y-1.5">
                   <label className="block text-sm font-medium" style={{ color: '#94A3B8' }}>{label}</label>
@@ -440,6 +441,26 @@ export default function AlumnosPage() {
                   />
                 </div>
               ))}
+
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium" style={{ color: '#94A3B8' }}>Contraseña temporal</label>
+                <div className="relative">
+                  <input
+                    type={showPw ? 'text' : 'password'}
+                    required
+                    placeholder="••••••••"
+                    value={form.password}
+                    onChange={e => setForm(prev => ({ ...prev, password: e.target.value }))}
+                    className="w-full px-3 pr-10 py-2.5 rounded-lg text-sm outline-none"
+                    style={INPUT_STYLE}
+                    onFocus={e => { e.currentTarget.style.border = '1px solid #5B6CFF' }}
+                    onBlur={e => { e.currentTarget.style.border = '1px solid #2A2F3E' }}
+                  />
+                  <button type="button" onClick={() => setShowPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5" style={{ color: '#64748B' }}>
+                    {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
 
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium" style={{ color: '#94A3B8' }}>

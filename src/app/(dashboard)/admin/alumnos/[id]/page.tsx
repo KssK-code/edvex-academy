@@ -69,7 +69,7 @@ export default function AlumnoDetallePage() {
   const [modalConfirmToggle, setModalConfirmToggle] = useState(false)
   const [modalEditar, setModalEditar] = useState(false)
   const [planes, setPlanes] = useState<{ id: string; nombre: string; duracion_meses: number }[]>([])
-  const [editForm, setEditForm] = useState({ nombre_completo: '', plan_estudio_id: '', matricula: '' })
+  const [editForm, setEditForm] = useState({ nombre_completo: '', plan_estudio_id: '', matricula: '', telefono: '' })
   const [editError, setEditError] = useState<string | null>(null)
   const [savingEdit, setSavingEdit] = useState(false)
   const [pagoError, setPagoError] = useState<string | null>(null)
@@ -175,6 +175,7 @@ export default function AlumnoDetallePage() {
       nombre_completo: alumno.usuario.nombre_completo,
       plan_estudio_id: alumno.plan.id,
       matricula: alumno.matricula,
+      telefono: alumno.telefono ?? '',
     })
     setEditError(null)
     setModalEditar(true)
@@ -196,6 +197,7 @@ export default function AlumnoDetallePage() {
           nombre_completo: editForm.nombre_completo.trim(),
           plan_estudio_id: editForm.plan_estudio_id,
           matricula: editForm.matricula.trim(),
+          telefono: editForm.telefono.trim() || null,
         }),
       })
       if (!res.ok) {
@@ -682,6 +684,22 @@ export default function AlumnoDetallePage() {
                     <option key={p.id} value={p.id}>{p.nombre} ({p.duracion_meses} meses)</option>
                   ))}
                 </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium" style={{ color: '#94A3B8' }}>
+                  Teléfono / WhatsApp <span style={{ color: '#475569' }}>(opcional)</span>
+                </label>
+                <input
+                  type="tel"
+                  placeholder="+52 55 1234 5678"
+                  value={editForm.telefono}
+                  onChange={e => setEditForm(f => ({ ...f, telefono: e.target.value }))}
+                  className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
+                  style={INPUT_STYLE}
+                  onFocus={e => { e.currentTarget.style.border = '1px solid #5B6CFF' }}
+                  onBlur={e => { e.currentTarget.style.border = '1px solid #2A2F3E' }}
+                />
               </div>
 
               {editError && (
