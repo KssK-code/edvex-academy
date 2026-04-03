@@ -81,5 +81,43 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
+  // Onboarding: redirigir a alumnos sin plan o sin inscripción pagada
+  const pathname = request.nextUrl.pathname
+  const isAlumnoPageRoute =
+    pathname.startsWith('/alumno') &&
+    !pathname.startsWith('/api/')
+
+  if (user && isAlumnoPageRoute) {
+    const { data: alumno } = await supabase
+      .from('alumnos')
+      .select('plan_estudio_id, inscripcion_pagada')
+      .eq('usuario_id', user.id)
+      .single()
+
+    if (alumno) {
+      const url = request.nextUrl.clone()
+
+      if (!alumno.plan_estudio_id) {
+        // Sin plan → solo puede ver /alumno/elegir-plan
+        if (pathname !== '/alumno/elegir-plan') {
+          url.pathname = '/alumno/elegir-plan'
+          return NextResponse.redirect(url)
+        }
+      } else if (!alumno.inscripcion_pagada) {
+        // Tiene plan pero no ha pagado → solo puede ver /alumno/pagar
+        if (pathname !== '/alumno/pagar') {
+          url.pathname = '/alumno/pagar'
+          return NextResponse.redirect(url)
+        }
+      } else {
+        // Ya completó onboarding → no necesita volver a elegir-plan
+        if (pathname === '/alumno/elegir-plan') {
+          url.pathname = '/alumno'
+          return NextResponse.redirect(url)
+        }
+      }
+    }
+  }
+
   return supabaseResponse
 }

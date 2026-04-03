@@ -85,8 +85,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { nombre_completo, email, password, plan_estudio_id, telefono } = body
 
-    if (!nombre_completo || !email || !password || !plan_estudio_id) {
-      return NextResponse.json({ error: 'Todos los campos son requeridos' }, { status: 400 })
+    if (!nombre_completo || !email || !password) {
+      return NextResponse.json({ error: 'Nombre, email y contraseña son requeridos' }, { status: 400 })
     }
 
     const admin = createAdminClient()
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
         .insert({
           usuario_id: newUserId,
           matricula,
-          plan_estudio_id,
+          plan_estudio_id: plan_estudio_id || null,
           meses_desbloqueados: 0,
           telefono: telefono?.trim() || null,
         })

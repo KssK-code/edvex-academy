@@ -291,7 +291,7 @@ export default function AlumnosPage() {
                           <td className="px-4 py-3 font-mono text-xs" style={{ color: '#94A3B8' }}>{a.matricula}</td>
                           <td className="px-4 py-3 font-medium" style={{ color: '#F1F5F9' }}>{a.nombre_completo}</td>
                           <td className="px-4 py-3" style={{ color: '#94A3B8' }}>{a.email}</td>
-                          <td className="px-4 py-3" style={{ color: '#94A3B8' }}>{a.plan_nombre}</td>
+                          <td className="px-4 py-3" style={{ color: a.plan_nombre ? '#94A3B8' : '#64748B' }}>{a.plan_nombre || 'Sin plan'}</td>
                           <td className="px-4 py-3">
                             <span style={{ color: '#F1F5F9' }}>{a.meses_desbloqueados}</span>
                             <span style={{ color: '#94A3B8' }}>/{a.duracion_meses}</span>
@@ -460,13 +460,12 @@ export default function AlumnosPage() {
               <div className="space-y-1.5">
                 <label className="block text-sm font-medium" style={{ color: '#94A3B8' }}>Plan de estudio</label>
                 <select
-                  required
                   value={form.plan_estudio_id}
                   onChange={e => setForm(prev => ({ ...prev, plan_estudio_id: e.target.value }))}
                   className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
                   style={INPUT_STYLE}
                 >
-                  <option value="">Selecciona un plan...</option>
+                  <option value="">Sin plan (el alumno elegirá)</option>
                   {planes.map(p => (
                     <option key={p.id} value={p.id}>
                       {p.nombre} — {p.duracion_meses} meses

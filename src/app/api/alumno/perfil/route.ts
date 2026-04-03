@@ -18,6 +18,7 @@ export async function GET() {
     const a = data as unknown as {
       id: string
       matricula: string
+      plan_estudio_id: string | null
       meses_desbloqueados: number
       inscripcion_pagada?: boolean
       modulos_desbloqueados?: number[]
@@ -29,6 +30,7 @@ export async function GET() {
     return NextResponse.json({
       id: a.id,
       matricula: a.matricula,
+      plan_estudio_id: a.plan_estudio_id,
       meses_desbloqueados: a.meses_desbloqueados,
       inscripcion_pagada: a.inscripcion_pagada ?? false,
       modulos_desbloqueados: Array.isArray(a.modulos_desbloqueados) ? a.modulos_desbloqueados : [],
