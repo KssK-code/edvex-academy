@@ -13,9 +13,12 @@ export async function GET(request: NextRequest) {
   const token_hash = searchParams.get('token_hash')
   const type = searchParams.get('type') as 'email' | 'recovery' | 'signup' | null
 
+  console.log('[auth/confirm] START — token_hash:', token_hash ? token_hash.slice(0, 12) + '...' : 'NULL', '| type:', type)
+
   const base = process.env.NEXT_PUBLIC_APP_URL ?? 'https://edvexacademy.online'
 
   if (!token_hash || !type) {
+    console.log('[auth/confirm] ERROR — missing token_hash or type, redirecting to /login?error=invalid_link')
     return NextResponse.redirect(`${base}/login?error=invalid_link`)
   }
 
@@ -23,69 +26,85 @@ export async function GET(request: NextRequest) {
 
   const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({ token_hash, type })
 
+  console.log('[auth/confirm] verifyOtp result — error:', verifyError?.message ?? 'none')
+  console.log('[auth/confirm] verifyData.user:', verifyData?.user?.id ?? 'NULL', '| email:', verifyData?.user?.email ?? 'NULL')
+  console.log('[auth/confirm] verifyData.session:', verifyData?.session ? 'PRESENT' : 'NULL')
+
   if (verifyError) {
-    console.error('[auth/confirm] verifyOtp error:', verifyError.message)
     return NextResponse.redirect(`${base}/login?error=confirmation_failed`)
   }
 
-  // Usar el usuario directamente del resultado de verifyOtp
-  // (getUser() no funciona aquí porque las cookies de sesión aún no están en el request)
   const user = verifyData.user
 
-  if (user) {
-    const admin = createAdminClient()
-
-    // Verificar si ya tiene fila en usuarios (registro previo o doble clic)
-    const { data: existing } = await admin
-      .from('usuarios')
-      .select('id')
-      .eq('id', user.id)
-      .single()
-
-    if (!existing) {
-      const nombre_completo =
-        (user.user_metadata?.nombre_completo as string | undefined)?.trim() ||
-        user.email?.split('@')[0] ||
-        ''
-
-      const { data: planes } = await admin
-        .from('planes_estudio')
-        .select('id')
-        .eq('activo', true)
-        .limit(1)
-
-      const planId = planes?.[0]?.id
-
-      if (planId && user.email) {
-        const { error: usuarioError } = await admin.from('usuarios').insert({
-          id: user.id,
-          email: user.email,
-          nombre_completo,
-          rol: 'ALUMNO',
-          activo: true,
-        })
-
-        // Crear alumno solo si el usuario se insertó bien (o ya existía)
-        if (!usuarioError || usuarioError.code === '23505') {
-          let matricula = matriculaUnica()
-          for (let i = 0; i < 10; i++) {
-            const { error: alumnoError } = await admin.from('alumnos').insert({
-              usuario_id: user.id,
-              matricula,
-              plan_estudio_id: planId,
-              meses_desbloqueados: 0,
-              inscripcion_pagada: false,
-              modulos_desbloqueados: [],
-            })
-            if (!alumnoError) break
-            if (alumnoError.code === '23505') { matricula = matriculaUnica(); continue }
-            break
-          }
-        }
-      }
-    }
+  if (!user) {
+    console.log('[auth/confirm] ERROR — user is null after verifyOtp, redirecting to /login?error=no_user')
+    return NextResponse.redirect(`${base}/login?error=no_user`)
   }
 
-  // Redirigir al alumno a la página de pago
+  const admin = createAdminClient()
+
+  // Verificar si ya tiene fila en usuarios
+  const { data: existing, error: existingError } = await admin
+    .from('usuarios')
+    .select('id')
+    .eq('id', user.id)
+    .single()
+
+  console.log('[auth/confirm] existing usuario:', existing?.id ?? 'NOT FOUND', '| error:', existingError?.message ?? 'none')
+
+  if (!existing) {
+    const nombre_completo =
+      (user.user_metadata?.nombre_completo as string | undefined)?.trim() ||
+      user.email?.split('@')[0] ||
+      ''
+
+    const { data: planes, error: planesError } = await admin
+      .from('planes_estudio')
+      .select('id')
+      .eq('activo', true)
+      .limit(1)
+
+    console.log('[auth/confirm] plan_id:', planes?.[0]?.id ?? 'NULL', '| planesError:', planesError?.message ?? 'none')
+
+    const planId = planes?.[0]?.id
+
+    if (planId && user.email) {
+      const { error: usuarioError } = await admin.from('usuarios').insert({
+        id: user.id,
+        email: user.email,
+        nombre_completo,
+        rol: 'ALUMNO',
+        activo: true,
+      })
+
+      console.log('[auth/confirm] INSERT usuario — error:', usuarioError?.message ?? 'OK', '| code:', usuarioError?.code ?? '-')
+
+      if (!usuarioError || usuarioError.code === '23505') {
+        let matricula = matriculaUnica()
+        let alumnoError = null
+        for (let i = 0; i < 10; i++) {
+          const result = await admin.from('alumnos').insert({
+            usuario_id: user.id,
+            matricula,
+            plan_estudio_id: planId,
+            meses_desbloqueados: 0,
+            inscripcion_pagada: false,
+            modulos_desbloqueados: [],
+          })
+          alumnoError = result.error
+          if (!alumnoError) break
+          if (alumnoError.code === '23505') { matricula = matriculaUnica(); continue }
+          break
+        }
+        console.log('[auth/confirm] INSERT alumno — error:', alumnoError?.message ?? 'OK', '| matricula:', matricula)
+      }
+    } else {
+      console.log('[auth/confirm] SKIP inserts — planId:', planId, '| email:', user.email)
+    }
+  } else {
+    console.log('[auth/confirm] usuario ya existe, skipping inserts')
+  }
+
+  console.log('[auth/confirm] DONE — redirecting to /alumno/pagar')
   return NextResponse.redirect(`${base}/alumno/pagar`)
 }
