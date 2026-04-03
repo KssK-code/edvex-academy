@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { verifyAdmin } from '@/lib/supabase/verify-admin'
 
 export async function POST(
@@ -21,49 +22,28 @@ export async function POST(
       return NextResponse.json({ error: 'Monto y método de pago son requeridos' }, { status: 400 })
     }
 
-    // Obtener alumno con su plan
-    const { data: alumno, error: fetchError } = await supabase
-      .from('alumnos')
-      .select('id, meses_desbloqueados, planes_estudio!inner ( duracion_meses )')
-      .eq('id', params.id)
-      .single()
+    // RPC atómica: SELECT FOR UPDATE + UPDATE + INSERT en una sola transacción.
+    // Elimina el race condition (two admins simultáneos) y garantiza que si el
+    // INSERT de pago falla, el UPDATE de meses_desbloqueados hace rollback.
+    const admin = createAdminClient()
+    const { data: nuevoMes, error: rpcError } = await admin.rpc('desbloquear_mes', {
+      p_alumno_id:      params.id,
+      p_monto:          Number(monto),
+      p_metodo_pago:    metodo_pago,
+      p_referencia:     referencia ?? null,
+      p_registrado_por: user.id,
+    })
 
-    if (fetchError || !alumno) {
-      return NextResponse.json({ error: 'Alumno no encontrado' }, { status: 404 })
+    if (rpcError) {
+      const msg = rpcError.message ?? ''
+      if (msg.includes('Alumno no encontrado')) {
+        return NextResponse.json({ error: 'Alumno no encontrado' }, { status: 404 })
+      }
+      if (msg.includes('ya tiene todos los meses')) {
+        return NextResponse.json({ error: 'El alumno ya tiene todos los meses desbloqueados' }, { status: 400 })
+      }
+      return NextResponse.json({ error: msg || 'Error al desbloquear mes' }, { status: 500 })
     }
-
-    type AlumnoConPlan = { meses_desbloqueados: number; planes_estudio: { duracion_meses: number } }
-    const alumnoData = alumno as unknown as AlumnoConPlan
-    const duracionMeses = alumnoData.planes_estudio.duracion_meses
-    const mesesActuales = alumnoData.meses_desbloqueados
-
-    if (mesesActuales >= duracionMeses) {
-      return NextResponse.json({ error: 'El alumno ya tiene todos los meses desbloqueados' }, { status: 400 })
-    }
-
-    const nuevoMes = mesesActuales + 1
-
-    // Incrementar meses_desbloqueados
-    const { error: updateError } = await supabase
-      .from('alumnos')
-      .update({ meses_desbloqueados: nuevoMes })
-      .eq('id', params.id)
-
-    if (updateError) return NextResponse.json({ error: updateError.message }, { status: 500 })
-
-    // Registrar pago
-    const { error: pagoError } = await supabase
-      .from('pagos')
-      .insert({
-        alumno_id: params.id,
-        monto: Number(monto),
-        mes_desbloqueado: nuevoMes,
-        metodo_pago,
-        referencia: referencia || null,
-        registrado_por: user.id,
-      })
-
-    if (pagoError) return NextResponse.json({ error: pagoError.message }, { status: 500 })
 
     return NextResponse.json({ success: true, meses_desbloqueados: nuevoMes })
   } catch {
