@@ -87,6 +87,11 @@ export async function POST(req: NextRequest) {
       .eq('id', alumnoId)
       .single()
 
+    if (!alumno) {
+      console.error('[Stripe Webhook] Alumno no encontrado:', alumnoId)
+      return NextResponse.json({ error: 'Alumno no encontrado' }, { status: 500 })
+    }
+
     const currentModulos = Array.isArray(alumno?.modulos_desbloqueados)
       ? (alumno.modulos_desbloqueados as number[])
       : []
