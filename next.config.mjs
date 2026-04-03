@@ -10,6 +10,20 @@ const nextConfig = {
       },
     ],
   },
+  async headers() {
+    return [
+      {
+        // Prevent CDN/browser caching of the landing page
+        source: '/',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate',
+          },
+        ],
+      },
+    ]
+  },
 };
 
 export default nextConfig;
