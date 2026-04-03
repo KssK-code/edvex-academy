@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { verifyAdmin } from '@/lib/supabase/verify-admin'
 
 export async function POST(
   request: NextRequest,
@@ -11,16 +12,8 @@ export async function POST(
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
-    // Verificar que es ADMIN
-    const { data: usuario } = await supabase
-      .from('usuarios')
-      .select('rol')
-      .eq('id', user.id)
-      .single()
-
-    if (!usuario || usuario.rol !== 'ADMIN') {
-      return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 })
-    }
+    const denied = await verifyAdmin(supabase, user.id)
+    if (denied) return denied
 
     const body = await request.json()
     const { newPassword } = body
@@ -30,7 +23,8 @@ export async function POST(
     }
 
     // Obtener usuario_id del alumno
-    const { data: alumno, error: alumnoError } = await supabase
+    const admin = createAdminClient()
+    const { data: alumno, error: alumnoError } = await admin
       .from('alumnos')
       .select('usuario_id')
       .eq('id', params.id)
@@ -41,7 +35,6 @@ export async function POST(
     }
 
     // Actualizar contraseña con service role
-    const admin = createAdminClient()
     const { error: updateError } = await admin.auth.admin.updateUserById(
       (alumno as { usuario_id: string }).usuario_id,
       { password: newPassword }
