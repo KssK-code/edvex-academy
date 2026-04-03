@@ -76,35 +76,39 @@ export async function GET(
     // Ordenar semanas por número
     const semanas = (m.semanas ?? []).sort((a, b) => a.numero - b.numero)
 
-    // Para cada evaluación activa, obtener intentos usados
-    const evaluacionesConIntentos = await Promise.all(
-      (m.evaluaciones ?? [])
-        .filter(e => e.activa)
-        .map(async (ev) => {
-          const { count } = await supabase
-            .from('intentos_evaluacion')
-            .select('id', { count: 'exact', head: true })
-            .eq('alumno_id', alumno.id)
-            .eq('evaluacion_id', ev.id)
+    // Una sola query para todos los intentos de todas las evaluaciones activas
+    const evaluacionesActivas = (m.evaluaciones ?? []).filter(e => e.activa)
+    const evalIds = evaluacionesActivas.map(e => e.id)
 
-          // Verificar si aprobó
-          const { data: aprobado } = await supabase
-            .from('intentos_evaluacion')
-            .select('calificacion, aprobado')
-            .eq('alumno_id', alumno.id)
-            .eq('evaluacion_id', ev.id)
-            .eq('aprobado', true)
-            .limit(1)
-            .single()
+    const intentosPorEval = new Map<string, { count: number; aprobada: boolean; calificacion: number | null }>()
 
-          return {
-            ...ev,
-            intentos_usados: count ?? 0,
-            aprobada: !!aprobado,
-            calificacion_aprobatoria: aprobado?.calificacion ?? null,
-          }
+    if (evalIds.length > 0) {
+      const { data: intentosResumen } = await supabase
+        .from('intentos_evaluacion')
+        .select('evaluacion_id, calificacion, aprobado')
+        .eq('alumno_id', alumno.id)
+        .in('evaluacion_id', evalIds)
+
+      for (const intento of intentosResumen ?? []) {
+        const ev = intento as { evaluacion_id: string; calificacion: number; aprobado: boolean }
+        const curr = intentosPorEval.get(ev.evaluacion_id) ?? { count: 0, aprobada: false, calificacion: null }
+        intentosPorEval.set(ev.evaluacion_id, {
+          count: curr.count + 1,
+          aprobada: curr.aprobada || ev.aprobado,
+          calificacion: ev.aprobado ? (ev.calificacion ?? curr.calificacion) : curr.calificacion,
         })
-    )
+      }
+    }
+
+    const evaluacionesConIntentos = evaluacionesActivas.map(ev => {
+      const resumen = intentosPorEval.get(ev.id) ?? { count: 0, aprobada: false, calificacion: null }
+      return {
+        ...ev,
+        intentos_usados: resumen.count,
+        aprobada: resumen.aprobada,
+        calificacion_aprobatoria: resumen.calificacion,
+      }
+    })
 
     return NextResponse.json({
       ...m,
