@@ -44,13 +44,13 @@ export async function GET(
 
     const a = alumno as unknown as AlumnoRow
 
-    const { data: pagos } = await supabase
+    const { data: pagos } = await admin
       .from('pagos')
       .select('*')
       .eq('alumno_id', params.id)
       .order('created_at', { ascending: false })
 
-    const { data: calificaciones } = await supabase
+    const { data: calificaciones } = await admin
       .from('calificaciones')
       .select('*, materias (nombre, codigo)')
       .eq('alumno_id', params.id)
