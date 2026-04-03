@@ -59,8 +59,17 @@ export async function POST(req: NextRequest) {
     console.log(`[Stripe Webhook] Inscripción pagada — alumno ${alumnoId} → meses_desbloqueados = 1`)
 
   } else if (moduloNumero === 'certificacion') {
-    // Pago de certificación: solo registrar éxito (opcional: columna certificacion_pagada)
-    // Sin actualización en BD por ahora.
+    // Pago de certificación: marcar certificacion_pagada = true
+    const { error } = await supabase
+      .from('alumnos')
+      .update({ certificacion_pagada: true })
+      .eq('id', alumnoId)
+
+    if (error) {
+      console.error('[Stripe Webhook] Error actualizando certificacion_pagada', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+    console.log(`[Stripe Webhook] Certificación pagada — alumno ${alumnoId} → certificacion_pagada = true`)
 
   } else {
     // Módulo estándar (+1 mes) o acelerado (+2 meses)
