@@ -83,6 +83,7 @@ export default function MateriaPage() {
   const [tab, setTab] = useState<Tab>('contenido')
   const [semanaSeleccionada, setSemanaSeleccionada] = useState<string | null>(null)
   const [alumnoId, setAlumnoId] = useState<string>('')
+  const [alumnoError, setAlumnoError] = useState<string | null>(null)
   const [semanasCompletadas, setSemanasCompletadas] = useState<Set<string>>(new Set())
   const [materiaAcreditada, setMateriaAcreditada] = useState(false)
   const [glosario, setGlosario] = useState<{ id: string; termino: string; termino_en: string; definicion: string; definicion_en: string }[]>([])
@@ -159,7 +160,10 @@ export default function MateriaPage() {
         .select('id')
         .eq('usuario_id', user.id)
         .single()
-      if (!alumnoData) return
+      if (!alumnoData) {
+        setAlumnoError('No se pudo cargar tu perfil. Intenta recargar la página.')
+        return
+      }
 
       const { id: aId } = alumnoData as { id: string }
       setAlumnoId(aId)
@@ -338,6 +342,21 @@ export default function MateriaPage() {
                           }
                         }}
                       />
+
+                      {/* Error de perfil: muestra banner si quiz y notas no pudieron cargarse */}
+                      {!alumnoId && alumnoError && (
+                        <div
+                          className="flex items-start gap-2 rounded-lg px-4 py-3 text-sm"
+                          style={{
+                            background: 'rgba(239,68,68,0.08)',
+                            border: '1px solid rgba(239,68,68,0.2)',
+                            color: '#FCA5A5',
+                          }}
+                        >
+                          <span className="mt-px flex-shrink-0">⚠</span>
+                          <span>{alumnoError}</span>
+                        </div>
+                      )}
 
                       {/* Mini quiz de refuerzo */}
                       {alumnoId && (
