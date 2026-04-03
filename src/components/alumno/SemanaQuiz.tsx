@@ -128,13 +128,16 @@ export default function SemanaQuiz({ semanaId, lang }: SemanaQuizProps) {
 
   // Vista de resultados (quiz completado)
   if (completado) {
-    const correct = preguntas.reduce((acc, p) => {
-      const resp = respuestaPrevia?.respuestas[p.id] ?? seleccionadas[preguntas.indexOf(p)]
-      return acc + (resp === p.respuesta_correcta ? 1 : 0)
-    }, 0)
+    const resultados = preguntas.map((p, i) => {
+      const resp = respuestaPrevia?.respuestas[p.id] ?? seleccionadas[i]
+      const esCorrecto = resp === p.respuesta_correcta
+      return { p, resp, esCorrecto }
+    })
+    const correct = resultados.filter(r => r.esCorrecto).length
 
     return (
-      <div className="rounded-xl p-5 space-y-3 mt-2" style={CARD}>
+      <div className="rounded-xl p-5 space-y-4 mt-2" style={CARD}>
+        {/* Header */}
         <div className="flex items-center gap-2">
           <span className="text-lg">🎯</span>
           <div>
@@ -146,11 +149,13 @@ export default function SemanaQuiz({ semanaId, lang }: SemanaQuizProps) {
             </p>
           </div>
         </div>
-        <div className="flex items-center justify-center py-4">
+
+        {/* Puntuación */}
+        <div className="flex items-center justify-center py-2">
           <div className="text-center">
             <div
               className="text-3xl font-bold mb-1"
-              style={{ color: correct === total ? '#10B981' : '#F1F5F9' }}
+              style={{ color: correct === total ? '#10B981' : correct > 0 ? '#F59E0B' : '#F1F5F9' }}
             >
               {correct}/{total}
             </div>
@@ -158,6 +163,65 @@ export default function SemanaQuiz({ semanaId, lang }: SemanaQuizProps) {
               {loc(`¡${correct} de ${total} correctas!`, `${correct} out of ${total} correct!`)}
             </p>
           </div>
+        </div>
+
+        {/* Desglose por pregunta */}
+        <div className="space-y-2">
+          {resultados.map(({ p, resp, esCorrecto }, i) => (
+            <div
+              key={p.id}
+              className="rounded-lg px-4 py-3 space-y-1.5"
+              style={{
+                background: esCorrecto ? 'rgba(16,185,129,0.07)' : 'rgba(239,68,68,0.07)',
+                border: `1px solid ${esCorrecto ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)'}`,
+              }}
+            >
+              {/* Número de pregunta + icono */}
+              <div className="flex items-center gap-1.5">
+                <span
+                  className="text-xs font-bold"
+                  style={{ color: esCorrecto ? '#10B981' : '#EF4444' }}
+                >
+                  {esCorrecto ? '✓' : '✗'}
+                </span>
+                <span className="text-xs font-medium" style={{ color: '#94A3B8' }}>
+                  {loc(`Pregunta ${i + 1}`, `Question ${i + 1}`)}
+                </span>
+              </div>
+
+              {/* Texto de la pregunta */}
+              <p className="text-xs leading-relaxed" style={{ color: '#CBD5E1' }}>
+                {p.pregunta}
+              </p>
+
+              {/* Respuesta del alumno */}
+              <div className="flex items-start gap-1.5">
+                <span className="text-xs flex-shrink-0" style={{ color: '#64748B' }}>
+                  {loc('Tu respuesta:', 'Your answer:')}
+                </span>
+                <span
+                  className="text-xs font-medium"
+                  style={{ color: esCorrecto ? '#86EFAC' : '#FCA5A5' }}
+                >
+                  {resp !== undefined
+                    ? `${String.fromCharCode(65 + resp)}. ${p.opciones[resp]}`
+                    : loc('Sin respuesta', 'No answer')}
+                </span>
+              </div>
+
+              {/* Respuesta correcta (solo si falló) */}
+              {!esCorrecto && (
+                <div className="flex items-start gap-1.5">
+                  <span className="text-xs flex-shrink-0" style={{ color: '#64748B' }}>
+                    {loc('Respuesta correcta:', 'Correct answer:')}
+                  </span>
+                  <span className="text-xs font-medium" style={{ color: '#86EFAC' }}>
+                    {String.fromCharCode(65 + p.respuesta_correcta)}. {p.opciones[p.respuesta_correcta]}
+                  </span>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     )
