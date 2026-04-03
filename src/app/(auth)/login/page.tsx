@@ -39,7 +39,11 @@ export default function LoginPage() {
       const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
 
       if (authError) {
-        setError(t('auth.errInvalidCreds'))
+        if (authError.message.toLowerCase().includes('email not confirmed')) {
+          setError(t('auth.errEmailNotConfirmed'))
+        } else {
+          setError(t('auth.errInvalidCreds'))
+        }
         return
       }
 
