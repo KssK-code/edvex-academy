@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { ArrowLeft, X, Loader2, CreditCard, Key, Eye, EyeOff, Download, FileText } from 'lucide-react'
+import { ArrowLeft, X, Loader2, CreditCard, Key, Eye, EyeOff, Download, FileText, Pencil } from 'lucide-react'
 import { useToast, ToastContainer } from '@/components/ui/toast'
 
 interface AlumnoDetalle {
@@ -65,6 +65,11 @@ export default function AlumnoDetallePage() {
   const [resettingPass, setResettingPass] = useState(false)
   const [togglingActivo, setTogglingActivo] = useState(false)
   const [modalConfirmToggle, setModalConfirmToggle] = useState(false)
+  const [modalEditar, setModalEditar] = useState(false)
+  const [planes, setPlanes] = useState<{ id: string; nombre: string; duracion_meses: number }[]>([])
+  const [editForm, setEditForm] = useState({ nombre_completo: '', plan_estudio_id: '', matricula: '' })
+  const [editError, setEditError] = useState<string | null>(null)
+  const [savingEdit, setSavingEdit] = useState(false)
   const [pagoError, setPagoError] = useState<string | null>(null)
   const [resetError, setResetError] = useState<string | null>(null)
   const [resetSuccess, setResetSuccess] = useState<string | null>(null)
@@ -160,6 +165,50 @@ export default function AlumnoDetallePage() {
       setResetError('Error inesperado. Intenta de nuevo.')
     } finally {
       setResettingPass(false)
+    }
+  }
+
+  async function handleAbrirEditar() {
+    if (!alumno) return
+    setEditForm({
+      nombre_completo: alumno.usuario.nombre_completo,
+      plan_estudio_id: alumno.plan.id,
+      matricula: alumno.matricula,
+    })
+    setEditError(null)
+    setModalEditar(true)
+    if (planes.length === 0) {
+      const res = await fetch('/api/admin/planes')
+      if (res.ok) setPlanes(await res.json())
+    }
+  }
+
+  async function handleGuardarEditar(e: React.FormEvent) {
+    e.preventDefault()
+    setEditError(null)
+    setSavingEdit(true)
+    try {
+      const res = await fetch(`/api/admin/alumnos/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre_completo: editForm.nombre_completo.trim(),
+          plan_estudio_id: editForm.plan_estudio_id,
+          matricula: editForm.matricula.trim(),
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        setEditError(data.error || 'Error al guardar cambios')
+        return
+      }
+      setModalEditar(false)
+      await cargar()
+      showToast('✓ Datos del alumno actualizados', 'success')
+    } catch {
+      setEditError('Error inesperado. Intenta de nuevo.')
+    } finally {
+      setSavingEdit(false)
     }
   }
 
@@ -265,6 +314,16 @@ export default function AlumnoDetallePage() {
           </div>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
+          <button
+            onClick={handleAbrirEditar}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+            style={{ background: 'rgba(91,108,255,0.1)', color: '#7B8AFF', border: '1px solid rgba(91,108,255,0.2)' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(91,108,255,0.18)' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(91,108,255,0.1)' }}
+          >
+            <Pencil className="w-4 h-4" />
+            Editar
+          </button>
           <button
             onClick={() => { setModalReset(true); setResetError(null); setResetSuccess(null) }}
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
@@ -508,6 +567,104 @@ export default function AlumnoDetallePage() {
           })}
         </div>
       </div>
+
+      {/* Modal Editar Alumno */}
+      {modalEditar && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.7)' }}>
+          <div className="w-full max-w-md rounded-2xl p-6 shadow-2xl" style={CARD_STYLE}>
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h3 className="text-lg font-bold" style={{ color: '#F1F5F9' }}>Editar alumno</h3>
+                <p className="text-xs mt-0.5" style={{ color: '#94A3B8' }}>{alumno.matricula}</p>
+              </div>
+              <button
+                onClick={() => setModalEditar(false)}
+                className="p-1.5 rounded-lg"
+                style={{ color: '#94A3B8' }}
+                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleGuardarEditar} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium" style={{ color: '#94A3B8' }}>Nombre completo</label>
+                <input
+                  type="text"
+                  required
+                  value={editForm.nombre_completo}
+                  onChange={e => setEditForm(f => ({ ...f, nombre_completo: e.target.value }))}
+                  className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
+                  style={INPUT_STYLE}
+                  onFocus={e => { e.currentTarget.style.border = '1px solid #5B6CFF' }}
+                  onBlur={e => { e.currentTarget.style.border = '1px solid #2A2F3E' }}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium" style={{ color: '#94A3B8' }}>Matrícula</label>
+                <input
+                  type="text"
+                  required
+                  value={editForm.matricula}
+                  onChange={e => setEditForm(f => ({ ...f, matricula: e.target.value }))}
+                  className="w-full px-3 py-2.5 rounded-lg text-sm font-mono outline-none"
+                  style={INPUT_STYLE}
+                  onFocus={e => { e.currentTarget.style.border = '1px solid #5B6CFF' }}
+                  onBlur={e => { e.currentTarget.style.border = '1px solid #2A2F3E' }}
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-sm font-medium" style={{ color: '#94A3B8' }}>Plan de estudio</label>
+                <select
+                  required
+                  value={editForm.plan_estudio_id}
+                  onChange={e => setEditForm(f => ({ ...f, plan_estudio_id: e.target.value }))}
+                  className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
+                  style={INPUT_STYLE}
+                >
+                  {planes.length === 0 && (
+                    <option value={editForm.plan_estudio_id}>{alumno.plan.nombre}</option>
+                  )}
+                  {planes.map(p => (
+                    <option key={p.id} value={p.id}>{p.nombre} ({p.duracion_meses} meses)</option>
+                  ))}
+                </select>
+              </div>
+
+              {editError && (
+                <div className="rounded-lg px-3 py-2.5 text-sm" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', color: '#FCA5A5' }}>
+                  {editError}
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setModalEditar(false)}
+                  className="flex-1 py-2.5 rounded-lg text-sm font-medium"
+                  style={{ background: 'rgba(255,255,255,0.05)', color: '#94A3B8', border: '1px solid #2A2F3E' }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingEdit}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold disabled:opacity-60"
+                  style={{ background: '#5B6CFF', color: '#fff' }}
+                  onMouseEnter={e => { if (!savingEdit) e.currentTarget.style.background = '#7B8AFF' }}
+                  onMouseLeave={e => { if (!savingEdit) e.currentTarget.style.background = '#5B6CFF' }}
+                >
+                  {savingEdit ? <><Loader2 className="w-4 h-4 animate-spin" />Guardando...</> : <><Pencil className="w-4 h-4" />Guardar cambios</>}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Modal Confirmar Activar/Desactivar */}
       {modalConfirmToggle && (
