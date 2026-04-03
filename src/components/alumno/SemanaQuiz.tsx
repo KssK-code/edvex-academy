@@ -44,6 +44,16 @@ export default function SemanaQuiz({ semanaId, lang }: SemanaQuizProps) {
   const loc = (es: string, en: string) => lang === 'en' ? en : es
 
   useEffect(() => {
+    // Resetear todo el estado al cambiar de semana, evitando stale state
+    setLoading(true)
+    setPreguntas([])
+    setRespuestaPrevia(null)
+    setCompletado(false)
+    setCurrentIdx(0)
+    setSeleccionadas({})
+    setRespondidas({})
+    setGuardando(false)
+
     fetch(`/api/alumno/quiz/${semanaId}`)
       .then(r => r.json())
       .then(data => {
