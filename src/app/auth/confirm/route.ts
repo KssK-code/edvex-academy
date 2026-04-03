@@ -21,15 +21,16 @@ export async function GET(request: NextRequest) {
 
   const supabase = await createClient()
 
-  const { error: verifyError } = await supabase.auth.verifyOtp({ token_hash, type })
+  const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({ token_hash, type })
 
   if (verifyError) {
     console.error('[auth/confirm] verifyOtp error:', verifyError.message)
     return NextResponse.redirect(`${base}/login?error=confirmation_failed`)
   }
 
-  // Recuperar usuario recién autenticado
-  const { data: { user } } = await supabase.auth.getUser()
+  // Usar el usuario directamente del resultado de verifyOtp
+  // (getUser() no funciona aquí porque las cookies de sesión aún no están en el request)
+  const user = verifyData.user
 
   if (user) {
     const admin = createAdminClient()
