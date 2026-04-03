@@ -167,11 +167,16 @@ export default function AlumnoDetallePage() {
     const nuevoEstado = !alumno.usuario.activo
     setTogglingActivo(true)
     try {
-      await fetch(`/api/admin/alumnos/${id}`, {
+      const res = await fetch(`/api/admin/alumnos/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ activo: nuevoEstado }),
       })
+      if (!res.ok) {
+        const data = await res.json()
+        showToast(data.error || 'Error al cambiar estado del alumno', 'error')
+        return
+      }
       await cargar()
       showToast(
         nuevoEstado
