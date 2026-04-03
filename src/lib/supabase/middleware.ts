@@ -59,5 +59,27 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // Segunda capa de seguridad: verificar rol para rutas de administración
+  const isAdminRoute =
+    request.nextUrl.pathname.startsWith('/admin') ||
+    request.nextUrl.pathname.startsWith('/api/admin')
+
+  if (user && isAdminRoute) {
+    const { data: usuario } = await supabase
+      .from('usuarios')
+      .select('rol')
+      .eq('id', user.id)
+      .single()
+
+    if (usuario?.rol !== 'ADMIN') {
+      if (request.nextUrl.pathname.startsWith('/api/admin')) {
+        return NextResponse.json({ error: 'Acceso denegado' }, { status: 403 })
+      }
+      const url = request.nextUrl.clone()
+      url.pathname = '/alumno'
+      return NextResponse.redirect(url)
+    }
+  }
+
   return supabaseResponse
 }
