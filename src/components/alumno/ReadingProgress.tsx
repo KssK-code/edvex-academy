@@ -107,7 +107,10 @@ export default function ReadingProgress({
     try {
       await fetch('/api/alumno/progreso/semana', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-timezone': Intl.DateTimeFormat().resolvedOptions().timeZone,
+        },
         body: JSON.stringify({ semana_id: semanaId }),
       })
 

@@ -113,8 +113,11 @@ export async function POST(request: NextRequest) {
     }
 
     // --- Racha de días ---
+    // Usar el timezone del cliente para que la fecha "hoy" coincida con la del alumno
+    const timezone = request.headers.get('x-timezone') || 'America/Mexico_City'
     const ahora = new Date()
-    const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate())
+    const ahoraLocal = new Date(ahora.toLocaleString('en-US', { timeZone: timezone }))
+    const hoy = new Date(ahoraLocal.getFullYear(), ahoraLocal.getMonth(), ahoraLocal.getDate())
 
     // Obtener racha actual guardada
     const { data: rachaActual } = await supabase
