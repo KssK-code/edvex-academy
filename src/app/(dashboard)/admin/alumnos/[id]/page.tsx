@@ -128,8 +128,7 @@ export default function AlumnoDetallePage() {
       setPago({ monto: '', metodo_pago: 'Efectivo', referencia: '' })
       await cargar()
       if (alumno) {
-        const mesDesbloqueado = alumno.meses_desbloqueados + 1
-        showToast(`✓ Pago registrado. Mes ${mesDesbloqueado} desbloqueado para ${alumno.usuario.nombre_completo}`, 'success')
+        showToast(`✓ Mes desbloqueado para ${alumno.usuario.nombre_completo}`, 'success')
       }
     } catch {
       setPagoError('Error inesperado. Intenta de nuevo.')
