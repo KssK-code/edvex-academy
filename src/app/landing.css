@@ -685,6 +685,78 @@
   content: '✓'; color: var(--cian); font-weight: 800; flex-shrink: 0;
 }
 
+/* ── DOCUMENTOS ── */
+.edvex-landing .docs-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 24px; max-width: 820px; margin: 0 auto 48px;
+}
+.edvex-landing .doc-card {
+  background: rgba(255,255,255,.025);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 20px; padding: 36px 32px;
+  text-align: center;
+  transition: transform .3s, border-color .3s, box-shadow .3s;
+  position: relative; overflow: hidden;
+}
+.edvex-landing .doc-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(26,217,255,.06), transparent 60%);
+  opacity: 0; transition: opacity .3s;
+  pointer-events: none;
+}
+.edvex-landing .doc-card:hover {
+  border-color: rgba(26,217,255,.2);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,85,255,.12);
+}
+.edvex-landing .doc-card:hover::before { opacity: 1; }
+.edvex-landing .doc-icon {
+  font-size: 2.8rem; margin-bottom: 18px;
+}
+.edvex-landing .doc-name {
+  font-family: 'Syne', sans-serif; font-weight: 800;
+  font-size: 1.1rem; color: var(--blanco);
+  margin-bottom: 12px; letter-spacing: -.3px;
+}
+.edvex-landing .doc-desc {
+  font-size: .88rem; color: var(--gris); line-height: 1.65;
+}
+
+/* Documents banner */
+.edvex-landing .docs-banner {
+  max-width: 720px; margin: 0 auto;
+  background: linear-gradient(135deg, rgba(16,185,129,.08), rgba(26,217,255,.06));
+  border: 1px solid rgba(16,185,129,.2);
+  border-radius: 18px; padding: 40px 36px;
+  text-align: center;
+}
+.edvex-landing .docs-banner-icon {
+  font-size: 2rem; margin-bottom: 12px;
+}
+.edvex-landing .docs-banner-title {
+  font-family: 'Syne', sans-serif; font-weight: 800;
+  font-size: 1.3rem; color: var(--blanco);
+  letter-spacing: -.5px; margin-bottom: 8px;
+}
+.edvex-landing .docs-banner-sub {
+  font-size: .95rem; color: var(--gris);
+  margin-bottom: 28px; line-height: 1.6;
+}
+.edvex-landing .docs-checks {
+  list-style: none;
+  display: flex; flex-direction: column; gap: 14px;
+  text-align: left; max-width: 520px; margin: 0 auto;
+}
+.edvex-landing .docs-checks li {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: .9rem; color: var(--gris); line-height: 1.5;
+}
+.edvex-landing .docs-checks li::before {
+  content: '✓'; color: #10B981; font-weight: 800; flex-shrink: 0;
+  font-size: 1rem; line-height: 1.35;
+}
+
 /* ── PLANES ── */
 .edvex-landing .planes-grid {
   display: grid;
@@ -1091,6 +1163,8 @@
   .edvex-landing section           { padding: 72px 5%; }
   .edvex-landing .cta-final        { padding: 72px 5%; }
   .edvex-landing .validez-grid     { grid-template-columns: 1fr; }
+  .edvex-landing .docs-grid        { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto 40px; }
+  .edvex-landing .docs-banner      { padding: 28px 22px; }
   .edvex-landing .cert-grid        { grid-template-columns: 1fr; }
   .edvex-landing .cert-verify      { padding: 28px 20px; }
   .edvex-landing .cert-img-wrap    { height: 240px; }
@@ -1202,4 +1276,7 @@
   .edvex-landing .btn-plan:active     { opacity: .85; }
   .edvex-landing .benefit-card:active { border-color: rgba(26,217,255,.2); }
   .edvex-landing .btn-ingresar:active { background: rgba(26,217,255,.12); }
+  .edvex-landing .doc-card:hover     { transform: none; border-color: rgba(255,255,255,.08); box-shadow: none; }
+  .edvex-landing .doc-card:hover::before { opacity: 0; }
+  .edvex-landing .doc-card:active    { border-color: rgba(26,217,255,.2); }
 }
