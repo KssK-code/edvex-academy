@@ -57,6 +57,8 @@ export async function GET(request: NextRequest) {
       (user.user_metadata?.nombre_completo as string | undefined)?.trim() ||
       user.email?.split('@')[0] ||
       ''
+    const telefono =
+      (user.user_metadata?.telefono as string | undefined)?.trim() || null
 
     const { data: planes, error: planesError } = await admin
       .from('planes_estudio')
@@ -90,6 +92,7 @@ export async function GET(request: NextRequest) {
             meses_desbloqueados: 0,
             inscripcion_pagada: false,
             modulos_desbloqueados: [],
+            telefono,
           })
           alumnoError = result.error
           if (!alumnoError) break

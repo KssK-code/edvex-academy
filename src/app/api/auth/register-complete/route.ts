@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
     if (!nombre_completo) {
       return NextResponse.json({ error: 'nombre_completo es requerido' }, { status: 400 })
     }
+    const telefono = (body.telefono ?? '').trim() || null
 
     const admin = createAdminClient()
 
@@ -70,6 +71,7 @@ export async function POST(req: NextRequest) {
           meses_desbloqueados: 0,
           inscripcion_pagada: false,
           modulos_desbloqueados: [],
+          telefono,
         })
 
       if (!alumnoError) break

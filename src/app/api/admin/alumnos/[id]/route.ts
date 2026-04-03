@@ -11,6 +11,7 @@ type AlumnoRow = {
   created_at: string
   usuario_id: string
   plan_estudio_id: string
+  telefono: string | null
   usuarios: UsuariosData | UsuariosData[] | null
   planes_estudio: { id: string; nombre: string; duracion_meses: number; precio_mensual: number } | null
 }
@@ -60,6 +61,7 @@ export async function GET(
     return NextResponse.json({
       id: a.id,
       matricula: a.matricula,
+      telefono: a.telefono ?? null,
       meses_desbloqueados: a.meses_desbloqueados,
       created_at: a.created_at,
       usuario: {
