@@ -23,20 +23,39 @@ export async function GET() {
     // Alumnos activos (join con usuarios)
     const { data: alumnosData } = await admin
       .from('alumnos')
-      .select('meses_desbloqueados, usuarios(activo)')
+      .select('meses_desbloqueados, contactado_whatsapp, created_at, usuarios(activo)')
 
-    type AlumnoR = { meses_desbloqueados: number; usuarios: { activo: boolean } | null }
+    type AlumnoR = { meses_desbloqueados: number; contactado_whatsapp: boolean; created_at: string; usuarios: { activo: boolean } | null }
     const alumnosList = (alumnosData ?? []) as unknown as AlumnoR[]
     const alumnosActivos = alumnosList.filter(a => a.usuarios?.activo !== false).length
     const promMeses = alumnosList.length > 0
       ? alumnosList.reduce((s, a) => s + (a.meses_desbloqueados ?? 0), 0) / alumnosList.length
       : 0
 
+    // Alumnos pendientes de contactar (activos + no contactados por WhatsApp)
+    const pendientesContactar = alumnosList.filter(
+      a => a.usuarios?.activo !== false && !a.contactado_whatsapp
+    ).length
+
+    // Alumnos nuevos esta semana
+    const hace7dias = new Date()
+    hace7dias.setDate(hace7dias.getDate() - 7)
+    const alumnosNuevosSemana = alumnosList.filter(
+      a => new Date(a.created_at) >= hace7dias
+    ).length
+
     // Total ingresos
     const { data: pagosData } = await admin.from('pagos').select('monto, alumno_id, metodo_pago, created_at, alumnos(usuarios(nombre_completo))')
     type PagoR = { monto: number; alumno_id: string; metodo_pago: string; created_at: string; alumnos: { usuarios: { nombre_completo: string } | null } | null }
     const pagosList = (pagosData ?? []) as unknown as PagoR[]
     const totalIngresos = pagosList.reduce((s, p) => s + (p.monto ?? 0), 0)
+
+    // Ingresos del mes actual
+    const ahora = new Date()
+    const inicioMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1)
+    const ingresosMes = pagosList
+      .filter(p => new Date(p.created_at) >= inicioMes)
+      .reduce((s, p) => s + (p.monto ?? 0), 0)
 
     // Pagos recientes (últimos 20)
     const pagosRecientes = pagosList
@@ -91,7 +110,10 @@ export async function GET() {
         total_alumnos: totalAlumnos ?? 0,
         alumnos_activos: alumnosActivos,
         total_ingresos: totalIngresos,
+        ingresos_mes: ingresosMes,
         promedio_meses: Math.round(promMeses * 10) / 10,
+        pendientes_contactar: pendientesContactar,
+        alumnos_nuevos_semana: alumnosNuevosSemana,
       },
       rendimiento_materias: rendimientoMaterias,
       pagos_recientes: pagosRecientes,
