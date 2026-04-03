@@ -108,6 +108,12 @@ export default function AlumnosPage() {
     }
   }
 
+  function resetForm() {
+    setModalOpen(false)
+    setForm({ nombre_completo: '', email: '', password: '', plan_estudio_id: '', telefono: '' })
+    setFormError(null)
+  }
+
   async function handleCrear(e: React.FormEvent) {
     e.preventDefault()
     setFormError(null)
@@ -125,8 +131,7 @@ export default function AlumnosPage() {
       }
       const nombre = form.nombre_completo
       const matricula = data.matricula ?? ''
-      setModalOpen(false)
-      setForm({ nombre_completo: '', email: '', password: '', plan_estudio_id: '', telefono: '' })
+      resetForm()
       await cargarAlumnos()
       showToast(`✓ Alumno ${nombre} creado${matricula ? ` con matrícula ${matricula}` : ''}`, 'success')
     } catch {
@@ -404,7 +409,7 @@ export default function AlumnosPage() {
             <div className="flex items-center justify-between mb-5">
               <h3 className="text-lg font-bold" style={{ color: '#F1F5F9' }}>Nuevo Alumno</h3>
               <button
-                onClick={() => { setModalOpen(false); setFormError(null) }}
+                onClick={resetForm}
                 className="p-1.5 rounded-lg"
                 style={{ color: '#94A3B8' }}
                 onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)' }}
@@ -479,7 +484,7 @@ export default function AlumnosPage() {
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
-                  onClick={() => { setModalOpen(false); setFormError(null) }}
+                  onClick={resetForm}
                   className="flex-1 py-2.5 rounded-lg text-sm font-medium transition-all"
                   style={{ background: 'rgba(255,255,255,0.05)', color: '#94A3B8', border: '1px solid #2A2F3E' }}
                 >
