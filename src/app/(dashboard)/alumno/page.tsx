@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Lock, Loader2, BookOpen, TrendingUp, ChevronRight, GraduationCap, Bell, CreditCard } from 'lucide-react'
@@ -135,34 +135,43 @@ export default function AlumnoDashboard() {
     })
   }, { dependencies: [meses], scope: gridRef })
 
+  // Función reutilizable de carga — no toca loading para que el reload post-pago sea silencioso
+  const cargarDatos = useCallback(async () => {
+    const [p, m, c] = await Promise.all([
+      fetch('/api/alumno/perfil').then(r => r.json()),
+      fetch('/api/alumno/meses').then(r => r.json()),
+      fetch('/api/alumno/calificaciones').then(r => r.json()),
+    ])
+    setPerfil(p)
+    if (m && m.demo === true) {
+      setDemo(true)
+      setMeses([])
+    } else {
+      setDemo(false)
+      setMeses(Array.isArray(m) ? m : [])
+    }
+    setMateriasAcreditadas(c?.resumen?.materias_acreditadas ?? 0)
+  }, [])
+
+  // Carga inicial — muestra spinner hasta que resuelve
+  useEffect(() => {
+    cargarDatos().finally(() => setLoading(false))
+  }, [cargarDatos])
+
+  // Detectar retorno desde Stripe y recargar datos tras pago exitoso
   useEffect(() => {
     const pago = searchParams.get('pago')
     if (pago === 'exitoso') {
       showToast(t('payment.successToast'), 'success')
       router.replace('/alumno', { scroll: false })
+      // Esperar 2 s para que el webhook de Stripe procese antes de recargar
+      const timer = setTimeout(() => { cargarDatos() }, 2000)
+      return () => clearTimeout(timer)
     } else if (pago === 'cancelado') {
       showToast(t('payment.cancelToast'), 'info')
       router.replace('/alumno', { scroll: false })
     }
-  }, [searchParams, router, showToast, t])
-
-  useEffect(() => {
-    Promise.all([
-      fetch('/api/alumno/perfil').then(r => r.json()),
-      fetch('/api/alumno/meses').then(r => r.json()),
-      fetch('/api/alumno/calificaciones').then(r => r.json()),
-    ]).then(([p, m, c]) => {
-      setPerfil(p)
-      if (m && m.demo === true) {
-        setDemo(true)
-        setMeses([])
-      } else {
-        setDemo(false)
-        setMeses(Array.isArray(m) ? m : [])
-      }
-      setMateriasAcreditadas(c?.resumen?.materias_acreditadas ?? 0)
-    }).finally(() => setLoading(false))
-  }, [])
+  }, [searchParams, router, showToast, t, cargarDatos])
 
   // Cargar logros una vez que perfil está disponible
   useEffect(() => {
