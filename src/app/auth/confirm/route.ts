@@ -13,12 +13,12 @@ export async function GET(request: NextRequest) {
   const token_hash = searchParams.get('token_hash')
   const type = searchParams.get('type') as 'email' | 'recovery' | 'signup' | null
 
-  console.log('[auth/confirm] START — token_hash:', token_hash ? token_hash.slice(0, 12) + '...' : 'NULL', '| type:', type)
+  console.log('[auth/confirm] START - token_hash:', token_hash ? token_hash.slice(0, 12) + '...' : 'NULL', '| type:', type)
 
   const base = process.env.NEXT_PUBLIC_APP_URL ?? 'https://edvexacademy.online'
 
   if (!token_hash || !type) {
-    console.log('[auth/confirm] ERROR — missing token_hash or type, redirecting to /login?error=invalid_link')
+    console.log('[auth/confirm] ERROR - missing token_hash or type, redirecting to /login?error=invalid_link')
     return NextResponse.redirect(`${base}/login?error=invalid_link`)
   }
 
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 
   const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({ token_hash, type })
 
-  console.log('[auth/confirm] verifyOtp result — error:', verifyError?.message ?? 'none')
+  console.log('[auth/confirm] verifyOtp result - error:', verifyError?.message ?? 'none')
   console.log('[auth/confirm] verifyData.user:', verifyData?.user?.id ?? 'NULL', '| email:', verifyData?.user?.email ?? 'NULL')
   console.log('[auth/confirm] verifyData.session:', verifyData?.session ? 'PRESENT' : 'NULL')
 
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
   const user = verifyData.user
 
   if (!user) {
-    console.log('[auth/confirm] ERROR — user is null after verifyOtp, redirecting to /login?error=no_user')
+    console.log('[auth/confirm] ERROR - user is null after verifyOtp, redirecting to /login?error=no_user')
     return NextResponse.redirect(`${base}/login?error=no_user`)
   }
 
@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
         activo: true,
       })
 
-      console.log('[auth/confirm] INSERT usuario — error:', usuarioError?.message ?? 'OK', '| code:', usuarioError?.code ?? '-')
+      console.log('[auth/confirm] INSERT usuario - error:', usuarioError?.message ?? 'OK', '| code:', usuarioError?.code ?? '-')
 
       if (!usuarioError || usuarioError.code === '23505') {
         let matricula = matriculaUnica()
@@ -96,15 +96,21 @@ export async function GET(request: NextRequest) {
           if (alumnoError.code === '23505') { matricula = matriculaUnica(); continue }
           break
         }
-        console.log('[auth/confirm] INSERT alumno — error:', alumnoError?.message ?? 'OK', '| matricula:', matricula)
+        console.log('[auth/confirm] INSERT alumno - error:', alumnoError?.message ?? 'OK', '| matricula:', matricula)
+      } else {
+        // Error inesperado en INSERT usuarios (no es duplicado): el perfil no se creó
+        console.error('[auth/confirm] ERROR no recuperable en INSERT usuarios - code:', usuarioError.code)
+        return NextResponse.redirect(`${base}/login?error=setup_failed`)
       }
     } else {
-      console.log('[auth/confirm] SKIP inserts — planId:', planId, '| email:', user.email)
+      // Sin plan activo o sin email: no se pueden crear los registros
+      console.error('[auth/confirm] SKIP inserts - planId:', planId, '| email:', user.email)
+      return NextResponse.redirect(`${base}/login?error=setup_failed`)
     }
   } else {
     console.log('[auth/confirm] usuario ya existe, skipping inserts')
   }
 
-  console.log('[auth/confirm] DONE — redirecting to /alumno/pagar')
+  console.log('[auth/confirm] DONE - redirecting to /alumno/pagar')
   return NextResponse.redirect(`${base}/alumno/pagar`)
 }
