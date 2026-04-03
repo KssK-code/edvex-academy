@@ -87,7 +87,7 @@ export default function AlumnosPage() {
     a.matricula.toLowerCase().includes(busqueda.toLowerCase())
   )
 
-  const pendientes = alumnos.filter(a => a.inscripcion_pagada && !a.contactado_whatsapp)
+  const pendientes = alumnos.filter(a => !a.contactado_whatsapp)
 
   async function handleContactar(alumno: Alumno) {
     const tel = alumno.telefono?.replace(/\D/g, '') ?? ''

@@ -2,13 +2,14 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { ArrowLeft, X, Loader2, CreditCard, Key, Eye, EyeOff, Download, FileText, Pencil } from 'lucide-react'
+import { ArrowLeft, X, Loader2, CreditCard, Key, Eye, EyeOff, Download, FileText, Pencil, MessageCircle } from 'lucide-react'
 import { useToast, ToastContainer } from '@/components/ui/toast'
 
 interface AlumnoDetalle {
   id: string
   matricula: string
   telefono: string | null
+  contactado_whatsapp: boolean
   meses_desbloqueados: number
   created_at: string
   usuario: { id: string; nombre_completo: string; email: string; activo: boolean }
@@ -261,6 +262,21 @@ export default function AlumnoDetallePage() {
     }
   }
 
+  async function handleWhatsApp() {
+    if (!alumno) return
+    const tel = alumno.telefono?.replace(/\D/g, '') ?? ''
+    if (tel) {
+      window.open(`https://wa.me/52${tel}`, '_blank')
+    }
+    // Marcar como contactado
+    if (!alumno.contactado_whatsapp) {
+      try {
+        await fetch(`/api/admin/alumnos/${id}/contactar`, { method: 'PATCH' })
+        setAlumno(prev => prev ? { ...prev, contactado_whatsapp: true } : prev)
+      } catch { /* silent */ }
+    }
+  }
+
   if (loading) return (
     <div className="flex items-center justify-center min-h-[400px]">
       <Loader2 className="w-6 h-6 animate-spin" style={{ color: '#5B6CFF' }} />
@@ -355,7 +371,26 @@ export default function AlumnoDetallePage() {
           <div><p style={{ color: '#94A3B8' }}>Plan de estudio</p><p className="mt-0.5 font-medium" style={{ color: alumno.plan.nombre ? '#F1F5F9' : '#64748B' }}>{alumno.plan.nombre || 'Sin plan asignado'}</p></div>
           <div><p style={{ color: '#94A3B8' }}>Duración total</p><p className="mt-0.5 font-medium" style={{ color: '#F1F5F9' }}>{alumno.plan.duracion_meses ? `${alumno.plan.duracion_meses} meses` : '—'}</p></div>
           <div><p style={{ color: '#94A3B8' }}>Fecha de registro</p><p className="mt-0.5 font-medium" style={{ color: '#F1F5F9' }}>{new Date(alumno.created_at).toLocaleDateString('es-MX')}</p></div>
-          <div><p style={{ color: '#94A3B8' }}>Teléfono / WhatsApp</p><p className="mt-0.5 font-medium" style={{ color: alumno.telefono ? '#F1F5F9' : '#475569' }}>{alumno.telefono || '—'}</p></div>
+          <div>
+            <p style={{ color: '#94A3B8' }}>Teléfono / WhatsApp</p>
+            <div className="flex items-center gap-2 mt-0.5">
+              <p className="font-medium" style={{ color: alumno.telefono ? '#F1F5F9' : '#475569' }}>{alumno.telefono || '—'}</p>
+              <button
+                onClick={handleWhatsApp}
+                disabled={!alumno.telefono}
+                title={alumno.telefono ? 'Abrir WhatsApp' : 'Sin número registrado'}
+                className="p-1 rounded-md transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                style={{ background: alumno.telefono ? 'rgba(37,211,102,0.15)' : 'transparent', color: '#25D366' }}
+              >
+                <MessageCircle className="w-4 h-4" />
+              </button>
+              {alumno.contactado_whatsapp && (
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(16,185,129,0.1)', color: '#10B981' }}>
+                  Contactado
+                </span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
