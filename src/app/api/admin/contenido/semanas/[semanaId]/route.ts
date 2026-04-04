@@ -21,9 +21,16 @@ export async function PATCH(
     }
 
     // Validar estructura de cada video
+    const ytPattern = /^https?:\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)[a-zA-Z0-9_-]+/
     for (const v of videos) {
       if (typeof v.titulo !== 'string' || typeof v.url !== 'string' || typeof v.duracion !== 'string') {
         return NextResponse.json({ error: 'Cada video debe tener titulo, url y duracion (strings)' }, { status: 400 })
+      }
+      if (v.url && !ytPattern.test(v.url)) {
+        return NextResponse.json(
+          { error: `URL de video inválida: "${v.url}". Debe ser una URL de YouTube (youtube.com/watch?v= o youtu.be/)` },
+          { status: 400 }
+        )
       }
     }
 

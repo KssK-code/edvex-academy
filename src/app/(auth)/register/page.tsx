@@ -44,7 +44,15 @@ export default function RegisterPage() {
     e.preventDefault()
     setError(null)
 
-    if (password.length < 6) {
+    // Validar formato de email
+    const emailTrimmed = email.trim()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrimmed)) {
+      setError(t('register.errInvalidEmail'))
+      return
+    }
+
+    // Validar contraseña: mínimo 8 chars, al menos una letra y un número
+    if (password.length < 8 || !/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
       setError(t('register.errShortPassword'))
       return
     }

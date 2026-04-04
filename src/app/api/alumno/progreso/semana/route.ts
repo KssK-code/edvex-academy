@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+/** Obtener fecha YYYY-MM-DD en el timezone dado, usando Intl.DateTimeFormat */
+function toLocalDateStr(date: Date, tz: string): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    year: 'numeric', month: '2-digit', day: '2-digit', timeZone: tz,
+  }).format(date)
+}
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
@@ -113,11 +120,10 @@ export async function POST(request: NextRequest) {
     }
 
     // --- Racha de días ---
-    // Usar el timezone del cliente para que la fecha "hoy" coincida con la del alumno
+    // Usar Intl.DateTimeFormat con el timezone del cliente para obtener la fecha local correcta
     const timezone = request.headers.get('x-timezone') || 'America/Mexico_City'
     const ahora = new Date()
-    const ahoraLocal = new Date(ahora.toLocaleString('en-US', { timeZone: timezone }))
-    const hoy = new Date(ahoraLocal.getFullYear(), ahoraLocal.getMonth(), ahoraLocal.getDate())
+    const hoyStr = toLocalDateStr(ahora, timezone)
 
     // Obtener racha actual guardada
     const { data: rachaActual } = await supabase
@@ -132,10 +138,13 @@ export async function POST(request: NextRequest) {
     let diasRacha = 1
 
     if (rachaPrevia?.ultima_actividad) {
-      const ultimaFecha = new Date(rachaPrevia.ultima_actividad)
-      const ultimaDia = new Date(ultimaFecha.getFullYear(), ultimaFecha.getMonth(), ultimaFecha.getDate())
-      const diffMs = hoy.getTime() - ultimaDia.getTime()
-      const diffDias = Math.round(diffMs / (1000 * 60 * 60 * 24))
+      const ultimaStr = toLocalDateStr(new Date(rachaPrevia.ultima_actividad), timezone)
+      // Calcular diferencia en días usando UTC para evitar problemas de DST
+      const [aY, aM, aD] = hoyStr.split('-').map(Number)
+      const [uY, uM, uD] = ultimaStr.split('-').map(Number)
+      const hoyUTC = Date.UTC(aY, aM - 1, aD)
+      const ultimaUTC = Date.UTC(uY, uM - 1, uD)
+      const diffDias = Math.round((hoyUTC - ultimaUTC) / (1000 * 60 * 60 * 24))
 
       if (diffDias === 0) {
         // Misma sesión del mismo día — mantener racha

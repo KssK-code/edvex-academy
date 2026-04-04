@@ -1,6 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+/**
+ * Verifica que el alumno tenga acceso al mes al que pertenece la semana.
+ * Cadena: semana → materia → meses_contenido.numero <= alumno.meses_desbloqueados
+ */
+async function verificarAccesoSemana(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  semanaId: string,
+  alumnoId: string,
+  mesesDesbloqueados: number
+): Promise<{ ok: boolean; error?: string }> {
+  const { data: semana } = await supabase
+    .from('semanas')
+    .select('materia_id')
+    .eq('id', semanaId)
+    .single()
+
+  if (!semana) return { ok: false, error: 'Semana no encontrada' }
+
+  const { data: materia } = await supabase
+    .from('materias')
+    .select('mes_contenido_id')
+    .eq('id', (semana as { materia_id: string }).materia_id)
+    .single()
+
+  if (!materia) return { ok: false, error: 'Materia no encontrada' }
+
+  const { data: mes } = await supabase
+    .from('meses_contenido')
+    .select('numero')
+    .eq('id', (materia as { mes_contenido_id: string }).mes_contenido_id)
+    .single()
+
+  if (!mes) return { ok: false, error: 'Mes no encontrado' }
+
+  if ((mes as { numero: number }).numero > mesesDesbloqueados) {
+    return { ok: false, error: 'No tienes acceso a este contenido' }
+  }
+
+  return { ok: true }
+}
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: { semanaId: string } }
@@ -12,23 +53,27 @@ export async function GET(
 
     const { semanaId } = params
 
+    // Obtener alumno con meses_desbloqueados
+    const { data: alumnoData } = await supabase
+      .from('alumnos')
+      .select('id, meses_desbloqueados')
+      .eq('usuario_id', user.id)
+      .single()
+
+    if (!alumnoData) return NextResponse.json({ error: 'Alumno no encontrado' }, { status: 404 })
+
+    const { id: alumnoId, meses_desbloqueados } = alumnoData as { id: string; meses_desbloqueados: number }
+
+    // Verificar acceso al mes de la semana
+    const acceso = await verificarAccesoSemana(supabase, semanaId, alumnoId, meses_desbloqueados)
+    if (!acceso.ok) return NextResponse.json({ error: acceso.error }, { status: 403 })
+
     // Obtener preguntas del quiz para esta semana
     const { data: preguntas } = await supabase
       .from('quiz_semana')
       .select('id, pregunta, opciones, respuesta_correcta, explicacion, orden')
       .eq('semana_id', semanaId)
       .order('orden')
-
-    // Obtener alumno
-    const { data: alumnoData } = await supabase
-      .from('alumnos')
-      .select('id')
-      .eq('usuario_id', user.id)
-      .single()
-
-    if (!alumnoData) return NextResponse.json({ error: 'Alumno no encontrado' }, { status: 404 })
-
-    const { id: alumnoId } = alumnoData as { id: string }
 
     // Verificar si el alumno ya completó este quiz
     const { data: respuestaPrevia } = await supabase
@@ -60,18 +105,24 @@ export async function POST(
     const body = await request.json()
     const { respuestas } = body as { respuestas: Record<string, number> }
 
-    if (!respuestas) return NextResponse.json({ error: 'respuestas requeridas' }, { status: 400 })
+    if (!respuestas || typeof respuestas !== 'object') {
+      return NextResponse.json({ error: 'respuestas requeridas' }, { status: 400 })
+    }
 
-    // Obtener alumno
+    // Obtener alumno con meses_desbloqueados
     const { data: alumnoData } = await supabase
       .from('alumnos')
-      .select('id')
+      .select('id, meses_desbloqueados')
       .eq('usuario_id', user.id)
       .single()
 
     if (!alumnoData) return NextResponse.json({ error: 'Alumno no encontrado' }, { status: 404 })
 
-    const { id: alumnoId } = alumnoData as { id: string }
+    const { id: alumnoId, meses_desbloqueados } = alumnoData as { id: string; meses_desbloqueados: number }
+
+    // Verificar acceso al mes de la semana
+    const acceso = await verificarAccesoSemana(supabase, semanaId, alumnoId, meses_desbloqueados)
+    if (!acceso.ok) return NextResponse.json({ error: acceso.error }, { status: 403 })
 
     // Guardar respuestas (upsert — permite re-intentar si no se guardó antes)
     const { error } = await supabase
