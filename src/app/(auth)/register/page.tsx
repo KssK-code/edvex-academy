@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Mail, Lock, Loader2, User, Phone, Eye, EyeOff, Clock, Zap } from 'lucide-react'
@@ -44,26 +44,14 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
   const [showConfirmPw, setShowConfirmPw] = useState(false)
-  const [selectedPlan, setSelectedPlan] = useState('')
-  const [planes, setPlanes] = useState<PlanOption[]>([])
+  // Planes hardcodeados — evita fetch autenticado desde /register (el usuario aún no tiene sesión)
+  const planes: PlanOption[] = [
+    { id: '75a963ee-3d44-4339-9659-bd807f667773', nombre: 'Plan Estándar', duracion_meses: 6, precio_mensual: 150 },
+    { id: '038455bf-806a-4813-b922-d166f14dd047', nombre: 'Plan Express',  duracion_meses: 3, precio_mensual: 300 },
+  ]
+  const [selectedPlan, setSelectedPlan] = useState(planes[0].id)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-
-  // Cargar planes activos
-  useEffect(() => {
-    fetch('/api/alumno/planes')
-      .then(r => r.json())
-      .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          setPlanes(data)
-          // Pre-seleccionar el plan de 6 meses (Estándar)
-          const estandar = data.find((p: PlanOption) => p.duracion_meses === 6)
-          if (estandar) setSelectedPlan(estandar.id)
-          else setSelectedPlan(data[0].id)
-        }
-      })
-      .catch(() => { /* silencioso — el selector mostrará vacío */ })
-  }, [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -316,11 +304,6 @@ export default function RegisterPage() {
                 )
               })}
             </div>
-            {planes.length === 0 && (
-              <div className="flex items-center justify-center py-3">
-                <Loader2 className="w-4 h-4 animate-spin" style={{ color: '#475569' }} />
-              </div>
-            )}
           </div>
 
           {/* Contraseña */}
@@ -391,7 +374,7 @@ export default function RegisterPage() {
 
           <button
             type="submit"
-            disabled={loading || planes.length === 0}
+            disabled={loading}
             className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
             style={{ background: '#0055ff', color: '#ffffff' }}
             onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = '#1ad9ff' }}
