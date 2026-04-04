@@ -123,7 +123,7 @@ export default function ReadingProgress({
     if (cargando || completada) return
     setCargando(true)
     try {
-      await fetch('/api/alumno/progreso/semana', {
+      const resp = await fetch('/api/alumno/progreso/semana', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -131,6 +131,12 @@ export default function ReadingProgress({
         },
         body: JSON.stringify({ semana_id: semanaId }),
       })
+
+      if (!resp.ok) {
+        console.warn('[ReadingProgress] Servidor respondió con error', resp.status)
+        setCargando(false)
+        return
+      }
 
       // Calcular tiempo transcurrido desde que se montó el componente
       const segundos = Math.round((Date.now() - mountedAt.current) / 1000)
@@ -152,9 +158,8 @@ export default function ReadingProgress({
       setMostrarResumen(true)
 
     } catch {
-      // silencioso — no bloquear al alumno
-      setCompletada(true)
-      onCompletada?.()
+      // Error de red — NO marcar como completada, dejar que reintente
+      console.warn('[ReadingProgress] Error de red al marcar semana como completada')
     } finally {
       setCargando(false)
     }

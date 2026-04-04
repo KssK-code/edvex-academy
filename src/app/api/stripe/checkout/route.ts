@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     const admin = createAdminClient()
     const { data: alumnoRow, error: alumnoError } = await admin
       .from('alumnos')
-      .select('id')
+      .select('id, inscripcion_pagada, certificacion_pagada')
       .eq('usuario_id', user.id)
       .single()
 
@@ -48,6 +48,14 @@ export async function POST(req: NextRequest) {
     // 3. Validar body (alumnoId del body es ignorado completamente)
     const body = await req.json()
     const { tipo, moduloNumero } = body as { tipo?: string; moduloNumero?: string }
+
+    // 3b. Protección backend contra doble pago de inscripción o certificación
+    if (tipo === 'inscripcion' && alumnoRow.inscripcion_pagada) {
+      return NextResponse.json({ error: 'La inscripción ya fue pagada' }, { status: 409 })
+    }
+    if (tipo === 'certificacion' && alumnoRow.certificacion_pagada) {
+      return NextResponse.json({ error: 'La certificación ya fue pagada' }, { status: 409 })
+    }
 
     if (!tipo || moduloNumero === undefined) {
       return NextResponse.json(

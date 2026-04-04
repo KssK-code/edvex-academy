@@ -43,6 +43,18 @@ export async function POST(req: NextRequest) {
 
   const supabase = createAdminClient()
 
+  // ── Idempotencia: evitar doble-procesamiento si Stripe re-envía el evento ──
+  const { data: yaProcessed } = await supabase
+    .from('pagos')
+    .select('id')
+    .eq('stripe_session_id', session.id)
+    .maybeSingle()
+
+  if (yaProcessed) {
+    console.log(`[Stripe Webhook] Evento ya procesado (session ${session.id}), ignorando`)
+    return NextResponse.json({ received: true })
+  }
+
   const PRICE_MODULO_ACELERADO = process.env.STRIPE_PRICE_MODULO_ACELERADO! // +2 meses
 
   if (moduloNumero === 'inscripcion') {
@@ -56,6 +68,13 @@ export async function POST(req: NextRequest) {
       console.error('[Stripe Webhook] Error actualizando inscripcion_pagada', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
+    await supabase.from('pagos').insert({
+      alumno_id: alumnoId,
+      monto: (session.amount_total ?? 5000) / 100,
+      metodo_pago: 'stripe',
+      concepto: 'Inscripción',
+      stripe_session_id: session.id,
+    })
     console.log(`[Stripe Webhook] Inscripción pagada — alumno ${alumnoId} → meses_desbloqueados = 1`)
 
   } else if (moduloNumero === 'certificacion') {
@@ -69,6 +88,13 @@ export async function POST(req: NextRequest) {
       console.error('[Stripe Webhook] Error actualizando certificacion_pagada', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
+    await supabase.from('pagos').insert({
+      alumno_id: alumnoId,
+      monto: (session.amount_total ?? 45000) / 100,
+      metodo_pago: 'stripe',
+      concepto: 'Certificación',
+      stripe_session_id: session.id,
+    })
     console.log(`[Stripe Webhook] Certificación pagada — alumno ${alumnoId} → certificacion_pagada = true`)
 
   } else {
@@ -76,8 +102,8 @@ export async function POST(req: NextRequest) {
     const incremento = priceId === PRICE_MODULO_ACELERADO ? 2 : 1
 
     const num = parseInt(moduloNumero, 10)
-    if (Number.isNaN(num) || num < 1) {
-      console.error('[Stripe Webhook] moduloNumero inválido:', moduloNumero)
+    if (Number.isNaN(num) || num < 1 || num > 6) {
+      console.error('[Stripe Webhook] moduloNumero inválido o fuera de rango (1-6):', moduloNumero)
       return NextResponse.json({ error: 'moduloNumero inválido' }, { status: 400 })
     }
 
@@ -111,6 +137,13 @@ export async function POST(req: NextRequest) {
       console.error('[Stripe Webhook] Error actualizando módulo', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
+    await supabase.from('pagos').insert({
+      alumno_id: alumnoId,
+      monto: (session.amount_total ?? 0) / 100,
+      metodo_pago: 'stripe',
+      concepto: `Módulo ${num} (${priceId === PRICE_MODULO_ACELERADO ? 'acelerado' : 'estándar'})`,
+      stripe_session_id: session.id,
+    })
     console.log(`[Stripe Webhook] Módulo ${num} pagado (${priceId === PRICE_MODULO_ACELERADO ? 'acelerado +2' : 'estándar +1'}) — alumno ${alumnoId} → meses_desbloqueados = ${nextMeses}`)
   }
 
