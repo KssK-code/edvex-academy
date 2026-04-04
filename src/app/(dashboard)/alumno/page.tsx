@@ -221,28 +221,45 @@ export default function AlumnoDashboard() {
       {/* Banner: Inscripción pendiente */}
       {perfil.inscripcion_pagada === false && (
         <FadeIn delay={0}>
-          {/* Móvil: una fila compacta (≤48px) */}
-          <div
-            className="md:hidden flex items-center gap-2 rounded-xl px-2.5 h-12 max-h-12 overflow-hidden"
-            style={{
-              background: 'linear-gradient(135deg, rgba(245,158,11,0.14) 0%, rgba(239,68,68,0.1) 100%)',
-              border: '1px solid rgba(245,158,11,0.35)',
-            }}
-          >
-            <Bell className="w-3.5 h-3.5 shrink-0" style={{ color: '#F59E0B' }} aria-hidden />
-            <p className="text-[11px] leading-tight truncate flex-1 min-w-0 font-medium" style={{ color: '#FCD34D' }}>
-              {lang === 'en'
-                ? 'Pay enrollment ($50) to start. Details on next screen.'
-                : 'Paga inscripción ($50) para comenzar. Detalles al tocar Pagar.'}
-            </p>
-            <Link
-              href="/alumno/pagar"
-              className="shrink-0 flex items-center gap-1 px-2.5 h-8 rounded-lg text-xs font-semibold touch-manipulation active:opacity-90 whitespace-nowrap"
-              style={{ background: '#F59E0B', color: '#0B0D11' }}
+          {/* Móvil: fila pago + fila asesoría (secundaria) */}
+          <div className="md:hidden space-y-2">
+            <div
+              className="flex items-center gap-2 rounded-xl px-2.5 h-12 max-h-12 overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, rgba(245,158,11,0.14) 0%, rgba(239,68,68,0.1) 100%)',
+                border: '1px solid rgba(245,158,11,0.35)',
+              }}
             >
-              <CreditCard className="w-3 h-3" />
-              {lang === 'en' ? 'Pay' : 'Pagar'}
-            </Link>
+              <Bell className="w-3.5 h-3.5 shrink-0" style={{ color: '#F59E0B' }} aria-hidden />
+              <p className="text-[11px] leading-tight truncate flex-1 min-w-0 font-medium" style={{ color: '#FCD34D' }}>
+                {lang === 'en'
+                  ? 'Pay your enrollment ($50) to get started'
+                  : 'Paga tu inscripción ($50) para comenzar'}
+              </p>
+              <Link
+                href="/alumno/pagar"
+                className="shrink-0 flex items-center gap-1 px-2.5 h-8 rounded-lg text-xs font-semibold touch-manipulation active:opacity-90 whitespace-nowrap"
+                style={{ background: '#F59E0B', color: '#0B0D11' }}
+              >
+                <CreditCard className="w-3 h-3" />
+                {lang === 'en' ? 'Pay' : 'Pagar'}
+              </Link>
+            </div>
+            <a
+              href="https://cal.com/soluciones-academicas/asesoria-edvex-academy-30-min"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex w-full items-center justify-center gap-1.5 min-h-9 rounded-lg px-2 text-xs font-medium touch-manipulation active:opacity-90"
+              style={{
+                color: '#7B8AFF',
+                background: 'transparent',
+                border: '1px solid rgba(91,108,255,0.28)',
+              }}
+            >
+              {lang === 'en'
+                ? '📅 Schedule a call →'
+                : '📅 Agendar asesoría gratis →'}
+            </a>
           </div>
 
           <div
