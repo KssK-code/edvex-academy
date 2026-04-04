@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { CheckCircle, Loader2 } from 'lucide-react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
@@ -30,6 +30,25 @@ interface ReadingProgressProps {
   yaCompletada?: boolean
 }
 
+/** Encuentra el ancestro con más “room” de scroll (p. ej. main del dashboard), no el primero con overflow. */
+function findBestScrollContainer(start: HTMLElement | null): HTMLElement | null {
+  let el = start?.parentElement ?? null
+  let best: HTMLElement | null = null
+  let bestRoom = 0
+  while (el && el !== document.body) {
+    const { overflowY } = window.getComputedStyle(el)
+    if (overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay') {
+      const room = el.scrollHeight - el.clientHeight
+      if (room > bestRoom) {
+        bestRoom = room
+        best = el
+      }
+    }
+    el = el.parentElement
+  }
+  return bestRoom > 0 ? best : null
+}
+
 export default function ReadingProgress({
   semanaId,
   lang,
@@ -44,11 +63,11 @@ export default function ReadingProgress({
   const [mensaje, setMensaje] = useState('')
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
-  const btnRef     = useRef<HTMLButtonElement>(null)
-  const badgeRef   = useRef<HTMLDivElement>(null)
+  const btnRef = useRef<HTMLButtonElement>(null)
+  const badgeRef = useRef<HTMLDivElement>(null)
   const resumenRef = useRef<HTMLDivElement>(null)
-  const anchorRef  = useRef<HTMLSpanElement>(null)   // ancla DOM para encontrar el contenedor con scroll
-  const mountedAt  = useRef(Date.now())
+  const rootRef = useRef<HTMLDivElement>(null)
+  const mountedAt = useRef(Date.now())
 
   // Badge verde entra con back.out cuando completada cambia a true
   useGSAP(() => {
@@ -85,35 +104,58 @@ export default function ReadingProgress({
     }
   }, { dependencies: [mostrarResumen] })
 
-  // Escuchar el scroll del contenedor real (puede ser overflow-y:auto en lugar de window)
-  useEffect(() => {
-    // Caminar hacia arriba desde el ancla para encontrar el primer ancestro con scroll
-    let el: HTMLElement | null = anchorRef.current?.parentElement ?? null
-    while (el && el !== document.body) {
-      const { overflowY } = window.getComputedStyle(el)
-      if (overflowY === 'auto' || overflowY === 'scroll') break
-      el = el.parentElement
-    }
-    const container = el && el !== document.body ? el : null
-
-    const calcularScroll = () => {
-      if (container) {
-        const scrollable = container.scrollHeight - container.clientHeight
-        const pct = scrollable > 0 ? Math.min(100, (container.scrollTop / scrollable) * 100) : 0
-        setScrollPct(Math.round(pct))
-      } else {
-        // Fallback: window
-        const docHeight = document.documentElement.scrollHeight - window.innerHeight
-        const pct = docHeight > 0 ? Math.min(100, (window.scrollY / docHeight) * 100) : 0
-        setScrollPct(Math.round(pct))
+  const calcularScroll = useCallback(() => {
+    const root = rootRef.current
+    const container = findBestScrollContainer(root)
+    if (container) {
+      const scrollable = container.scrollHeight - container.clientHeight
+      if (scrollable <= 0) {
+        setScrollPct(100)
+        return
       }
+      const pct = Math.min(100, (container.scrollTop / scrollable) * 100)
+      setScrollPct(Math.round(pct))
+      return
     }
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight
+    if (docHeight <= 0) {
+      setScrollPct(100)
+      return
+    }
+    const pct = Math.min(100, (window.scrollY / docHeight) * 100)
+    setScrollPct(Math.round(pct))
+  }, [])
 
-    const target = container ?? window
-    target.addEventListener('scroll', calcularScroll, { passive: true })
+  // Barra superior: escuchar el contenedor de scroll real (main u otro) + window por si acaso
+  useEffect(() => {
+    const root = rootRef.current
+    const container = findBestScrollContainer(root)
+
+    const targets: (HTMLElement | Window)[] = []
+    if (container) targets.push(container)
+    targets.push(window)
+
+    const onScroll = () => { calcularScroll() }
+
+    targets.forEach(t => t.addEventListener('scroll', onScroll, { passive: true }))
+
+    // DOM listo y tras posible cambio de layout (móvil)
+    const raf = requestAnimationFrame(() => {
+      requestAnimationFrame(calcularScroll)
+    })
+
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => calcularScroll()) : null
+    if (ro && container) ro.observe(container)
+    if (ro && root) ro.observe(root)
+
     calcularScroll()
-    return () => target.removeEventListener('scroll', calcularScroll)
-  }, [semanaId]) // re-adjuntar si la semana (y por tanto el contenido) cambia
+
+    return () => {
+      cancelAnimationFrame(raf)
+      targets.forEach(t => t.removeEventListener('scroll', onScroll))
+      ro?.disconnect()
+    }
+  }, [semanaId, calcularScroll])
 
   // Sincronizar prop externa
   useEffect(() => {
@@ -149,25 +191,20 @@ export default function ReadingProgress({
         return
       }
 
-      // Calcular tiempo transcurrido desde que se montó el componente
       const segundos = Math.round((Date.now() - mountedAt.current) / 1000)
       const mins = Math.max(1, Math.ceil(segundos / 60))
       setMinLectura(mins)
 
-      // Mensaje motivacional aleatorio
       const msgs = lang === 'en' ? MSGS_EN : MSGS_ES
       setMensaje(msgs[Math.floor(Math.random() * msgs.length)])
 
-      // Animación del botón
       if (btnRef.current) {
         gsap.timeline()
-          .to(btnRef.current, { scale: 1.15, duration: 0.15, ease: 'power2.out' })
+          .to(btnRef.current, { scale: 1.05, duration: 0.15, ease: 'power2.out' })
           .to(btnRef.current, { scale: 1, duration: 0.15, ease: 'power2.in' })
       }
 
-      // Mostrar card de resumen (el badge verde aparece después, via useGSAP)
       setMostrarResumen(true)
-
     } catch {
       setErrorMsg(
         lang === 'en'
@@ -179,13 +216,8 @@ export default function ReadingProgress({
     }
   }
 
-  const mostrarUI = scrollPct > 20
-
   return (
-    <>
-      {/* Ancla invisible — permite encontrar el contenedor scrollable en el DOM */}
-      <span ref={anchorRef} aria-hidden="true" style={{ display: 'none' }} />
-
+    <div ref={rootRef} className="reading-progress-root">
       {errorMsg && (
         <div
           role="alert"
@@ -212,29 +244,22 @@ export default function ReadingProgress({
         </div>
       )}
 
-      {/* Barra de progreso fija en la parte superior */}
-      <div
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '3px',
-          zIndex: 9999,
-          background: '#1E2330',
-        }}
-      >
+      {/* Barra de progreso de lectura (opcional, no bloquea el CTA) */}
+      <div className="sticky top-0 z-[5] -mx-1 mb-3 pt-1 -mt-1">
         <div
-          style={{
-            height: '100%',
-            width: `${scrollPct}%`,
-            background: '#6366F1',
-            transition: 'width 0.1s linear',
-          }}
-        />
+          className="h-1 rounded-full overflow-hidden"
+          style={{ background: '#2A2F3E' }}
+        >
+          <div
+            className="h-full rounded-full transition-[width] duration-150"
+            style={{
+              width: `${scrollPct}%`,
+              background: '#6366F1',
+            }}
+          />
+        </div>
       </div>
 
-      {/* Card de resumen — aparece antes del badge verde */}
       {mostrarResumen && (
         <div
           ref={resumenRef}
@@ -274,48 +299,45 @@ export default function ReadingProgress({
         </div>
       )}
 
-      {/* Botón / badge sticky al fondo */}
-      {mostrarUI && !mostrarResumen && (
+      {/* CTA al final del contenido: siempre visible al hacer scroll hasta aquí (móvil y desktop) */}
+      {!mostrarResumen && (
         <div
-          style={{
-            position: 'fixed',
-            bottom: 'max(1.25rem, env(safe-area-inset-bottom))',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 9998,
-            width: 'min(calc(100vw - 24px), 420px)',
-            paddingLeft: 12,
-            paddingRight: 12,
-          }}
+          className="mt-6 pt-5 space-y-3"
+          style={{ borderTop: '1px solid #2A2F3E' }}
         >
+          <p className="text-xs leading-relaxed" style={{ color: '#64748B' }}>
+            {lang === 'en'
+              ? 'When you have finished reading this week, confirm below to save your progress.'
+              : 'Cuando hayas terminado de leer esta semana, confirma abajo para guardar tu progreso.'}
+          </p>
           {completada ? (
             <div
               ref={badgeRef}
-              className="flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-full text-sm font-semibold shadow-lg w-full"
+              className="flex items-center justify-center gap-2 px-5 min-h-[52px] rounded-2xl text-base font-semibold w-full"
               style={{ background: '#166534', color: '#86EFAC', border: '1px solid #15803D' }}
             >
-              <CheckCircle className="w-4 h-4" />
+              <CheckCircle className="w-5 h-5" />
               {lang === 'en' ? 'Week completed' : 'Semana completada'}
             </div>
-          ) : scrollPct >= 80 ? (
+          ) : (
             <button
               ref={btnRef}
               type="button"
               onClick={marcarLeido}
               disabled={cargando}
-              className="flex items-center justify-center gap-2 px-4 min-h-[52px] w-full rounded-2xl text-base font-semibold shadow-lg touch-manipulation transition-opacity disabled:opacity-70 active:opacity-90"
+              className="flex items-center justify-center gap-2 px-4 min-h-[52px] w-full rounded-2xl text-base font-semibold touch-manipulation transition-opacity disabled:opacity-70 active:opacity-90"
               style={{ background: '#6366F1', color: '#fff', border: 'none', cursor: cargando ? 'not-allowed' : 'pointer' }}
             >
               {cargando ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
-                <span>✓</span>
+                <span aria-hidden>✓</span>
               )}
               {lang === 'en' ? 'Complete and unlock next subject' : 'Completar y desbloquear siguiente materia'}
             </button>
-          ) : null}
+          )}
         </div>
       )}
-    </>
+    </div>
   )
 }

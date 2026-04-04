@@ -328,21 +328,6 @@ export default function MateriaPage() {
                         </div>
                       )}
 
-                      {/* Progreso de lectura */}
-                      <ReadingProgress
-                        semanaId={semana.id}
-                        alumnoId={alumnoId}
-                        lang={lang}
-                        yaCompletada={semanasCompletadas.has(semana.id)}
-                        onCompletada={() => {
-                          const nuevas = new Set([...semanasCompletadas, semana.id])
-                          setSemanasCompletadas(nuevas)
-                          if (materia && materia.semanas.every(s => nuevas.has(s.id))) {
-                            setMateriaAcreditada(true)
-                          }
-                        }}
-                      />
-
                       {/* Error de perfil: muestra banner si quiz y notas no pudieron cargarse */}
                       {!alumnoId && alumnoError && (
                         <div
@@ -408,6 +393,21 @@ export default function MateriaPage() {
                           lang={lang}
                         />
                       )}
+
+                      {/* Progreso / CTA al final de la semana (texto, quiz, videos, notas) — visible al hacer scroll hasta el final */}
+                      <ReadingProgress
+                        semanaId={semana.id}
+                        alumnoId={alumnoId}
+                        lang={lang}
+                        yaCompletada={semanasCompletadas.has(semana.id)}
+                        onCompletada={() => {
+                          const nuevas = new Set([...semanasCompletadas, semana.id])
+                          setSemanasCompletadas(nuevas)
+                          if (materia && materia.semanas.every(s => nuevas.has(s.id))) {
+                            setMateriaAcreditada(true)
+                          }
+                        }}
+                      />
                     </div>
                   )
                 })()}
