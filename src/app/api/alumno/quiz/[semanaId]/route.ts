@@ -21,16 +21,21 @@ async function verificarAccesoSemana(
 
   const { data: materia } = await supabase
     .from('materias')
-    .select('mes_contenido_id')
+    .select('codigo, mes_contenido_id')
     .eq('id', (semana as { materia_id: string }).materia_id)
     .single()
 
   if (!materia) return { ok: false, error: 'Materia no encontrada' }
 
+  const mat = materia as { codigo: string; mes_contenido_id: string }
+
+  // TUT* (Tutoría) siempre accesible para cualquier alumno activo
+  if (mat.codigo.startsWith('TUT')) return { ok: true }
+
   const { data: mes } = await supabase
     .from('meses_contenido')
     .select('numero')
-    .eq('id', (materia as { mes_contenido_id: string }).mes_contenido_id)
+    .eq('id', mat.mes_contenido_id)
     .single()
 
   if (!mes) return { ok: false, error: 'Mes no encontrado' }

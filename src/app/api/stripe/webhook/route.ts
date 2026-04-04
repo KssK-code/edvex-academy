@@ -58,10 +58,12 @@ export async function POST(req: NextRequest) {
   const PRICE_MODULO_ACELERADO = process.env.STRIPE_PRICE_MODULO_ACELERADO! // +2 meses
 
   if (moduloNumero === 'inscripcion') {
-    // Pago de inscripción: activar cuenta + desbloquear Mes 1 + salir de demo
+    // Pago de inscripción: solo marca como pagada + salir de demo.
+    // NO desbloquea meses — el alumno debe comprar su primer módulo para abrir Mes 1.
+    // TUT101 (Tutoría) sigue disponible gratis sin importar meses_desbloqueados.
     const { error } = await supabase
       .from('alumnos')
-      .update({ inscripcion_pagada: true, demo_activa: false, meses_desbloqueados: 1 })
+      .update({ inscripcion_pagada: true, demo_activa: false })
       .eq('id', alumnoId)
 
     if (error) {
@@ -75,7 +77,7 @@ export async function POST(req: NextRequest) {
       concepto: 'Inscripción',
       stripe_session_id: session.id,
     })
-    console.log(`[Stripe Webhook] Inscripción pagada — alumno ${alumnoId} → meses_desbloqueados = 1`)
+    console.log(`[Stripe Webhook] Inscripción pagada — alumno ${alumnoId} (meses_desbloqueados sin cambio)`)
 
   } else if (moduloNumero === 'certificacion') {
     // Pago de certificación: marcar certificacion_pagada = true

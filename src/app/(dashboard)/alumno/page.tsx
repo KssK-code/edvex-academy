@@ -34,6 +34,7 @@ interface MateriaResumen {
   nombre: string
   nombre_en: string
   color_hex: string
+  desbloqueada?: boolean
 }
 
 interface Mes {
@@ -146,6 +147,10 @@ export default function AlumnoDashboard() {
     if (m && m.demo === true) {
       setDemo(true)
       setMeses([])
+    } else if (m && Array.isArray(m.meses)) {
+      // New format: { meses: [...], inscripcion_pagada, meses_desbloqueados }
+      setDemo(false)
+      setMeses(m.meses)
     } else {
       setDemo(false)
       setMeses(Array.isArray(m) ? m : [])
@@ -350,6 +355,48 @@ export default function AlumnoDashboard() {
         </FadeIn>
       )}
 
+      {/* Banner: Inscripción confirmada pero sin módulos (meses=0 + pagado) */}
+      {!demo && perfil.inscripcion_pagada && perfil.meses_desbloqueados === 0 && (
+        <FadeIn delay={0}>
+          <div
+            className="rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4"
+            style={{
+              background: 'linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(91,108,255,0.08) 100%)',
+              border: '1px solid rgba(16,185,129,0.35)',
+            }}
+          >
+            <div
+              className="flex items-center justify-center w-11 h-11 rounded-xl flex-shrink-0"
+              style={{ background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.4)' }}
+            >
+              <GraduationCap className="w-5 h-5" style={{ color: '#10B981' }} />
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm leading-snug" style={{ color: '#6EE7B7' }}>
+                {lang === 'en' ? '✅ Enrollment confirmed!' : '✅ ¡Inscripción confirmada!'}
+              </p>
+              <p className="text-xs mt-1 leading-relaxed" style={{ color: '#94A3B8' }}>
+                {lang === 'en'
+                  ? 'Purchase your first module to start studying. The Tutorial subject is available for free while you wait.'
+                  : 'Compra tu primer módulo para comenzar a estudiar. La materia Tutorial está disponible gratis mientras tanto.'}
+              </p>
+            </div>
+
+            <Link
+              href="/alumno/pagar"
+              className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all whitespace-nowrap flex-shrink-0"
+              style={{ background: '#10B981', color: '#fff' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#34D399' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#10B981' }}
+            >
+              <CreditCard className="w-4 h-4" />
+              {lang === 'en' ? 'Buy first module →' : 'Comprar primer módulo →'}
+            </Link>
+          </div>
+        </FadeIn>
+      )}
+
       {/* SECCIÓN 1 — Header de bienvenida */}
       <FadeIn delay={perfil.inscripcion_pagada === false ? 100 : 0}>
         <div className="space-y-1.5">
@@ -451,13 +498,13 @@ export default function AlumnoDashboard() {
         </FadeIn>
       )}
 
-      {/* SECCIÓN 4a — Card de materia DEMO */}
-      {demo && (
+      {/* SECCIÓN 4a — Card de materia Tutorial (siempre disponible: demo + inscrito sin módulos) */}
+      {(demo || (perfil.inscripcion_pagada && perfil.meses_desbloqueados === 0)) && (
         <FadeIn delay={200}>
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: '#475569' }}>
-                {lang === 'en' ? 'Demo subject' : 'Materia de demostración'}
+                {lang === 'en' ? 'Free tutorial' : 'Tutorial gratuito'}
               </p>
               <div className="flex-1 h-px" style={{ background: '#2A2F3E' }} />
             </div>

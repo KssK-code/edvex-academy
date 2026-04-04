@@ -10,9 +10,7 @@ export async function GET(
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
 
-    const DEMO_MATERIA_ID = 'e3f004d8-4451-4a65-9c91-bac3f87d2378' // TUT101
-
-    // Obtener alumno para verificar acceso (incluye inscripcion_pagada para modo demo)
+    // Obtener alumno para verificar acceso
     const { data: alumnoData } = await supabase
       .from('alumnos')
       .select('id, meses_desbloqueados, inscripcion_pagada')
@@ -26,26 +24,25 @@ export async function GET(
     // Verificar que la materia pertenece a un mes desbloqueado
     const { data: mesData } = await supabase
       .from('materias')
-      .select('mes_contenido_id, meses_contenido(numero)')
+      .select('codigo, mes_contenido_id, meses_contenido(numero)')
       .eq('id', params.id)
       .single()
 
     if (!mesData) return NextResponse.json({ error: 'Materia no encontrada' }, { status: 404 })
 
-    const mes = mesData as unknown as {
+    const materiaInfo = mesData as unknown as {
+      codigo: string
       mes_contenido_id: string
       meses_contenido: { numero: number } | null
     }
 
-    const numeroMes = mes.meses_contenido?.numero ?? 0
-    const esDemo = !alumno.inscripcion_pagada && alumno.meses_desbloqueados === 0
-    const esMateriaDemo = params.id === DEMO_MATERIA_ID
+    const numeroMes = materiaInfo.meses_contenido?.numero ?? 0
+    const esTutoria = materiaInfo.codigo.startsWith('TUT')
 
-    if (numeroMes > alumno.meses_desbloqueados) {
-      // Permitir acceso a TUT101 en modo demo
-      if (!(esDemo && esMateriaDemo)) {
-        return NextResponse.json({ error: 'No tienes acceso a esta materia' }, { status: 403 })
-      }
+    // TUT* (Tutoría) siempre accesible para cualquier alumno activo.
+    // Demás materias: solo si el mes está desbloqueado.
+    if (!esTutoria && numeroMes > alumno.meses_desbloqueados) {
+      return NextResponse.json({ error: 'No tienes acceso a esta materia' }, { status: 403 })
     }
 
     // Obtener materia completa con semanas y evaluaciones
