@@ -53,30 +53,53 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
+  // Helper: muestra error y hace scroll para que sea visible en móvil
+  function showValidationError(msg: string) {
+    setError(msg)
+    // Scroll al error para que sea visible en móvil (especialmente con teclado abierto)
+    setTimeout(() => {
+      document.getElementById('register-error')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }, 50)
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
 
-    // Validar formato de email
-    const emailTrimmed = email.trim()
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrimmed)) {
-      setError(t('register.errInvalidEmail'))
+    // Validar nombre
+    if (!nombreCompleto.trim()) {
+      showValidationError(isEn ? 'Please enter your full name' : 'Ingresa tu nombre completo')
       return
     }
 
-    // Validar contraseña: mínimo 8 chars, al menos una letra y un número
-    if (password.length < 8 || !/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
-      setError(t('register.errShortPassword'))
+    // Validar formato de email
+    const emailTrimmed = email.trim()
+    if (!emailTrimmed) {
+      showValidationError(isEn ? 'Please enter your email' : 'Ingresa tu correo electrónico')
       return
     }
-    if (password !== confirmPassword) {
-      setError(t('register.errPasswordMismatch'))
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailTrimmed)) {
+      showValidationError(t('register.errInvalidEmail'))
       return
     }
 
     // Validar plan seleccionado
     if (!selectedPlan) {
-      setError(isEn ? 'Please select a study plan' : 'Selecciona un plan de estudios')
+      showValidationError(isEn ? 'Please select a study plan' : 'Selecciona un plan de estudios')
+      return
+    }
+
+    // Validar contraseña: mínimo 8 chars, al menos una letra y un número
+    if (!password) {
+      showValidationError(isEn ? 'Please enter a password' : 'Ingresa una contraseña')
+      return
+    }
+    if (password.length < 8 || !/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+      showValidationError(t('register.errShortPassword'))
+      return
+    }
+    if (password !== confirmPassword) {
+      showValidationError(t('register.errPasswordMismatch'))
       return
     }
 
@@ -195,7 +218,7 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
           {/* Nombre */}
           <div className="space-y-1">
             <label htmlFor="nombre" className="block text-sm font-medium" style={{ color: '#94A3B8' }}>
@@ -206,7 +229,6 @@ export default function RegisterPage() {
               <input
                 id="nombre"
                 type="text"
-                required
                 autoComplete="name"
                 value={nombreCompleto}
                 onChange={(e) => setNombreCompleto(e.target.value)}
@@ -251,7 +273,6 @@ export default function RegisterPage() {
               <input
                 id="email"
                 type="email"
-                required
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -316,7 +337,6 @@ export default function RegisterPage() {
               <input
                 id="password"
                 type={showPw ? 'text' : 'password'}
-                required
                 autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -342,7 +362,6 @@ export default function RegisterPage() {
               <input
                 id="confirmPassword"
                 type={showConfirmPw ? 'text' : 'password'}
-                required
                 autoComplete="new-password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
@@ -360,6 +379,7 @@ export default function RegisterPage() {
 
           {error && (
             <div
+              id="register-error"
               className="flex items-start gap-2 rounded-lg px-3 py-2.5 text-sm"
               style={{
                 background: 'rgba(239,68,68,0.1)',
