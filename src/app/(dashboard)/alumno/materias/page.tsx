@@ -71,8 +71,8 @@ export default function MateriasPage() {
         </div>
       ) : (
         <div className="rounded-xl overflow-hidden" style={CARD}>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto -mx-1 px-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+            <table className="w-full text-sm min-w-[640px]">
               <thead>
                 <tr style={{ borderBottom: '1px solid #2A2F3E' }}>
                   {['', t('subjects.codeCol'), t('subjects.subjectCol'), t('subjects.monthCol'), t('subjects.statusCol'), t('subjects.actionCol')].map(h => (
@@ -85,8 +85,6 @@ export default function MateriasPage() {
                   <tr
                     key={mat.id}
                     style={{ borderBottom: '1px solid rgba(42,47,62,0.5)' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(91,108,255,0.04)' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
                   >
                     <td className="px-4 py-3">
                       <div className="w-2.5 h-2.5 rounded-full" style={{ background: mat.color_hex || '#5B6CFF' }} />
@@ -110,11 +108,10 @@ export default function MateriasPage() {
                     <td className="px-4 py-3">
                       {mat.desbloqueado ? (
                         <button
+                          type="button"
                           onClick={() => router.push(`/alumno/materia/${mat.id}`)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                          className="flex items-center justify-center gap-2 px-4 min-h-[48px] rounded-xl text-sm font-medium touch-manipulation active:opacity-90 whitespace-nowrap"
                           style={{ background: 'rgba(91,108,255,0.1)', color: '#7B8AFF', border: '1px solid rgba(91,108,255,0.2)' }}
-                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(91,108,255,0.2)' }}
-                          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(91,108,255,0.1)' }}
                         >
                           <BookOpen className="w-3.5 h-3.5" />
                           {t('subjects.study')}

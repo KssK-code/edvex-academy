@@ -200,9 +200,10 @@ export default function ElegirPlanPage() {
 
               {/* Select button */}
               <button
+                type="button"
                 onClick={() => handleSelect(plan.id)}
                 disabled={selecting !== null}
-                className="mt-auto w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all disabled:opacity-50"
+                className="mt-auto w-full flex items-center justify-center gap-2 min-h-[52px] rounded-xl text-base font-semibold touch-manipulation active:opacity-90 transition-all disabled:opacity-50"
                 style={{ background: meta.accent, color: '#fff' }}
               >
                 {isSelecting ? (
