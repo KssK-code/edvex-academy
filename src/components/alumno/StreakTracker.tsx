@@ -3,9 +3,11 @@
 interface StreakTrackerProps {
   diasRacha: number
   lang: string
+  /** Para alinear con matrícula en una fila en móvil */
+  className?: string
 }
 
-export default function StreakTracker({ diasRacha, lang }: StreakTrackerProps) {
+export default function StreakTracker({ diasRacha, lang, className = '' }: StreakTrackerProps) {
   if (diasRacha === 0) return null
 
   const caliente = diasRacha >= 3
@@ -15,10 +17,10 @@ export default function StreakTracker({ diasRacha, lang }: StreakTrackerProps) {
     : (lang === 'en' ? `${diasRacha} days in a row` : `${diasRacha} días seguidos`)
 
   return (
-    <div className="flex items-center gap-1.5">
-      <span className="text-base leading-none">🔥</span>
+    <div className={`flex items-center gap-1 md:gap-1.5 shrink-0 ${className}`}>
+      <span className="text-sm md:text-base leading-none">🔥</span>
       <span
-        className="text-sm font-semibold"
+        className="text-xs md:text-sm font-semibold whitespace-nowrap"
         style={{ color: caliente ? '#F59E0B' : '#94A3B8' }}
       >
         {texto}

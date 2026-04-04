@@ -215,14 +215,38 @@ export default function AlumnoDashboard() {
   const diasRacha = (rachaLogro?.metadata?.dias as number | undefined) ?? 0
 
   return (
-    <div className="space-y-8 max-w-5xl">
+    <div className="space-y-3 md:space-y-8 max-w-5xl">
       <ToastContainer toasts={toasts} onClose={removeToast} />
 
       {/* Banner: Inscripción pendiente */}
       {perfil.inscripcion_pagada === false && (
         <FadeIn delay={0}>
+          {/* Móvil: una fila compacta (≤48px) */}
           <div
-            className="rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4"
+            className="md:hidden flex items-center gap-2 rounded-xl px-2.5 h-12 max-h-12 overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, rgba(245,158,11,0.14) 0%, rgba(239,68,68,0.1) 100%)',
+              border: '1px solid rgba(245,158,11,0.35)',
+            }}
+          >
+            <Bell className="w-3.5 h-3.5 shrink-0" style={{ color: '#F59E0B' }} aria-hidden />
+            <p className="text-[11px] leading-tight truncate flex-1 min-w-0 font-medium" style={{ color: '#FCD34D' }}>
+              {lang === 'en'
+                ? 'Pay enrollment ($50) to start. Details on next screen.'
+                : 'Paga inscripción ($50) para comenzar. Detalles al tocar Pagar.'}
+            </p>
+            <Link
+              href="/alumno/pagar"
+              className="shrink-0 flex items-center gap-1 px-2.5 h-8 rounded-lg text-xs font-semibold touch-manipulation active:opacity-90 whitespace-nowrap"
+              style={{ background: '#F59E0B', color: '#0B0D11' }}
+            >
+              <CreditCard className="w-3 h-3" />
+              {lang === 'en' ? 'Pay' : 'Pagar'}
+            </Link>
+          </div>
+
+          <div
+            className="hidden md:flex rounded-2xl p-5 flex-col sm:flex-row sm:items-center gap-4"
             style={{
               background: 'linear-gradient(135deg, rgba(245,158,11,0.12) 0%, rgba(239,68,68,0.08) 100%)',
               border: '1px solid rgba(245,158,11,0.35)',
@@ -289,7 +313,30 @@ export default function AlumnoDashboard() {
       {perfil.inscripcion_pagada && perfil.meses_desbloqueados === 0 && (
         <FadeIn delay={0}>
           <div
-            className="rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4"
+            className="md:hidden flex items-center gap-2 rounded-xl px-2.5 h-12 max-h-12 overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, rgba(16,185,129,0.14) 0%, rgba(91,108,255,0.1) 100%)',
+              border: '1px solid rgba(16,185,129,0.35)',
+            }}
+          >
+            <GraduationCap className="w-3.5 h-3.5 shrink-0" style={{ color: '#10B981' }} aria-hidden />
+            <p className="text-[11px] leading-tight truncate flex-1 min-w-0 font-medium" style={{ color: '#6EE7B7' }}>
+              {lang === 'en'
+                ? 'Confirmed — buy your first module to study.'
+                : 'Confirmado — compra tu primer módulo para estudiar.'}
+            </p>
+            <Link
+              href="/alumno/pagar"
+              className="shrink-0 flex items-center gap-1 px-2 h-8 rounded-lg text-[11px] font-semibold touch-manipulation active:opacity-90 whitespace-nowrap"
+              style={{ background: '#10B981', color: '#fff' }}
+            >
+              <CreditCard className="w-3 h-3" />
+              {lang === 'en' ? 'Buy' : 'Comprar'}
+            </Link>
+          </div>
+
+          <div
+            className="hidden md:flex rounded-2xl p-5 flex-col sm:flex-row sm:items-center gap-4"
             style={{
               background: 'linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(91,108,255,0.08) 100%)',
               border: '1px solid rgba(16,185,129,0.35)',
@@ -327,28 +374,39 @@ export default function AlumnoDashboard() {
 
       {/* SECCIÓN 1 — Header de bienvenida */}
       <FadeIn delay={perfil.inscripcion_pagada === false ? 100 : 0}>
-        <div className="space-y-1.5">
+        <div className="space-y-1 md:space-y-1.5 pt-0 md:pt-0">
           <SplitTitle
             text={`${saludo}, ${primerNombre}`}
-            className="text-2xl sm:text-4xl font-bold"
+            className="text-xl md:text-4xl font-bold leading-tight"
             style={{ color: '#F1F5F9' }}
           />
-          <p className="text-sm font-mono" style={{ color: '#475569' }}>
-            {lang === 'en' ? 'Student ID:' : 'Matrícula:'}{' '}
-            <span style={{ color: '#64748B', letterSpacing: '0.05em' }}>
-              {matriculaDisplay ?? perfil.matricula}
-            </span>
-          </p>
-          <StreakTracker diasRacha={diasRacha} lang={lang} />
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs md:block md:text-sm">
+            <p className="font-mono inline md:block" style={{ color: '#475569' }}>
+              <span className="md:hidden">{lang === 'en' ? 'ID:' : 'Mat.:'}</span>
+              <span className="hidden md:inline">{lang === 'en' ? 'Student ID:' : 'Matrícula:'}</span>{' '}
+              <span style={{ color: '#64748B', letterSpacing: '0.05em' }}>
+                {matriculaDisplay ?? perfil.matricula}
+              </span>
+            </p>
+            {diasRacha > 0 && (
+              <>
+                <span className="text-[#334155] md:hidden" aria-hidden>·</span>
+                <StreakTracker diasRacha={diasRacha} lang={lang} className="md:mt-1.5" />
+              </>
+            )}
+          </div>
         </div>
       </FadeIn>
 
       {/* SECCIÓN 2 — 3 tarjetas de stats */}
       <FadeIn delay={perfil.inscripcion_pagada === false ? 200 : 100}>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-1.5 md:gap-3">
           {/* Tarjeta 1: Progreso general */}
-          <div className="rounded-xl p-3 sm:p-5 space-y-3" style={{ background: '#181C26', border: '1px solid #2A2F3E' }}>
-            <div className="flex items-center justify-between">
+          <div
+            className="rounded-lg md:rounded-xl p-2 md:p-5 flex flex-col justify-center min-h-0 h-[76px] md:h-auto md:space-y-3 bg-[#141821] md:bg-[#181C26]"
+            style={{ border: '1px solid #2A2F3E' }}
+          >
+            <div className="hidden md:flex items-center justify-between">
               <p className="text-xs font-medium uppercase tracking-wide" style={{ color: '#64748B' }}>
                 {lang === 'en' ? 'Overall progress' : 'Avance total'}
               </p>
@@ -356,8 +414,14 @@ export default function AlumnoDashboard() {
                 <TrendingUp className="w-3.5 h-3.5" style={{ color: '#7B8AFF' }} />
               </div>
             </div>
-            <p className="text-xl sm:text-2xl font-bold" style={{ color: '#F1F5F9' }}><span ref={porcentajeRef}>0</span><span className="text-sm font-normal ml-0.5" style={{ color: '#475569' }}>%</span></p>
-            <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <p className="md:hidden text-[9px] font-semibold uppercase tracking-wide text-center leading-tight px-0.5" style={{ color: '#64748B' }}>
+              {lang === 'en' ? 'Progress' : 'Avance'}
+            </p>
+            <p className="text-xl md:text-2xl font-bold text-center md:text-left leading-none md:leading-normal" style={{ color: '#F1F5F9' }}>
+              <span ref={porcentajeRef}>0</span>
+              <span className="text-[10px] md:text-sm font-normal md:ml-0.5" style={{ color: '#475569' }}>%</span>
+            </p>
+            <div className="hidden md:block h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
               <div
                 className="h-full rounded-full transition-all duration-700"
                 style={{ width: `${porcentaje}%`, background: 'linear-gradient(90deg, #5B6CFF, #7B8AFF)' }}
@@ -366,8 +430,11 @@ export default function AlumnoDashboard() {
           </div>
 
           {/* Tarjeta 2: Mes en curso */}
-          <div className="rounded-xl p-3 sm:p-5 space-y-3" style={{ background: '#181C26', border: '1px solid #2A2F3E' }}>
-            <div className="flex items-center justify-between">
+          <div
+            className="rounded-lg md:rounded-xl p-2 md:p-5 flex flex-col justify-center min-h-0 h-[76px] md:h-auto md:space-y-3 bg-[#141821] md:bg-[#181C26]"
+            style={{ border: '1px solid #2A2F3E' }}
+          >
+            <div className="hidden md:flex items-center justify-between">
               <p className="text-xs font-medium uppercase tracking-wide" style={{ color: '#64748B' }}>
                 {lang === 'en' ? 'Current month' : 'Mes en curso'}
               </p>
@@ -375,20 +442,26 @@ export default function AlumnoDashboard() {
                 <BookOpen className="w-3.5 h-3.5" style={{ color: '#10B981' }} />
               </div>
             </div>
-            <p className="text-xl sm:text-2xl font-bold" style={{ color: '#F1F5F9' }}>
+            <p className="md:hidden text-[9px] font-semibold uppercase tracking-wide text-center leading-tight px-0.5" style={{ color: '#64748B' }}>
+              {lang === 'en' ? 'Month' : 'Mes'}
+            </p>
+            <p className="text-xl md:text-2xl font-bold text-center md:text-left leading-none md:leading-normal" style={{ color: '#F1F5F9' }}>
               {mesActivo}
-              <span className="text-sm font-normal ml-1.5" style={{ color: '#475569' }}>
-                / {perfil.duracion_meses}
+              <span className="text-[10px] md:text-sm font-normal md:ml-1.5" style={{ color: '#475569' }}>
+                /{perfil.duracion_meses}
               </span>
             </p>
-            <p className="text-xs" style={{ color: '#475569' }}>
+            <p className="hidden md:block text-xs truncate" style={{ color: '#475569' }}>
               {perfil.plan_nombre}
             </p>
           </div>
 
           {/* Tarjeta 3: Materias acreditadas */}
-          <div className="rounded-xl p-3 sm:p-5 space-y-3" style={{ background: '#181C26', border: '1px solid #2A2F3E' }}>
-            <div className="flex items-center justify-between">
+          <div
+            className="rounded-lg md:rounded-xl p-2 md:p-5 flex flex-col justify-center min-h-0 h-[76px] md:h-auto md:space-y-3 bg-[#141821] md:bg-[#181C26]"
+            style={{ border: '1px solid #2A2F3E' }}
+          >
+            <div className="hidden md:flex items-center justify-between">
               <p className="text-xs font-medium uppercase tracking-wide" style={{ color: '#64748B' }}>
                 {lang === 'en' ? 'Subjects passed' : 'Materias acreditadas'}
               </p>
@@ -396,8 +469,11 @@ export default function AlumnoDashboard() {
                 <GraduationCap className="w-3.5 h-3.5" style={{ color: '#F59E0B' }} />
               </div>
             </div>
-            <p className="text-xl sm:text-2xl font-bold" style={{ color: '#F1F5F9' }}>{materiasAcreditadas}</p>
-            <p className="text-xs" style={{ color: '#475569' }}>
+            <p className="md:hidden text-[9px] font-semibold uppercase tracking-wide text-center leading-tight px-0.5" style={{ color: '#64748B' }}>
+              {lang === 'en' ? 'Passed' : 'Aprobadas'}
+            </p>
+            <p className="text-xl md:text-2xl font-bold text-center md:text-left leading-none md:leading-normal" style={{ color: '#F1F5F9' }}>{materiasAcreditadas}</p>
+            <p className="hidden md:block text-xs" style={{ color: '#475569' }}>
               {lang === 'en' ? 'subjects approved' : 'materias aprobadas'}
             </p>
           </div>
@@ -413,13 +489,13 @@ export default function AlumnoDashboard() {
                 type="button"
                 ref={btnContinuarRef}
                 onClick={() => router.push(`/alumno/mes/${mesActivo}`)}
-                className="flex items-center gap-2 px-6 min-h-[48px] rounded-xl font-semibold text-sm touch-manipulation active:opacity-90"
+                className="flex items-center gap-1.5 px-4 min-h-10 md:px-6 md:min-h-[48px] rounded-lg md:rounded-xl font-semibold text-xs md:text-sm touch-manipulation active:opacity-90"
                 style={{ background: '#5B6CFF', color: '#fff' }}
                 onMouseMove={handleMagneticMove}
                 onMouseLeave={handleMagneticLeave}
               >
                 {lang === 'en' ? 'Continue studying' : 'Continuar estudiando'}
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4" />
               </button>
             )}
           </div>
@@ -429,23 +505,23 @@ export default function AlumnoDashboard() {
       {/* SECCIÓN 4a — Card de materia Tutorial (siempre visible cuando no hay meses desbloqueados) */}
       {perfil.meses_desbloqueados === 0 && (
         <FadeIn delay={200}>
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: '#475569' }}>
+          <div className="space-y-2 md:space-y-3">
+            <div className="flex items-center gap-2 md:gap-3">
+              <p className="text-[10px] md:text-xs font-semibold tracking-widest uppercase" style={{ color: '#475569' }}>
                 {lang === 'en' ? 'Free tutorial' : 'Tutorial gratuito'}
               </p>
               <div className="flex-1 h-px" style={{ background: '#2A2F3E' }} />
             </div>
             <div
-              className="rounded-xl p-5 flex flex-col sm:flex-row sm:items-center gap-4"
+              className="rounded-lg md:rounded-xl p-3 gap-2 md:p-5 md:gap-4 flex flex-col sm:flex-row sm:items-center"
               style={{ background: '#181C26', border: '1px solid rgba(91,108,255,0.3)' }}
             >
-              <div className="flex-1 min-w-0 space-y-1">
-                <p className="text-xs font-mono" style={{ color: '#5B6CFF' }}>TUT101</p>
-                <p className="text-base font-bold" style={{ color: '#F1F5F9' }}>
+              <div className="flex-1 min-w-0 space-y-0.5 md:space-y-1">
+                <p className="text-[10px] md:text-xs font-mono" style={{ color: '#5B6CFF' }}>TUT101</p>
+                <p className="text-sm md:text-base font-bold leading-snug" style={{ color: '#F1F5F9' }}>
                   {lang === 'en' ? 'University Entry Tutoring I' : 'Tutoría de ingreso I'}
                 </p>
-                <p className="text-sm" style={{ color: '#64748B' }}>
+                <p className="text-xs md:text-sm leading-snug line-clamp-2 md:line-clamp-none" style={{ color: '#64748B' }}>
                   {lang === 'en'
                     ? 'Get familiar with the platform, your study plan and virtual high school methodology.'
                     : 'Familiarízate con la plataforma, tu plan de estudio y la metodología del bachillerato virtual.'}
@@ -453,10 +529,11 @@ export default function AlumnoDashboard() {
               </div>
               <Link
                 href="/alumno/materia/e3f004d8-4451-4a65-9c91-bac3f87d2378"
-                className="flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl text-sm font-semibold whitespace-nowrap flex-shrink-0 touch-manipulation active:opacity-90 w-full sm:w-auto"
+                className="flex items-center justify-center gap-1.5 px-3 min-h-9 md:px-5 md:min-h-[48px] rounded-lg md:rounded-xl text-xs md:text-sm font-semibold whitespace-nowrap flex-shrink-0 touch-manipulation active:opacity-90 w-full sm:w-auto"
                 style={{ background: 'rgba(91,108,255,0.15)', color: '#7B8AFF', border: '1px solid rgba(91,108,255,0.35)' }}
               >
-                {lang === 'en' ? 'Explore subject →' : 'Explorar materia →'}
+                <span className="md:hidden">{lang === 'en' ? 'Explore →' : 'Explorar →'}</span>
+                <span className="hidden md:inline">{lang === 'en' ? 'Explore subject →' : 'Explorar materia →'}</span>
               </Link>
             </div>
           </div>
@@ -466,14 +543,14 @@ export default function AlumnoDashboard() {
       {/* SECCIÓN 4b — Grid de meses */}
       {meses.length > 0 && (
         <FadeIn delay={perfil.inscripcion_pagada === false ? 400 : 300}>
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: '#475569' }}>
+          <div className="space-y-2 md:space-y-3">
+            <div className="flex items-center gap-2 md:gap-3">
+              <p className="text-[10px] md:text-xs font-semibold tracking-widest uppercase" style={{ color: '#475569' }}>
                 {t('dashboard.programMonths')}
               </p>
               <div className="flex-1 h-px" style={{ background: '#2A2F3E' }} />
             </div>
-            <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div ref={gridRef} className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-3">
               {meses.map((mes) => (
                 <button
                   key={mes.id}
@@ -482,33 +559,43 @@ export default function AlumnoDashboard() {
                   onClick={() => {
                     if (mes.desbloqueado) router.push(`/alumno/mes/${mes.numero}`)
                   }}
-                  className="mes-card rounded-xl p-4 text-left w-full min-h-[100px] touch-manipulation transition-all duration-200 disabled:cursor-not-allowed active:opacity-95"
+                  className="mes-card rounded-lg md:rounded-xl p-2.5 md:p-4 text-left w-full min-h-[72px] md:min-h-[100px] touch-manipulation md:transition-all md:duration-200 disabled:cursor-not-allowed active:opacity-95 bg-[#141821] md:bg-[#181C26]"
                   style={{
-                    background: '#181C26',
                     border: mes.desbloqueado ? '1px solid rgba(91,108,255,0.35)' : '1px solid #2A2F3E',
                     opacity: mes.desbloqueado ? 1 : 0.5,
                   }}
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="space-y-0.5 min-w-0">
+                  <div className="flex items-start justify-between gap-1.5 md:gap-2">
+                    <div className="space-y-0 min-w-0">
                       <span
-                        className="text-3xl font-bold leading-none"
+                        className="text-xl md:text-3xl font-bold leading-none block"
                         style={{ color: mes.desbloqueado ? '#5B6CFF' : '#475569' }}
                       >
                         {mes.numero}
                       </span>
                       <p
-                        className="text-sm font-semibold break-words"
+                        className="text-xs md:text-sm font-semibold break-words leading-tight mt-0.5 md:mt-0"
                         style={{ color: mes.desbloqueado ? '#F1F5F9' : '#64748B' }}
                       >
                         {mes.titulo || `Mes ${mes.numero}`}
                       </p>
-                      <p className="text-xs" style={{ color: '#475569' }}>
-                        {(mes.materias ?? []).length} {lang === 'en' ? 'subjects' : 'materias'}
+                      <p className="text-[10px] md:text-xs leading-tight mt-0.5" style={{ color: '#475569' }}>
+                        {(mes.materias ?? []).length}{' '}
+                        {lang === 'en' ? (
+                          <>
+                            <span className="md:hidden">subj.</span>
+                            <span className="hidden md:inline">subjects</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="md:hidden">mat.</span>
+                            <span className="hidden md:inline">materias</span>
+                          </>
+                        )}
                       </p>
                     </div>
                     {!mes.desbloqueado && (
-                      <Lock className="w-4 h-4 mt-1 flex-shrink-0" style={{ color: '#475569' }} aria-hidden />
+                      <Lock className="w-3 h-3 md:w-4 md:h-4 mt-0.5 flex-shrink-0" style={{ color: '#475569' }} aria-hidden />
                     )}
                   </div>
                 </button>
