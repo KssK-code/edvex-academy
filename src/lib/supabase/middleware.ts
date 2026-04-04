@@ -81,7 +81,9 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  // Onboarding: redirigir a alumnos sin plan o sin inscripción pagada
+  // Onboarding: redirigir a alumnos sin plan SOLO cuando intentan ir al dashboard raíz.
+  // El alumno puede navegar libremente entre secciones (pagos, perfil, calificaciones, etc.)
+  // El acceso al CONTENIDO de materias se bloquea a nivel de API, no de middleware.
   const pathname = request.nextUrl.pathname
   const isAlumnoPageRoute =
     pathname.startsWith('/alumno') &&
@@ -98,23 +100,15 @@ export async function updateSession(request: NextRequest) {
       const url = request.nextUrl.clone()
 
       if (!alumno.plan_estudio_id) {
-        // Sin plan → solo puede ver /alumno/elegir-plan
-        if (pathname !== '/alumno/elegir-plan') {
+        // Sin plan → redirigir solo desde el dashboard raíz a elegir-plan
+        if (pathname === '/alumno') {
           url.pathname = '/alumno/elegir-plan'
           return NextResponse.redirect(url)
         }
-      } else if (!alumno.inscripcion_pagada) {
-        // Tiene plan pero no ha pagado → solo puede ver /alumno/pagar
-        if (pathname !== '/alumno/pagar') {
-          url.pathname = '/alumno/pagar'
-          return NextResponse.redirect(url)
-        }
-      } else {
-        // Ya completó onboarding → no necesita volver a elegir-plan
-        if (pathname === '/alumno/elegir-plan') {
-          url.pathname = '/alumno'
-          return NextResponse.redirect(url)
-        }
+      } else if (pathname === '/alumno/elegir-plan') {
+        // Ya tiene plan → no puede volver a elegir-plan
+        url.pathname = '/alumno'
+        return NextResponse.redirect(url)
       }
     }
   }

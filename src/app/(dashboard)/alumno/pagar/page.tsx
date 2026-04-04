@@ -167,17 +167,17 @@ export default function PagarPage() {
           return (
             <div
               key={opcion.id}
-              className="rounded-xl p-4 flex items-center justify-between gap-4"
+              className="rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4"
               style={{
                 background: opcion.bloqueada ? 'rgba(24,28,38,0.7)' : '#181C26',
-                border: opcion.bloqueada ? '1px solid #2A2F3E' : '1px solid #2A2F3E',
+                border: '1px solid #2A2F3E',
                 opacity: opcion.bloqueada ? 0.85 : 1,
               }}
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   {opcion.bloqueada && <Lock className="w-4 h-4 flex-shrink-0" style={{ color: '#64748B' }} />}
-                  <p className="font-medium" style={{ color: opcion.bloqueada ? '#94A3B8' : '#F1F5F9' }}>
+                  <p className="font-medium text-sm sm:text-base" style={{ color: opcion.bloqueada ? '#94A3B8' : '#F1F5F9' }}>
                     {t(opcion.titleKey)}
                   </p>
                 </div>
@@ -185,14 +185,14 @@ export default function PagarPage() {
                   {opcion.mensajeCandado ?? t(opcion.descKey)}
                 </p>
               </div>
-              <div className="flex items-center gap-3 flex-shrink-0">
+              <div className="flex items-center justify-between sm:justify-end gap-3 flex-shrink-0">
                 <span className="text-lg font-semibold" style={{ color: '#7B8AFF' }}>
                   ${opcion.amount} {opcion.currency}
                 </span>
                 <button
                   onClick={() => handlePay(opcion)}
                   disabled={disabled || isPaying}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
                   style={{
                     background: disabled ? '#374151' : '#5B6CFF',
                     color: '#fff',

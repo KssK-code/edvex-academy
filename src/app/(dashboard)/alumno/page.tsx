@@ -417,7 +417,7 @@ export default function AlumnoDashboard() {
 
       {/* SECCIÓN 2 — 3 tarjetas de stats */}
       <FadeIn delay={perfil.inscripcion_pagada === false ? 200 : 100}>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {/* Tarjeta 1: Progreso general */}
           <div className="rounded-xl p-3 sm:p-5 space-y-3" style={{ background: '#181C26', border: '1px solid #2A2F3E' }}>
             <div className="flex items-center justify-between">
