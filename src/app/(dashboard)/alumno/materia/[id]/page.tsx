@@ -195,7 +195,7 @@ export default function MateriaPage() {
   if (error || !materia) return (
     <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
       <p className="text-sm" style={{ color: '#EF4444' }}>{error ?? 'Materia no encontrada'}</p>
-      <button onClick={() => router.back()} className="text-sm" style={{ color: '#5B6CFF' }}>Regresar</button>
+      <button type="button" onClick={() => router.back()} className="text-base min-h-[48px] px-4 rounded-xl touch-manipulation" style={{ color: '#5B6CFF' }}>Regresar</button>
     </div>
   )
 
@@ -211,13 +211,12 @@ export default function MateriaPage() {
       <FadeIn delay={0}>
       <div className="flex items-start gap-4">
         <button
+          type="button"
           onClick={() => router.back()}
-          className="mt-1 p-2 rounded-lg transition-all flex-shrink-0"
+          className="mt-1 min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-xl touch-manipulation active:opacity-80 flex-shrink-0"
           style={{ background: 'rgba(255,255,255,0.04)', color: '#94A3B8', border: '1px solid #2A2F3E' }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)' }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)' }}
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
@@ -233,13 +232,14 @@ export default function MateriaPage() {
 
       {/* Tabs */}
       <FadeIn delay={100}>
-      <div className="overflow-x-auto" style={{ borderBottom: '1px solid #2A2F3E' }}>
-        <div className="flex min-w-max">
+      <div className="overflow-x-auto -mx-1 px-1" style={{ borderBottom: '1px solid #2A2F3E', WebkitOverflowScrolling: 'touch' }}>
+        <div className="flex min-w-max gap-1">
           {tabs.map(t => (
             <button
               key={t.key}
+              type="button"
               onClick={() => setTab(t.key)}
-              className="px-4 py-2.5 text-sm font-medium transition-all relative whitespace-nowrap"
+              className="px-4 min-h-[48px] text-sm font-medium transition-all relative whitespace-nowrap touch-manipulation active:opacity-80 rounded-t-lg"
               style={{ color: tab === t.key ? '#F1F5F9' : '#94A3B8' }}
             >
               {t.label}
@@ -267,7 +267,7 @@ export default function MateriaPage() {
             <div className="flex flex-col md:flex-row gap-6 items-start">
               {/* Columna izquierda: roadmap */}
               <div className="w-full md:w-1/3 rounded-xl p-5 flex-shrink-0" style={CARD}>
-                <div className="overflow-y-auto max-h-[40vh] md:max-h-[calc(100vh-120px)] md:sticky md:top-4">
+                <div className="overflow-y-auto max-h-[min(50vh,420px)] md:max-h-[calc(100vh-120px)] md:sticky md:top-4 -mx-1 px-1" style={{ WebkitOverflowScrolling: 'touch' }}>
                   <WeekRoadmap
                     semanas={materia.semanas}
                     semanasCompletadas={semanasCompletadas}
@@ -377,10 +377,8 @@ export default function MateriaPage() {
                               href={semana.url_en}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex items-center gap-3 px-4 py-3 rounded-lg transition-all"
+                              className="flex items-center gap-3 px-4 min-h-[48px] rounded-xl touch-manipulation active:opacity-90"
                               style={{ ...INPUT_BG, border: '1px solid rgba(91,108,255,0.3)' }}
-                              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#5B6CFF' }}
-                              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(91,108,255,0.3)' }}
                             >
                               <PlayCircle className="w-5 h-5 flex-shrink-0" style={{ color: '#7B8AFF' }} />
                               <div className="flex-1 min-w-0">
@@ -442,11 +440,10 @@ export default function MateriaPage() {
 
                     {/* Botón primario */}
                     <button
+                      type="button"
                       onClick={() => setTab('examen')}
-                      className="w-full py-2.5 rounded-lg text-sm font-semibold transition-all"
+                      className="w-full min-h-[52px] rounded-xl text-base font-semibold touch-manipulation active:opacity-90"
                       style={{ background: '#5B6CFF', color: '#fff', border: 'none' }}
-                      onMouseEnter={e => { e.currentTarget.style.background = '#7B8AFF' }}
-                      onMouseLeave={e => { e.currentTarget.style.background = '#5B6CFF' }}
                     >
                       {lang === 'en' ? 'Go to exam →' : 'Ir al examen →'}
                     </button>
@@ -553,11 +550,10 @@ export default function MateriaPage() {
 
                 {/* Botón comenzar */}
                 <button
+                  type="button"
                   onClick={ocultarGuia}
-                  className="w-full py-2.5 rounded-lg text-sm font-semibold transition-all"
+                  className="w-full min-h-[52px] rounded-xl text-base font-semibold touch-manipulation active:opacity-90"
                   style={{ background: '#5B6CFF', color: '#fff', border: 'none' }}
-                  onMouseEnter={e => { e.currentTarget.style.background = '#7B8AFF' }}
-                  onMouseLeave={e => { e.currentTarget.style.background = '#5B6CFF' }}
                 >
                   {lang === 'en' ? "I'm ready — start exam →" : 'Ya estoy listo — comenzar examen →'}
                 </button>
@@ -599,11 +595,10 @@ export default function MateriaPage() {
                     </div>
                   ) : (
                     <button
+                      type="button"
                       onClick={() => router.push(`/alumno/evaluacion/${ev.id}`)}
-                      className="w-full py-3 rounded-lg text-sm font-semibold transition-all"
+                      className="w-full min-h-[52px] rounded-xl text-base font-semibold touch-manipulation active:opacity-90 px-3"
                       style={{ background: '#5B6CFF', color: '#fff' }}
-                      onMouseEnter={e => { e.currentTarget.style.background = '#7B8AFF' }}
-                      onMouseLeave={e => { e.currentTarget.style.background = '#5B6CFF' }}
                     >
                       {t('subjects.takeExam')} ({intentosRestantes} {intentosRestantes !== 1 ? t('subjects.attemptPlural') : t('subjects.attemptSingular')} {intentosRestantes !== 1 ? t('subjects.availablePlural') : t('subjects.availableSingular')})
                     </button>

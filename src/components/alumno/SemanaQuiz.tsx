@@ -32,6 +32,8 @@ export default function SemanaQuiz({ semanaId, lang }: SemanaQuizProps) {
   const [preguntas, setPreguntas] = useState<Pregunta[]>([])
   const [respuestaPrevia, setRespuestaPrevia] = useState<RespuestaPrevia | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const [currentIdx, setCurrentIdx] = useState(0)
   const [seleccionadas, setSeleccionadas] = useState<Record<number, number>>({})
   const [respondidas, setRespondidas] = useState<Record<number, boolean>>({})
@@ -46,6 +48,8 @@ export default function SemanaQuiz({ semanaId, lang }: SemanaQuizProps) {
   useEffect(() => {
     // Resetear todo el estado al cambiar de semana, evitando stale state
     setLoading(true)
+    setLoadError(null)
+    setSubmitError(null)
     setPreguntas([])
     setRespuestaPrevia(null)
     setCompletado(false)
@@ -55,7 +59,10 @@ export default function SemanaQuiz({ semanaId, lang }: SemanaQuizProps) {
     setGuardando(false)
 
     fetch(`/api/alumno/quiz/${semanaId}`)
-      .then(r => r.json())
+      .then(r => {
+        if (!r.ok) throw new Error('fetch')
+        return r.json()
+      })
       .then(data => {
         setPreguntas(data.preguntas ?? [])
         if (data.respuesta_previa) {
@@ -63,9 +70,11 @@ export default function SemanaQuiz({ semanaId, lang }: SemanaQuizProps) {
           setCompletado(true)
         }
       })
-      .catch(() => {})
+      .catch(() => {
+        setLoadError(lang === 'en' ? 'Could not load the quiz. Pull to refresh or try again.' : 'No se pudo cargar el cuestionario. Recarga e intenta de nuevo.')
+      })
       .finally(() => setLoading(false))
-  }, [semanaId])
+  }, [semanaId, lang])
 
   // Animar entrada de cada pregunta
   useGSAP(() => {
@@ -78,7 +87,17 @@ export default function SemanaQuiz({ semanaId, lang }: SemanaQuizProps) {
     }
   }, { dependencies: [currentIdx], scope: cardRef })
 
-  if (loading || preguntas.length === 0) return null
+  if (loading) return null
+
+  if (loadError) {
+    return (
+      <div className="rounded-xl p-4 mt-2 text-sm" role="alert" style={{ ...CARD, color: '#FCA5A5', borderColor: 'rgba(248,113,113,0.35)' }}>
+        {loadError}
+      </div>
+    )
+  }
+
+  if (preguntas.length === 0) return null
 
   const pregunta = preguntas[currentIdx]
   const total = preguntas.length
@@ -105,6 +124,7 @@ export default function SemanaQuiz({ semanaId, lang }: SemanaQuizProps) {
 
   const handleSubmit = async () => {
     setGuardando(true)
+    setSubmitError(null)
     const respuestas: Record<string, number> = {}
     preguntas.forEach((p, i) => {
       if (seleccionadas[i] !== undefined) {
@@ -112,15 +132,19 @@ export default function SemanaQuiz({ semanaId, lang }: SemanaQuizProps) {
       }
     })
     try {
-      await fetch(`/api/alumno/quiz/${semanaId}`, {
+      const res = await fetch(`/api/alumno/quiz/${semanaId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ respuestas }),
       })
+      if (!res.ok) {
+        setSubmitError(lang === 'en' ? 'Could not save answers. Try again.' : 'No se pudieron guardar las respuestas. Intenta de nuevo.')
+        return
+      }
       setRespuestaPrevia({ respuestas, completado_en: new Date().toISOString() })
       setCompletado(true)
     } catch {
-      // silencioso — no bloquear al alumno
+      setSubmitError(lang === 'en' ? 'Network error. Try again.' : 'Error de red. Intenta de nuevo.')
     } finally {
       setGuardando(false)
     }
@@ -289,9 +313,10 @@ export default function SemanaQuiz({ semanaId, lang }: SemanaQuizProps) {
             return (
               <button
                 key={i}
+                type="button"
                 onClick={() => handleOpcion(i)}
                 disabled={yaRespondida}
-                className="w-full text-left px-4 py-3 rounded-lg text-sm transition-all"
+                className="w-full text-left px-4 min-h-[48px] rounded-xl text-base transition-all touch-manipulation active:opacity-90"
                 style={{
                   background: bg,
                   border: `1px solid ${borderColor}`,
@@ -333,12 +358,17 @@ export default function SemanaQuiz({ semanaId, lang }: SemanaQuizProps) {
         )}
       </div>
 
+      {submitError && (
+        <p className="text-sm px-1" role="alert" style={{ color: '#FCA5A5' }}>{submitError}</p>
+      )}
+
       {/* Navegación */}
-      <div className="flex items-center justify-between pt-1">
+      <div className="flex items-center justify-between gap-2 pt-1">
         <button
+          type="button"
           onClick={handlePrev}
           disabled={currentIdx === 0}
-          className="px-3 py-1.5 text-xs rounded-lg transition-all disabled:opacity-30"
+          className="px-4 min-h-[48px] text-sm rounded-xl transition-all touch-manipulation disabled:opacity-30 flex items-center"
           style={{ border: '1px solid #2A2F3E', color: '#94A3B8', background: 'transparent' }}
         >
           ← {loc('Anterior', 'Previous')}
@@ -346,9 +376,10 @@ export default function SemanaQuiz({ semanaId, lang }: SemanaQuizProps) {
 
         {yaRespondida && (
           <button
+            type="button"
             onClick={handleNext}
             disabled={guardando}
-            className="px-4 py-1.5 text-xs rounded-lg font-semibold transition-all disabled:opacity-60"
+            className="px-5 min-h-[48px] text-sm rounded-xl font-semibold transition-all touch-manipulation disabled:opacity-60 flex items-center justify-center"
             style={{ background: '#6366F1', color: '#fff', border: 'none' }}
           >
             {guardando

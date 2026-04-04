@@ -49,7 +49,7 @@ export function DashboardLayout({
           avatarUrl={avatarUrl}
           onMenuToggle={() => setSidebarOpen((prev) => !prev)}
         />
-        <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto">
+        <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto pb-[max(1rem,env(safe-area-inset-bottom))]">
           {children}
         </main>
         {showFooter && <Footer />}

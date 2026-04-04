@@ -88,17 +88,18 @@ export default function WeekRoadmap({
             <div className="flex flex-col items-center">
               {/* Nodo */}
               <button
+                type="button"
                 onClick={() => clickable && onSemanaClick(semana.id)}
                 disabled={!clickable}
                 aria-label={`${esTutorial ? (lang === 'en' ? 'Day' : 'Día') : (lang === 'en' ? 'Week' : 'Semana')} ${semana.numero}: ${loc(semana.titulo, semana.titulo_en)}`}
                 className={[
-                  'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-500 relative z-10',
+                  'min-w-[44px] min-h-[44px] w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-500 relative z-10 touch-manipulation active:opacity-90',
                   estado === 'completado'
                     ? 'bg-indigo-500 border-2 border-indigo-500'
                     : estado === 'activo'
                     ? 'bg-indigo-500/10 border-2 border-indigo-500 animate-pulse'
                     : 'bg-transparent border-2 border-slate-600',
-                  clickable ? 'cursor-pointer hover:scale-110' : 'cursor-not-allowed',
+                  clickable ? 'cursor-pointer' : 'cursor-not-allowed',
                 ].join(' ')}
               >
                 {estado === 'completado' && (
@@ -129,10 +130,11 @@ export default function WeekRoadmap({
 
             {/* Columna derecha: info de la semana */}
             <button
+              type="button"
               onClick={() => clickable && onSemanaClick(semana.id)}
               disabled={!clickable}
               className={[
-                'flex-1 flex flex-col justify-start pb-8 text-left transition-all duration-500',
+                'flex-1 flex flex-col justify-start min-h-[48px] pb-8 text-left transition-all duration-500 touch-manipulation active:opacity-90 rounded-lg -m-1 p-1',
                 !esUltima ? '' : 'pb-0',
                 clickable ? 'cursor-pointer' : 'cursor-not-allowed',
               ].join(' ')}

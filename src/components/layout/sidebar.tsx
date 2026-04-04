@@ -152,11 +152,13 @@ export function Sidebar({ role, userName, isOpen, onClose }: SidebarProps) {
 
           {/* Botón cerrar (móvil) */}
           <button
+            type="button"
             onClick={onClose}
-            className="md:hidden p-1 rounded-lg transition-colors"
+            className="md:hidden min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-lg touch-manipulation active:bg-white/10"
             style={{ color: '#94A3B8' }}
+            aria-label="Cerrar menú"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -172,23 +174,11 @@ export function Sidebar({ role, userName, isOpen, onClose }: SidebarProps) {
                 key={item.href}
                 href={item.href}
                 onClick={onClose}
-                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
+                className="flex items-center gap-3 px-3 min-h-[48px] rounded-lg text-sm font-medium transition-all duration-150 touch-manipulation active:opacity-90"
                 style={{
                   color:      active ? '#F1F5F9' : '#94A3B8',
                   background: active ? 'rgba(0,85,255,0.2)' : 'transparent',
                   borderLeft: active ? '3px solid #0055ff' : '3px solid transparent',
-                }}
-                onMouseEnter={(e) => {
-                  if (!active) {
-                    e.currentTarget.style.background = 'rgba(0,85,255,0.08)'
-                    e.currentTarget.style.color      = '#F1F5F9'
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!active) {
-                    e.currentTarget.style.background = 'transparent'
-                    e.currentTarget.style.color      = '#94A3B8'
-                  }
                 }}
               >
                 <Icon className="w-4 h-4 flex-shrink-0" />
@@ -229,17 +219,10 @@ export function Sidebar({ role, userName, isOpen, onClose }: SidebarProps) {
           </div>
 
           <button
+            type="button"
             onClick={handleSignOut}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150"
+            className="w-full flex items-center gap-3 px-3 min-h-[48px] rounded-lg text-sm font-medium transition-all duration-150 touch-manipulation active:bg-red-500/10"
             style={{ color: '#94A3B8' }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(239,68,68,0.1)'
-              e.currentTarget.style.color      = '#FCA5A5'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent'
-              e.currentTarget.style.color      = '#94A3B8'
-            }}
           >
             <LogOut className="w-4 h-4" />
             {t('sidebar.signOut')}

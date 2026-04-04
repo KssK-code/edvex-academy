@@ -27,11 +27,15 @@ export function LangToggle() {
         return (
           <button
             key={l}
+            type="button"
             onClick={() => setLang(l)}
+            className="touch-manipulation active:opacity-90"
             style={{
-              padding:      '4px 12px',
+              minHeight:    44,
+              minWidth:     44,
+              padding:      '0 14px',
               borderRadius: 16,
-              fontSize:     '.68rem',
+              fontSize:     '.75rem',
               fontWeight:   700,
               letterSpacing:'1px',
               border:       'none',

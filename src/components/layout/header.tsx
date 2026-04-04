@@ -24,7 +24,7 @@ export function Header({ pageTitle, userName, avatarUrl, onMenuToggle }: HeaderP
 
   return (
     <header
-      className="sticky top-0 z-10 flex items-center justify-between px-4 md:px-6 h-14"
+      className="sticky top-0 z-10 flex items-center justify-between px-3 md:px-6 min-h-[52px] py-2 md:py-0 md:h-14 md:min-h-0"
       style={{
         background:           'rgba(11,13,17,0.8)',
         backdropFilter:       'blur(12px)',
@@ -35,20 +35,13 @@ export function Header({ pageTitle, userName, avatarUrl, onMenuToggle }: HeaderP
       {/* Izquierda: hamburguesa + título */}
       <div className="flex items-center gap-3 min-w-0">
         <button
+          type="button"
           onClick={onMenuToggle}
-          className="md:hidden p-2 rounded-lg transition-colors flex-shrink-0"
+          className="md:hidden min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-lg flex-shrink-0 touch-manipulation active:bg-white/10"
           style={{ color: '#94A3B8' }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(255,255,255,0.06)'
-            e.currentTarget.style.color      = '#F1F5F9'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'transparent'
-            e.currentTarget.style.color      = '#94A3B8'
-          }}
           aria-label={t('header.openMenu')}
         >
-          <Menu className="w-5 h-5" />
+          <Menu className="w-6 h-6" />
         </button>
         <h1
           className="text-base font-semibold truncate"

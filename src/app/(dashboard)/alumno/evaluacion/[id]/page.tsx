@@ -132,7 +132,7 @@ export default function EvaluacionPage() {
     <div className="flex flex-col items-center justify-center min-h-[500px] gap-4">
       <AlertCircle className="w-10 h-10" style={{ color: '#EF4444' }} />
       <p className="text-sm font-medium" style={{ color: '#EF4444' }}>{errorMsg}</p>
-      <button onClick={() => router.back()} className="text-sm" style={{ color: '#5B6CFF' }}>Regresar</button>
+      <button type="button" onClick={() => router.back()} className="text-base min-h-[48px] px-4 rounded-xl touch-manipulation" style={{ color: '#5B6CFF' }}>Regresar</button>
     </div>
   )
 
@@ -198,6 +198,7 @@ export default function EvaluacionPage() {
         <div className="flex flex-col sm:flex-row gap-3">
           {!resultado.aprobado && intentosRestantes > 0 ? (
             <button
+              type="button"
               onClick={() => {
                 setRespuestas({})
                 setPreguntaActual(0)
@@ -205,17 +206,16 @@ export default function EvaluacionPage() {
                 setIntentosUsados(resultado.intento_numero)
                 setEstado('quiz')
               }}
-              className="w-full sm:flex-1 py-3 rounded-lg text-sm font-semibold transition-all"
+              className="w-full sm:flex-1 min-h-[52px] rounded-xl text-base font-semibold touch-manipulation active:opacity-90"
               style={{ background: '#5B6CFF', color: '#fff' }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#7B8AFF' }}
-              onMouseLeave={e => { e.currentTarget.style.background = '#5B6CFF' }}
             >
               {t('exam.retryBtn')} ({intentosRestantes} {intentosRestantes !== 1 ? t('exam.remainingPlural') : t('exam.remaining')})
             </button>
           ) : null}
           <button
+            type="button"
             onClick={() => router.back()}
-            className="w-full sm:flex-1 py-3 rounded-lg text-sm font-semibold transition-all"
+            className="w-full sm:flex-1 min-h-[52px] rounded-xl text-base font-semibold touch-manipulation active:opacity-90"
             style={{ background: 'rgba(255,255,255,0.05)', color: '#94A3B8', border: '1px solid #2A2F3E' }}
           >
             {t('exam.backToSubject')}
@@ -284,11 +284,12 @@ export default function EvaluacionPage() {
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 min-w-0">
           <button
+            type="button"
             onClick={() => router.back()}
-            className="p-2.5 rounded-lg transition-all flex-shrink-0"
+            className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-xl touch-manipulation active:opacity-80 flex-shrink-0"
             style={{ background: 'rgba(255,255,255,0.04)', color: '#94A3B8', border: '1px solid #2A2F3E' }}
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="min-w-0">
             <p className="text-sm font-semibold truncate" style={{ color: '#F1F5F9' }}>{evaluacion ? loc(evaluacion.titulo, evaluacion.titulo_en) : ''}</p>
@@ -322,8 +323,9 @@ export default function EvaluacionPage() {
             return (
               <button
                 key={idx}
+                type="button"
                 onClick={() => seleccionarRespuesta(pregunta.id, idx)}
-                className="w-full flex items-center gap-3 px-4 py-4 rounded-xl text-sm text-left transition-all duration-150"
+                className="w-full flex items-center gap-3 px-4 py-4 rounded-xl text-base text-left transition-all duration-150 touch-manipulation active:opacity-90"
                 style={{
                   minHeight: '52px',
                   background: seleccionada ? 'rgba(91,108,255,0.15)' : 'rgba(255,255,255,0.03)',
@@ -348,16 +350,17 @@ export default function EvaluacionPage() {
       </div>
 
       {/* Indicador de preguntas — scroll horizontal si hay muchas */}
-      <div className="overflow-x-auto pb-1">
-        <div className="flex gap-1.5 min-w-max px-0.5">
+      <div className="overflow-x-auto pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <div className="flex gap-2 min-w-max px-0.5">
           {preguntas.map((p, idx) => {
             const contestada = respuestas[p.id] !== undefined
             const esActual = idx === preguntaActual
             return (
               <button
                 key={p.id}
+                type="button"
                 onClick={() => setPreguntaActual(idx)}
-                className="w-8 h-8 rounded-full text-xs font-bold flex-shrink-0 transition-all"
+                className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-full text-sm font-bold flex-shrink-0 transition-all touch-manipulation flex items-center justify-center"
                 style={{
                   background: esActual ? '#5B6CFF' : contestada ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.06)',
                   color: esActual ? '#fff' : contestada ? '#10B981' : '#475569',
@@ -374,9 +377,10 @@ export default function EvaluacionPage() {
       {/* Navegación — full width en móvil */}
       <div className="flex gap-3">
         <button
+          type="button"
           onClick={() => setPreguntaActual(p => p - 1)}
           disabled={preguntaActual === 0}
-          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex-1 flex items-center justify-center gap-2 min-h-[52px] rounded-xl text-base font-medium touch-manipulation transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           style={{ background: 'rgba(255,255,255,0.05)', color: '#94A3B8', border: '1px solid #2A2F3E' }}
         >
           <ArrowLeft className="w-4 h-4" />
@@ -385,8 +389,9 @@ export default function EvaluacionPage() {
 
         {preguntaActual < preguntas.length - 1 ? (
           <button
+            type="button"
             onClick={() => setPreguntaActual(p => p + 1)}
-            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-medium transition-all"
+            className="flex-1 flex items-center justify-center gap-2 min-h-[52px] rounded-xl text-base font-medium touch-manipulation active:opacity-90"
             style={{ background: '#5B6CFF', color: '#fff' }}
           >
             {t('exam.next')}
@@ -394,8 +399,9 @@ export default function EvaluacionPage() {
           </button>
         ) : todasContestadas ? (
           <button
+            type="button"
             onClick={() => setConfirmarEnvio(true)}
-            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all"
+            className="flex-1 flex items-center justify-center gap-2 min-h-[52px] rounded-xl text-base font-semibold touch-manipulation active:opacity-90"
             style={{ background: '#10B981', color: '#fff' }}
           >
             {t('exam.submit')}
@@ -425,15 +431,17 @@ export default function EvaluacionPage() {
             </p>
             <div className="flex gap-3">
               <button
+                type="button"
                 onClick={() => setConfirmarEnvio(false)}
-                className="flex-1 py-3 rounded-lg text-sm font-medium"
+                className="flex-1 min-h-[52px] rounded-xl text-base font-medium touch-manipulation"
                 style={{ background: 'rgba(255,255,255,0.05)', color: '#94A3B8', border: '1px solid #2A2F3E' }}
               >
                 {t('common.cancel')}
               </button>
               <button
+                type="button"
                 onClick={enviarExamen}
-                className="flex-1 py-3 rounded-lg text-sm font-semibold"
+                className="flex-1 min-h-[52px] rounded-xl text-base font-semibold touch-manipulation active:opacity-90"
                 style={{ background: '#10B981', color: '#fff' }}
               >
                 {t('exam.submitYes')}

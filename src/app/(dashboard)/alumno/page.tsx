@@ -236,10 +236,10 @@ export default function AlumnoDashboard() {
             </div>
 
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm leading-snug" style={{ color: '#FCD34D' }}>
+              <p className="font-semibold text-sm leading-snug break-words" style={{ color: '#FCD34D' }}>
                 ¡Bienvenido a EDVEX Academy!
               </p>
-              <p className="text-xs mt-1 leading-relaxed" style={{ color: '#94A3B8' }}>
+              <p className="text-xs mt-1 leading-relaxed break-words" style={{ color: '#94A3B8' }}>
                 Tu siguiente paso es pagar tu inscripción para comenzar. Al confirmar tu pago,{' '}
                 <strong style={{ color: '#CBD5E1' }}>Control Escolar te contactará por WhatsApp</strong>{' '}
                 para darte la bienvenida, solicitarte tus documentos y resolver cualquier duda.
@@ -249,10 +249,8 @@ export default function AlumnoDashboard() {
             <div className="flex flex-col items-stretch sm:items-end gap-3 flex-shrink-0">
               <Link
                 href="/alumno/pagar"
-                className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all"
+                className="flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl text-sm font-semibold touch-manipulation active:opacity-90 w-full sm:w-auto"
                 style={{ background: '#F59E0B', color: '#0B0D11' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#FBBF24' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#F59E0B' }}
               >
                 <CreditCard className="w-4 h-4" />
                 Pagar inscripción ($50 USD)
@@ -269,19 +267,11 @@ export default function AlumnoDashboard() {
                   href="https://cal.com/soluciones-academicas/asesoria-edvex-academy-30-min"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all w-full sm:w-auto"
+                  className="flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl text-sm font-medium touch-manipulation active:opacity-90 w-full sm:w-auto text-center"
                   style={{
                     background: 'transparent',
                     border: '1px solid rgba(91,108,255,0.4)',
                     color: '#7B8AFF',
-                  }}
-                  onMouseEnter={e => {
-                    (e.currentTarget as HTMLElement).style.background = 'rgba(91,108,255,0.1)'
-                    ;(e.currentTarget as HTMLElement).style.borderColor = '#7B8AFF'
-                  }}
-                  onMouseLeave={e => {
-                    (e.currentTarget as HTMLElement).style.background = 'transparent'
-                    ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(91,108,255,0.4)'
                   }}
                 >
                   📅 Hablar con un asesor antes de pagar
@@ -325,10 +315,8 @@ export default function AlumnoDashboard() {
 
             <Link
               href="/alumno/pagar"
-              className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all whitespace-nowrap flex-shrink-0"
+              className="flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl text-sm font-semibold whitespace-nowrap flex-shrink-0 touch-manipulation active:opacity-90 w-full sm:w-auto"
               style={{ background: '#10B981', color: '#fff' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#34D399' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#10B981' }}
             >
               <CreditCard className="w-4 h-4" />
               {lang === 'en' ? 'Buy first module →' : 'Comprar primer módulo →'}
@@ -422,11 +410,11 @@ export default function AlumnoDashboard() {
           <div>
             {mesActivo > 0 && (
               <button
+                type="button"
                 ref={btnContinuarRef}
                 onClick={() => router.push(`/alumno/mes/${mesActivo}`)}
-                className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm"
+                className="flex items-center gap-2 px-6 min-h-[48px] rounded-xl font-semibold text-sm touch-manipulation active:opacity-90"
                 style={{ background: '#5B6CFF', color: '#fff' }}
-                onMouseEnter={e => { e.currentTarget.style.background = '#7B8AFF' }}
                 onMouseMove={handleMagneticMove}
                 onMouseLeave={handleMagneticLeave}
               >
@@ -465,16 +453,8 @@ export default function AlumnoDashboard() {
               </div>
               <Link
                 href="/alumno/materia/e3f004d8-4451-4a65-9c91-bac3f87d2378"
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all whitespace-nowrap flex-shrink-0"
+                className="flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-xl text-sm font-semibold whitespace-nowrap flex-shrink-0 touch-manipulation active:opacity-90 w-full sm:w-auto"
                 style={{ background: 'rgba(91,108,255,0.15)', color: '#7B8AFF', border: '1px solid rgba(91,108,255,0.35)' }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLElement).style.background = 'rgba(91,108,255,0.25)'
-                  ;(e.currentTarget as HTMLElement).style.borderColor = '#7B8AFF'
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLElement).style.background = 'rgba(91,108,255,0.15)'
-                  ;(e.currentTarget as HTMLElement).style.borderColor = 'rgba(91,108,255,0.35)'
-                }}
               >
                 {lang === 'en' ? 'Explore subject →' : 'Explorar materia →'}
               </Link>
@@ -495,25 +475,22 @@ export default function AlumnoDashboard() {
             </div>
             <div ref={gridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {meses.map((mes) => (
-                <div
+                <button
                   key={mes.id}
-                  onClick={() => mes.desbloqueado && router.push(`/alumno/mes/${mes.numero}`)}
-                  className="mes-card rounded-xl p-4 transition-all duration-200"
+                  type="button"
+                  disabled={!mes.desbloqueado}
+                  onClick={() => {
+                    if (mes.desbloqueado) router.push(`/alumno/mes/${mes.numero}`)
+                  }}
+                  className="mes-card rounded-xl p-4 text-left w-full min-h-[100px] touch-manipulation transition-all duration-200 disabled:cursor-not-allowed active:opacity-95"
                   style={{
                     background: '#181C26',
                     border: mes.desbloqueado ? '1px solid rgba(91,108,255,0.35)' : '1px solid #2A2F3E',
                     opacity: mes.desbloqueado ? 1 : 0.5,
-                    cursor: mes.desbloqueado ? 'pointer' : 'default',
-                  }}
-                  onMouseEnter={e => {
-                    if (mes.desbloqueado) (e.currentTarget as HTMLElement).style.background = 'rgba(91,108,255,0.07)'
-                  }}
-                  onMouseLeave={e => {
-                    if (mes.desbloqueado) (e.currentTarget as HTMLElement).style.background = '#181C26'
                   }}
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-0.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="space-y-0.5 min-w-0">
                       <span
                         className="text-3xl font-bold leading-none"
                         style={{ color: mes.desbloqueado ? '#5B6CFF' : '#475569' }}
@@ -521,7 +498,7 @@ export default function AlumnoDashboard() {
                         {mes.numero}
                       </span>
                       <p
-                        className="text-sm font-semibold"
+                        className="text-sm font-semibold break-words"
                         style={{ color: mes.desbloqueado ? '#F1F5F9' : '#64748B' }}
                       >
                         {mes.titulo || `Mes ${mes.numero}`}
@@ -531,10 +508,10 @@ export default function AlumnoDashboard() {
                       </p>
                     </div>
                     {!mes.desbloqueado && (
-                      <Lock className="w-4 h-4 mt-1 flex-shrink-0" style={{ color: '#475569' }} />
+                      <Lock className="w-4 h-4 mt-1 flex-shrink-0" style={{ color: '#475569' }} aria-hidden />
                     )}
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           </div>

@@ -149,7 +149,7 @@ export default function PagarPage() {
   })
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="max-w-2xl space-y-6 w-full min-w-0">
       <div>
         <h1 className="text-xl font-bold" style={{ color: '#F1F5F9' }}>
           {t('payment.title')}
@@ -167,7 +167,7 @@ export default function PagarPage() {
           return (
             <div
               key={opcion.id}
-              className="rounded-xl p-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4"
+              className="rounded-xl p-4 flex flex-col gap-4 min-w-0 sm:flex-row sm:items-center sm:gap-4"
               style={{
                 background: opcion.bloqueada ? 'rgba(24,28,38,0.7)' : '#181C26',
                 border: '1px solid #2A2F3E',
@@ -175,24 +175,25 @@ export default function PagarPage() {
               }}
             >
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  {opcion.bloqueada && <Lock className="w-4 h-4 flex-shrink-0" style={{ color: '#64748B' }} />}
-                  <p className="font-medium text-sm sm:text-base" style={{ color: opcion.bloqueada ? '#94A3B8' : '#F1F5F9' }}>
+                <div className="flex items-start gap-2">
+                  {opcion.bloqueada && <Lock className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: '#64748B' }} />}
+                  <p className="font-medium text-sm sm:text-base break-words" style={{ color: opcion.bloqueada ? '#94A3B8' : '#F1F5F9' }}>
                     {t(opcion.titleKey)}
                   </p>
                 </div>
-                <p className="text-xs mt-0.5" style={{ color: '#64748B' }}>
+                <p className="text-xs mt-1 break-words leading-relaxed" style={{ color: '#64748B' }}>
                   {opcion.mensajeCandado ?? t(opcion.descKey)}
                 </p>
               </div>
-              <div className="flex items-center justify-between sm:justify-end gap-3 flex-shrink-0">
-                <span className="text-lg font-semibold" style={{ color: '#7B8AFF' }}>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 flex-shrink-0 w-full sm:w-auto">
+                <span className="text-lg font-semibold text-center sm:text-left" style={{ color: '#7B8AFF' }}>
                   ${opcion.amount} {opcion.currency}
                 </span>
                 <button
+                  type="button"
                   onClick={() => handlePay(opcion)}
                   disabled={disabled || isPaying}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                  className="flex items-center justify-center gap-2 px-4 min-h-[48px] rounded-lg text-base font-medium touch-manipulation active:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto sm:min-w-[140px]"
                   style={{
                     background: disabled ? '#374151' : '#5B6CFF',
                     color: '#fff',

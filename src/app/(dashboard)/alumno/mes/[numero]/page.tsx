@@ -59,7 +59,7 @@ export default function MesPage() {
   if (error || !mes) return (
     <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
       <p className="text-sm" style={{ color: '#EF4444' }}>{error ?? 'Mes no encontrado'}</p>
-      <button onClick={() => router.push('/alumno')} className="text-sm" style={{ color: '#5B6CFF' }}>Regresar</button>
+      <button type="button" onClick={() => router.push('/alumno')} className="text-base min-h-[48px] px-4 rounded-xl touch-manipulation" style={{ color: '#5B6CFF' }}>Regresar</button>
     </div>
   )
 
@@ -68,13 +68,12 @@ export default function MesPage() {
       {/* Header */}
       <div className="flex items-center gap-4">
         <button
+          type="button"
           onClick={() => router.push('/alumno')}
-          className="p-2 rounded-lg transition-all"
+          className="min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-xl touch-manipulation active:opacity-80"
           style={{ background: 'rgba(255,255,255,0.04)', color: '#94A3B8', border: '1px solid #2A2F3E' }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)' }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)' }}
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
           <h2 className="text-xl font-bold" style={{ color: '#F1F5F9' }}>
@@ -120,11 +119,10 @@ export default function MesPage() {
                   <p className="text-xs mb-4 line-clamp-2" style={{ color: '#94A3B8' }}>{loc(mat.descripcion, mat.descripcion_en)}</p>
                 )}
                 <button
+                  type="button"
                   onClick={() => router.push(`/alumno/materia/${mat.id}`)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all w-full justify-center"
+                  className="flex items-center gap-2 px-4 min-h-[48px] rounded-xl text-base font-semibold touch-manipulation active:opacity-90 w-full justify-center"
                   style={{ background: '#5B6CFF', color: '#fff' }}
-                  onMouseEnter={e => { e.currentTarget.style.background = '#7B8AFF' }}
-                  onMouseLeave={e => { e.currentTarget.style.background = '#5B6CFF' }}
                 >
                   <BookOpen className="w-4 h-4" />
                   {t('subjects.study')}

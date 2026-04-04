@@ -78,7 +78,7 @@ export default function NotasPersonales({ semanaId, lang }: NotasPersonalesProps
         onChange={handleChange}
         placeholder={loc('Escribe tus apuntes aquí...', 'Write your notes here...')}
         rows={5}
-        className="w-full text-sm leading-relaxed resize-none rounded-lg px-4 py-3 outline-none transition-colors"
+        className="w-full text-base leading-relaxed resize-y min-h-[120px] rounded-lg px-4 py-3 outline-none transition-colors"
         style={{
           background: '#0B0D11',
           border: '1px solid #2A2F3E',

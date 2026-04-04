@@ -13,7 +13,7 @@ import { useLanguage } from '@/context/LanguageContext'
 export default function LoginPage() {
   const router       = useRouter()
   const searchParams = useSearchParams()
-  const { t }        = useLanguage()
+  const { t, lang }  = useLanguage()
 
   const [email,    setEmail]    = useState('')
   const [password, setPassword] = useState('')
@@ -29,15 +29,34 @@ export default function LoginPage() {
     }
   }, [searchParams, t])
 
+  useEffect(() => {
+    if (!error) return
+    const id = requestAnimationFrame(() => {
+      document.getElementById('login-error')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+    return () => cancelAnimationFrame(id)
+  }, [error])
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+
+    const emailTrim = email.trim()
+    if (!emailTrim) {
+      setError(lang === 'en' ? 'Please enter your email' : 'Ingresa tu correo electrónico')
+      return
+    }
+    if (!password) {
+      setError(lang === 'en' ? 'Please enter your password' : 'Ingresa tu contraseña')
+      return
+    }
+
     setLoading(true)
 
     try {
       const supabase = createClient()
 
-      const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
+      const { error: authError } = await supabase.auth.signInWithPassword({ email: emailTrim, password })
 
       if (authError) {
         if (authError.message.toLowerCase().includes('email not confirmed')) {
@@ -110,7 +129,24 @@ export default function LoginPage() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} noValidate className="space-y-5">
+          {error && (
+            <div
+              id="login-error"
+              role="alert"
+              aria-live="polite"
+              className="flex items-start gap-2 rounded-lg px-3 py-2.5 text-base"
+              style={{
+                background: 'rgba(239,68,68,0.1)',
+                border:     '1px solid rgba(239,68,68,0.25)',
+                color:      '#FCA5A5',
+              }}
+            >
+              <span className="mt-px flex-shrink-0">⚠</span>
+              <span>{error}</span>
+            </div>
+          )}
+
           {/* Email */}
           <div className="space-y-1.5">
             <label htmlFor="email" className="block text-sm font-medium" style={{ color: '#94A3B8' }}>
@@ -121,12 +157,11 @@ export default function LoginPage() {
               <input
                 id="email"
                 type="email"
-                required
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={t('auth.emailPlaceholder')}
-                className="w-full pl-10 pr-4 py-3 rounded-lg text-sm outline-none transition-all"
+                className="w-full pl-10 pr-4 py-3 rounded-lg text-base outline-none transition-all min-h-[44px] box-border"
                 style={{
                   background: 'rgba(255,255,255,0.04)',
                   border:     '1px solid rgba(255,255,255,0.1)',
@@ -154,12 +189,11 @@ export default function LoginPage() {
               <input
                 id="password"
                 type={showPw ? 'text' : 'password'}
-                required
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={t('auth.passwordPlaceholder')}
-                className="w-full pl-10 pr-10 py-3 rounded-lg text-sm outline-none transition-all"
+                className="w-full pl-10 pr-10 py-3 rounded-lg text-base outline-none transition-all min-h-[44px] box-border"
                 style={{
                   background: 'rgba(255,255,255,0.04)',
                   border:     '1px solid rgba(255,255,255,0.1)',
@@ -174,35 +208,24 @@ export default function LoginPage() {
                   e.currentTarget.style.boxShadow = 'none'
                 }}
               />
-              <button type="button" onClick={() => setShowPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5" style={{ color: '#64748B' }}>
+              <button
+                type="button"
+                onClick={() => setShowPw(v => !v)}
+                className="absolute right-1 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-lg active:opacity-80"
+                style={{ color: '#64748B' }}
+                aria-label={showPw ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              >
                 {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
 
-          {/* Error */}
-          {error && (
-            <div
-              className="flex items-start gap-2 rounded-lg px-3 py-2.5 text-sm"
-              style={{
-                background: 'rgba(239,68,68,0.1)',
-                border:     '1px solid rgba(239,68,68,0.25)',
-                color:      '#FCA5A5',
-              }}
-            >
-              <span className="mt-px">⚠</span>
-              <span>{error}</span>
-            </div>
-          )}
-
           {/* Submit */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-lg text-sm font-semibold transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-2 min-h-[48px] px-4 rounded-lg text-base font-semibold transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed touch-manipulation active:opacity-90"
             style={{ background: '#0055ff', color: '#ffffff' }}
-            onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = '#1ad9ff' }}
-            onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = '#0055ff' }}
           >
             {loading ? (
               <>
@@ -218,10 +241,8 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => router.push('/forgot-password')}
-              className="text-sm transition-colors"
+              className="text-base min-h-[44px] px-3 rounded-lg active:opacity-80"
               style={{ color: '#94A3B8' }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = '#0055ff' }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = '#94A3B8' }}
             >
               {t('auth.forgotPassword')}
             </button>
@@ -246,10 +267,8 @@ export default function LoginPage() {
         </p>
         <a
           href={`mailto:${ESCUELA_CONFIG.contactoEmail}`}
-          className="text-xs transition-colors"
+          className="text-xs inline-flex min-h-[44px] items-center justify-center px-2 rounded-lg active:opacity-80"
           style={{ color: '#475569' }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = '#1ad9ff' }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = '#475569' }}
         >
           {ESCUELA_CONFIG.contactoEmail}
         </a>

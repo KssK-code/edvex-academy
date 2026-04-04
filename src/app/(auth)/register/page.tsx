@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Mail, Lock, Loader2, User, Phone, Eye, EyeOff, Clock, Zap } from 'lucide-react'
@@ -53,13 +53,16 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  // Helper: muestra error y hace scroll para que sea visible en móvil
+  useEffect(() => {
+    if (!error) return
+    const id = requestAnimationFrame(() => {
+      document.getElementById('register-error')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+    return () => cancelAnimationFrame(id)
+  }, [error])
+
   function showValidationError(msg: string) {
     setError(msg)
-    // Scroll al error para que sea visible en móvil (especialmente con teclado abierto)
-    setTimeout(() => {
-      document.getElementById('register-error')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }, 50)
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -133,10 +136,10 @@ export default function RegisterPage() {
       // 2. En iOS Safari, signUp puede retornar user sin session si las cookies
       //    aún no se establecieron. Esperar a que la sesión esté lista.
       if (!signUpData.session) {
-        // Reintentar getSession hasta 3 veces con delay para que las cookies se propaguen
+        // iOS Safari: reintentar getSession (cookies de sesión first-party)
         let sessionReady = false
-        for (let i = 0; i < 3; i++) {
-          await new Promise(r => setTimeout(r, 500))
+        for (let i = 0; i < 10; i++) {
+          await new Promise(r => setTimeout(r, 400))
           const { data: { session } } = await supabase.auth.getSession()
           if (session) { sessionReady = true; break }
         }
@@ -219,6 +222,23 @@ export default function RegisterPage() {
         </div>
 
         <form onSubmit={handleSubmit} noValidate className="space-y-4">
+          {error && (
+            <div
+              id="register-error"
+              role="alert"
+              aria-live="polite"
+              className="flex items-start gap-2 rounded-lg px-3 py-2.5 text-base"
+              style={{
+                background: 'rgba(239,68,68,0.1)',
+                border: '1px solid rgba(239,68,68,0.25)',
+                color: '#FCA5A5',
+              }}
+            >
+              <span className="mt-px flex-shrink-0">⚠</span>
+              <span>{error}</span>
+            </div>
+          )}
+
           {/* Nombre */}
           <div className="space-y-1">
             <label htmlFor="nombre" className="block text-sm font-medium" style={{ color: '#94A3B8' }}>
@@ -233,7 +253,7 @@ export default function RegisterPage() {
                 value={nombreCompleto}
                 onChange={(e) => setNombreCompleto(e.target.value)}
                 placeholder={t('register.fullNamePlaceholder')}
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm outline-none transition-all"
+                className="w-full pl-10 pr-4 py-3 rounded-lg text-base outline-none transition-all min-h-[44px] box-border"
                 style={inputStyle}
                 onFocus={(e) => Object.assign(e.currentTarget.style, focusStyle)}
                 onBlur={(e) => Object.assign(e.currentTarget.style, blurStyle)}
@@ -255,7 +275,7 @@ export default function RegisterPage() {
                 value={telefono}
                 onChange={(e) => setTelefono(e.target.value)}
                 placeholder={t('register.phonePlaceholder')}
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm outline-none transition-all"
+                className="w-full pl-10 pr-4 py-3 rounded-lg text-base outline-none transition-all min-h-[44px] box-border"
                 style={inputStyle}
                 onFocus={(e) => Object.assign(e.currentTarget.style, focusStyle)}
                 onBlur={(e) => Object.assign(e.currentTarget.style, blurStyle)}
@@ -277,7 +297,7 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={t('register.emailPlaceholder')}
-                className="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm outline-none transition-all"
+                className="w-full pl-10 pr-4 py-3 rounded-lg text-base outline-none transition-all min-h-[44px] box-border"
                 style={inputStyle}
                 onFocus={(e) => Object.assign(e.currentTarget.style, focusStyle)}
                 onBlur={(e) => Object.assign(e.currentTarget.style, blurStyle)}
@@ -301,10 +321,12 @@ export default function RegisterPage() {
                     key={plan.id}
                     type="button"
                     onClick={() => setSelectedPlan(plan.id)}
-                    className="rounded-xl p-3 text-left transition-all"
+                    aria-pressed={selected}
+                    className="rounded-xl p-3 text-left transition-all min-h-[88px] sm:min-h-[96px] touch-manipulation active:opacity-90"
                     style={{
                       background: selected ? `${accent}15` : 'rgba(255,255,255,0.02)',
                       border: selected ? `2px solid ${accent}` : '2px solid rgba(255,255,255,0.08)',
+                      WebkitTapHighlightColor: 'transparent',
                     }}
                   >
                     <div className="flex items-center gap-2 mb-1">
@@ -341,12 +363,18 @@ export default function RegisterPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={t('register.passwordPlaceholder')}
-                className="w-full pl-10 pr-10 py-2.5 rounded-lg text-sm outline-none transition-all"
+                className="w-full pl-10 pr-10 py-3 rounded-lg text-base outline-none transition-all min-h-[44px] box-border"
                 style={inputStyle}
                 onFocus={(e) => Object.assign(e.currentTarget.style, focusStyle)}
                 onBlur={(e) => Object.assign(e.currentTarget.style, blurStyle)}
               />
-              <button type="button" onClick={() => setShowPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5" style={{ color: '#64748B' }}>
+              <button
+                type="button"
+                onClick={() => setShowPw(v => !v)}
+                className="absolute right-1 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-lg active:opacity-80"
+                style={{ color: '#64748B' }}
+                aria-label={showPw ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+              >
                 {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
@@ -366,39 +394,28 @@ export default function RegisterPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder={t('register.confirmPlaceholder')}
-                className="w-full pl-10 pr-10 py-2.5 rounded-lg text-sm outline-none transition-all"
+                className="w-full pl-10 pr-10 py-3 rounded-lg text-base outline-none transition-all min-h-[44px] box-border"
                 style={inputStyle}
                 onFocus={(e) => Object.assign(e.currentTarget.style, focusStyle)}
                 onBlur={(e) => Object.assign(e.currentTarget.style, blurStyle)}
               />
-              <button type="button" onClick={() => setShowConfirmPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5" style={{ color: '#64748B' }}>
+              <button
+                type="button"
+                onClick={() => setShowConfirmPw(v => !v)}
+                className="absolute right-1 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] inline-flex items-center justify-center rounded-lg active:opacity-80"
+                style={{ color: '#64748B' }}
+                aria-label={showConfirmPw ? 'Ocultar confirmación' : 'Mostrar confirmación'}
+              >
                 {showConfirmPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
 
-          {error && (
-            <div
-              id="register-error"
-              className="flex items-start gap-2 rounded-lg px-3 py-2.5 text-sm"
-              style={{
-                background: 'rgba(239,68,68,0.1)',
-                border: '1px solid rgba(239,68,68,0.25)',
-                color: '#FCA5A5',
-              }}
-            >
-              <span className="mt-px">⚠</span>
-              <span>{error}</span>
-            </div>
-          )}
-
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-semibold transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-2 min-h-[48px] px-4 rounded-lg text-base font-semibold transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed touch-manipulation active:opacity-90"
             style={{ background: '#0055ff', color: '#ffffff' }}
-            onMouseEnter={(e) => { if (!loading) e.currentTarget.style.background = '#1ad9ff' }}
-            onMouseLeave={(e) => { if (!loading) e.currentTarget.style.background = '#0055ff' }}
           >
             {loading ? (
               <>
@@ -414,10 +431,8 @@ export default function RegisterPage() {
             <span className="text-sm" style={{ color: '#94A3B8' }}>{t('register.haveAccount')} </span>
             <Link
               href="/login"
-              className="text-sm font-medium transition-colors"
+              className="text-base font-medium inline-flex min-h-[44px] items-center justify-center px-2 rounded-lg active:opacity-80"
               style={{ color: '#0055ff' }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = '#1ad9ff' }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = '#0055ff' }}
             >
               {t('register.signInLink')}
             </Link>
@@ -440,10 +455,8 @@ export default function RegisterPage() {
         </p>
         <a
           href={`mailto:${ESCUELA_CONFIG.contactoEmail}`}
-          className="text-xs transition-colors"
+          className="text-xs inline-flex min-h-[44px] items-center justify-center px-2 rounded-lg active:opacity-80"
           style={{ color: '#475569' }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = '#1ad9ff' }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = '#0055ff' }}
         >
           {ESCUELA_CONFIG.contactoEmail}
         </a>

@@ -42,6 +42,7 @@ export default function ReadingProgress({
   const [mostrarResumen, setMostrarResumen] = useState(false)
   const [minLectura, setMinLectura] = useState(1)
   const [mensaje, setMensaje] = useState('')
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
   const btnRef     = useRef<HTMLButtonElement>(null)
   const badgeRef   = useRef<HTMLDivElement>(null)
@@ -121,6 +122,7 @@ export default function ReadingProgress({
 
   const marcarLeido = async () => {
     if (cargando || completada) return
+    setErrorMsg(null)
     setCargando(true)
     try {
       const resp = await fetch('/api/alumno/progreso/semana', {
@@ -133,7 +135,16 @@ export default function ReadingProgress({
       })
 
       if (!resp.ok) {
-        console.warn('[ReadingProgress] Servidor respondió con error', resp.status)
+        let detail = ''
+        try {
+          const j = await resp.json()
+          if (j?.error && typeof j.error === 'string') detail = j.error
+        } catch { /* ignore */ }
+        setErrorMsg(
+          lang === 'en'
+            ? (detail || 'Could not save progress. Please try again.')
+            : (detail || 'No se pudo guardar el progreso. Intenta de nuevo.')
+        )
         setCargando(false)
         return
       }
@@ -158,8 +169,11 @@ export default function ReadingProgress({
       setMostrarResumen(true)
 
     } catch {
-      // Error de red — NO marcar como completada, dejar que reintente
-      console.warn('[ReadingProgress] Error de red al marcar semana como completada')
+      setErrorMsg(
+        lang === 'en'
+          ? 'Network error. Check your connection and try again.'
+          : 'Error de red. Revisa tu conexión e intenta de nuevo.'
+      )
     } finally {
       setCargando(false)
     }
@@ -171,6 +185,32 @@ export default function ReadingProgress({
     <>
       {/* Ancla invisible — permite encontrar el contenedor scrollable en el DOM */}
       <span ref={anchorRef} aria-hidden="true" style={{ display: 'none' }} />
+
+      {errorMsg && (
+        <div
+          role="alert"
+          className="fixed left-3 right-3 z-[10000] rounded-xl px-4 py-3 text-sm shadow-lg"
+          style={{
+            top: 'max(12px, env(safe-area-inset-top))',
+            background: 'rgba(127,29,29,0.95)',
+            border: '1px solid rgba(248,113,113,0.4)',
+            color: '#FECACA',
+          }}
+        >
+          <div className="flex items-start justify-between gap-2">
+            <span>{errorMsg}</span>
+            <button
+              type="button"
+              onClick={() => setErrorMsg(null)}
+              className="min-h-[44px] min-w-[44px] shrink-0 rounded-lg text-lg leading-none flex items-center justify-center touch-manipulation active:opacity-70"
+              style={{ color: '#FECACA' }}
+              aria-label={lang === 'en' ? 'Dismiss' : 'Cerrar'}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Barra de progreso fija en la parte superior */}
       <div
@@ -200,12 +240,12 @@ export default function ReadingProgress({
           ref={resumenRef}
           style={{
             position: 'fixed',
-            bottom: '1.5rem',
+            bottom: 'max(1.5rem, env(safe-area-inset-bottom))',
             left: '50%',
             transform: 'translateX(-50%)',
             zIndex: 9999,
             minWidth: '260px',
-            maxWidth: '90vw',
+            maxWidth: 'min(90vw, 400px)',
           }}
         >
           <div
@@ -239,27 +279,31 @@ export default function ReadingProgress({
         <div
           style={{
             position: 'fixed',
-            bottom: '1.5rem',
+            bottom: 'max(1.25rem, env(safe-area-inset-bottom))',
             left: '50%',
             transform: 'translateX(-50%)',
             zIndex: 9998,
+            width: 'min(calc(100vw - 24px), 420px)',
+            paddingLeft: 12,
+            paddingRight: 12,
           }}
         >
           {completada ? (
             <div
               ref={badgeRef}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold shadow-lg"
+              className="flex items-center justify-center gap-2 px-5 min-h-[48px] rounded-full text-sm font-semibold shadow-lg w-full"
               style={{ background: '#166534', color: '#86EFAC', border: '1px solid #15803D' }}
             >
               <CheckCircle className="w-4 h-4" />
               {lang === 'en' ? 'Week completed' : 'Semana completada'}
             </div>
-          ) : scrollPct >= 85 ? (
+          ) : scrollPct >= 80 ? (
             <button
               ref={btnRef}
+              type="button"
               onClick={marcarLeido}
               disabled={cargando}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold shadow-lg transition-opacity disabled:opacity-70"
+              className="flex items-center justify-center gap-2 px-4 min-h-[52px] w-full rounded-2xl text-base font-semibold shadow-lg touch-manipulation transition-opacity disabled:opacity-70 active:opacity-90"
               style={{ background: '#6366F1', color: '#fff', border: 'none', cursor: cargando ? 'not-allowed' : 'pointer' }}
             >
               {cargando ? (
