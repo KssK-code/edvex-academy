@@ -81,35 +81,23 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  // Onboarding: redirigir a alumnos sin plan SOLO cuando intentan ir al dashboard raíz.
-  // El alumno puede navegar libremente entre secciones (pagos, perfil, calificaciones, etc.)
-  // El acceso al CONTENIDO de materias se bloquea a nivel de API, no de middleware.
+  // Navegación libre: el alumno puede acceder a todas las secciones de /alumno/*
+  // sin restricciones del middleware. El acceso al CONTENIDO de materias se controla
+  // a nivel de API (meses, materia, quiz endpoints).
+  // Única regla: si ya tiene plan, no puede volver a /alumno/elegir-plan.
   const pathname = request.nextUrl.pathname
-  const isAlumnoPageRoute =
-    pathname.startsWith('/alumno') &&
-    !pathname.startsWith('/api/')
 
-  if (user && isAlumnoPageRoute) {
+  if (user && pathname === '/alumno/elegir-plan') {
     const { data: alumno } = await supabase
       .from('alumnos')
-      .select('plan_estudio_id, inscripcion_pagada')
+      .select('plan_estudio_id')
       .eq('usuario_id', user.id)
       .single()
 
-    if (alumno) {
+    if (alumno?.plan_estudio_id) {
       const url = request.nextUrl.clone()
-
-      if (!alumno.plan_estudio_id) {
-        // Sin plan → redirigir solo desde el dashboard raíz a elegir-plan
-        if (pathname === '/alumno') {
-          url.pathname = '/alumno/elegir-plan'
-          return NextResponse.redirect(url)
-        }
-      } else if (pathname === '/alumno/elegir-plan') {
-        // Ya tiene plan → no puede volver a elegir-plan
-        url.pathname = '/alumno'
-        return NextResponse.redirect(url)
-      }
+      url.pathname = '/alumno'
+      return NextResponse.redirect(url)
     }
   }
 

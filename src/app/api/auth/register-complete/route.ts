@@ -28,6 +28,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'nombre_completo es requerido' }, { status: 400 })
     }
     const telefono = (body.telefono ?? '').trim() || null
+    const plan_estudio_id = body.plan_estudio_id || null
 
     const admin = createAdminClient()
 
@@ -56,7 +57,7 @@ export async function POST(req: NextRequest) {
         .insert({
           usuario_id: user.id,
           matricula,
-          plan_estudio_id: null,
+          plan_estudio_id,
           meses_desbloqueados: 0,
           inscripcion_pagada: false,
           modulos_desbloqueados: [],

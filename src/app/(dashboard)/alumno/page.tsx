@@ -52,7 +52,7 @@ export default function AlumnoDashboard() {
   const { toasts, showToast, removeToast } = useToast()
   const [perfil, setPerfil] = useState<Perfil | null>(null)
   const [meses, setMeses] = useState<Mes[]>([])
-  const [demo, setDemo] = useState(false)
+  // demo state removed — TUT card logic uses perfil.meses_desbloqueados === 0
   const [materiasAcreditadas, setMateriasAcreditadas] = useState(0)
   const [logros, setLogros] = useState<Array<{ tipo: string; obtenido_en: string; metadata?: Record<string, unknown> }>>([])
   const [loading, setLoading] = useState(true)
@@ -144,15 +144,10 @@ export default function AlumnoDashboard() {
       fetch('/api/alumno/calificaciones').then(r => r.json()),
     ])
     setPerfil(p)
-    if (m && m.demo === true) {
-      setDemo(true)
-      setMeses([])
-    } else if (m && Array.isArray(m.meses)) {
-      // New format: { meses: [...], inscripcion_pagada, meses_desbloqueados }
-      setDemo(false)
+    // Meses API always returns { meses: [...], inscripcion_pagada, meses_desbloqueados }
+    if (m && Array.isArray(m.meses)) {
       setMeses(m.meses)
     } else {
-      setDemo(false)
       setMeses(Array.isArray(m) ? m : [])
     }
     setMateriasAcreditadas(c?.resumen?.materias_acreditadas ?? 0)
@@ -223,63 +218,8 @@ export default function AlumnoDashboard() {
     <div className="space-y-8 max-w-5xl">
       <ToastContainer toasts={toasts} onClose={removeToast} />
 
-      {/* Banner: Modo DEMO — alumno sin pago y sin meses */}
-      {demo && (
-        <FadeIn delay={0}>
-          <div
-            className="rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4"
-            style={{
-              background: 'linear-gradient(135deg, rgba(91,108,255,0.14) 0%, rgba(99,102,241,0.08) 100%)',
-              border: '1px solid rgba(91,108,255,0.4)',
-            }}
-          >
-            <div
-              className="flex items-center justify-center w-11 h-11 rounded-xl flex-shrink-0"
-              style={{ background: 'rgba(91,108,255,0.18)', border: '1px solid rgba(91,108,255,0.45)' }}
-            >
-              <GraduationCap className="w-5 h-5" style={{ color: '#7B8AFF' }} />
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm leading-snug" style={{ color: '#A5B4FC' }}>
-                {lang === 'en' ? '🎓 Welcome to EDVEX Academy' : '🎓 Bienvenido a EDVEX Academy'}
-              </p>
-              <p className="text-xs mt-1 leading-relaxed" style={{ color: '#94A3B8' }}>
-                {lang === 'en'
-                  ? "You're in demo mode — explore the platform for free"
-                  : 'Estás en modo demo — explora la plataforma gratis'}
-              </p>
-            </div>
-
-            <div className="flex-shrink-0 flex flex-col items-center gap-2">
-              <Link
-                href="/alumno/pagar"
-                className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all whitespace-nowrap"
-                style={{ background: '#5B6CFF', color: '#fff' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#7B8AFF' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#5B6CFF' }}
-              >
-                <CreditCard className="w-4 h-4" />
-                {lang === 'en' ? 'Activate my account — $50 enrollment →' : 'Activar mi cuenta — $50 inscripción →'}
-              </Link>
-              <a
-                href="https://cal.com/soluciones-academicas/asesoria-edvex-academy-30-min"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs transition-colors whitespace-nowrap"
-                style={{ color: '#7B8AFF' }}
-                onMouseEnter={e => { e.currentTarget.style.color = '#A5B4FC' }}
-                onMouseLeave={e => { e.currentTarget.style.color = '#7B8AFF' }}
-              >
-                {lang === 'en' ? 'or schedule a free video call →' : 'o agenda una videollamada gratis →'}
-              </a>
-            </div>
-          </div>
-        </FadeIn>
-      )}
-
-      {/* Banner: Inscripción pendiente (alumno con meses pero sin pagar) */}
-      {!demo && perfil.inscripcion_pagada === false && (
+      {/* Banner: Inscripción pendiente */}
+      {perfil.inscripcion_pagada === false && (
         <FadeIn delay={0}>
           <div
             className="rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4"
@@ -356,7 +296,7 @@ export default function AlumnoDashboard() {
       )}
 
       {/* Banner: Inscripción confirmada pero sin módulos (meses=0 + pagado) */}
-      {!demo && perfil.inscripcion_pagada && perfil.meses_desbloqueados === 0 && (
+      {perfil.inscripcion_pagada && perfil.meses_desbloqueados === 0 && (
         <FadeIn delay={0}>
           <div
             className="rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center gap-4"
@@ -476,8 +416,8 @@ export default function AlumnoDashboard() {
         </div>
       </FadeIn>
 
-      {/* SECCIÓN 3 — Botón continuar estudiando (solo modo normal) */}
-      {!demo && (
+      {/* SECCIÓN 3 — Botón continuar estudiando */}
+      {(
         <FadeIn delay={perfil.inscripcion_pagada === false ? 300 : 200}>
           <div>
             {mesActivo > 0 && (
@@ -498,8 +438,8 @@ export default function AlumnoDashboard() {
         </FadeIn>
       )}
 
-      {/* SECCIÓN 4a — Card de materia Tutorial (siempre disponible: demo + inscrito sin módulos) */}
-      {(demo || (perfil.inscripcion_pagada && perfil.meses_desbloqueados === 0)) && (
+      {/* SECCIÓN 4a — Card de materia Tutorial (siempre visible cuando no hay meses desbloqueados) */}
+      {perfil.meses_desbloqueados === 0 && (
         <FadeIn delay={200}>
           <div className="space-y-3">
             <div className="flex items-center gap-3">
@@ -543,8 +483,8 @@ export default function AlumnoDashboard() {
         </FadeIn>
       )}
 
-      {/* SECCIÓN 4b — Grid de meses (solo modo normal) */}
-      {!demo && (
+      {/* SECCIÓN 4b — Grid de meses */}
+      {meses.length > 0 && (
         <FadeIn delay={perfil.inscripcion_pagada === false ? 400 : 300}>
           <div className="space-y-3">
             <div className="flex items-center gap-3">

@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
-const DEMO_MATERIA_ID = 'e3f004d8-4451-4a65-9c91-bac3f87d2378' // TUT101 — Tutoría de ingreso I
-
 export async function GET() {
   try {
     const supabase = await createClient()
@@ -22,12 +20,8 @@ export async function GET() {
       inscripcion_pagada: boolean
     }
 
-    // Estado: sin inscripción y sin meses → modo demo (solo TUT101)
-    if (!alumno.inscripcion_pagada && alumno.meses_desbloqueados === 0) {
-      return NextResponse.json({ demo: true, materia_demo_id: DEMO_MATERIA_ID })
-    }
-
-    // Obtener TODOS los meses con sus materias.
+    // Siempre mostrar todos los meses con candado/abierto.
+    // TUT101 siempre desbloqueada. Demás materias según meses_desbloqueados.
     // Ambos planes (Estándar 6 meses y Express 3 meses) cubren los mismos
     // 6 meses de contenido — la diferencia es la velocidad de desbloqueo.
     const { data: meses, error: mesesError } = await supabase
