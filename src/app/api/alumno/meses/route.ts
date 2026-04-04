@@ -12,7 +12,7 @@ export async function GET() {
     // Obtener datos del alumno (incluye inscripcion_pagada para modo demo)
     const { data: alumnoData, error: alumnoError } = await supabase
       .from('alumnos')
-      .select('meses_desbloqueados, inscripcion_pagada, planes_estudio(duracion_meses)')
+      .select('meses_desbloqueados, inscripcion_pagada')
       .eq('usuario_id', user.id)
       .single()
 
@@ -21,7 +21,6 @@ export async function GET() {
     const alumno = alumnoData as unknown as {
       meses_desbloqueados: number
       inscripcion_pagada: boolean
-      planes_estudio: { duracion_meses: number } | null
     }
 
     // Modo demo: alumno sin pago de inscripción y sin meses desbloqueados
@@ -29,14 +28,15 @@ export async function GET() {
       return NextResponse.json({ demo: true, materia_demo_id: DEMO_MATERIA_ID })
     }
 
-    const duracionMeses = alumno.planes_estudio?.duracion_meses ?? 0
-
-    // Obtener meses con sus materias
+    // Obtener TODOS los meses con sus materias.
+    // Ambos planes (Estándar 6 meses y Express 3 meses) cubren los mismos
+    // 6 meses de contenido — la diferencia es la velocidad de desbloqueo:
+    //   Estándar: +1 mes por pago de $150 (6 pagos)
+    //   Express:  +2 meses por pago de $300 (3 pagos)
     const { data: meses, error: mesesError } = await supabase
       .from('meses_contenido')
       .select('*, materias(id, codigo, nombre, nombre_en, color_hex, descripcion, descripcion_en)')
       .order('numero')
-      .lte('numero', duracionMeses)
 
     if (mesesError) return NextResponse.json({ error: mesesError.message }, { status: 500 })
 
