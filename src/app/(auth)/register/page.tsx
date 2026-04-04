@@ -38,7 +38,6 @@ export default function RegisterPage() {
   const [showConfirmPw, setShowConfirmPw] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const [emailSent, setEmailSent] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -79,12 +78,13 @@ export default function RegisterPage() {
         return
       }
 
-      // Sin sesión = verificación de email activa → mostrar mensaje de éxito
-      if (!signUpData.session) {
-        setEmailSent(true)
+      if (!signUpData.user) {
+        setError(t('register.errRegister'))
         return
       }
 
+      // Con verificación de email desactivada, signUp devuelve session directamente.
+      // Llamar a register-complete para crear el perfil en la BD y redirigir.
       const res = await fetch('/api/auth/register-complete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -93,11 +93,14 @@ export default function RegisterPage() {
       const data = await res.json()
 
       if (!res.ok) {
-        setError(data.error || t('register.errRegister'))
-        return
+        // 409 = usuario ya completó registro (posible recarga) → redirigir igual
+        if (res.status !== 409) {
+          setError(data.error || t('register.errRegister'))
+          return
+        }
       }
 
-      router.push('/alumno')
+      router.push('/alumno/elegir-plan')
     } catch {
       setError(t('register.errRegister'))
     } finally {
@@ -134,33 +137,6 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        {emailSent ? (
-          <div className="flex flex-col items-center gap-4 py-4">
-            <div
-              className="w-14 h-14 rounded-full flex items-center justify-center text-2xl"
-              style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)' }}
-            >
-              ✉️
-            </div>
-            <div className="text-center space-y-2">
-              <p className="text-lg font-bold" style={{ color: '#10B981' }}>
-                {t('register.emailConfirmTitle')}
-              </p>
-              <p className="text-sm" style={{ color: '#94A3B8', lineHeight: 1.6 }}>
-                {t('register.emailConfirmDesc')}
-              </p>
-            </div>
-            <Link
-              href="/login"
-              className="mt-2 text-sm font-medium transition-colors"
-              style={{ color: '#0055ff' }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = '#1ad9ff' }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = '#0055ff' }}
-            >
-              {t('register.signInLink')} →
-            </Link>
-          </div>
-        ) : (
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-1.5">
             <label htmlFor="nombre" className="block text-sm font-medium" style={{ color: '#94A3B8' }}>
@@ -322,7 +298,6 @@ export default function RegisterPage() {
             </Link>
           </div>
         </form>
-        )}
 
         <div className="mt-6 space-y-2 text-center">
           <p className="text-xs" style={{ color: '#475569' }}>
