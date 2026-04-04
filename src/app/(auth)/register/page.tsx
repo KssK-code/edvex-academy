@@ -95,6 +95,8 @@ export default function RegisterPage() {
     setLoading(true)
     try {
       const supabase = createClient()
+
+      // 1. Crear cuenta en Supabase Auth
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email: emailTrimmed,
         password,
@@ -107,33 +109,72 @@ export default function RegisterPage() {
         } else {
           setError(signUpError.message)
         }
+        setLoading(false)
         return
       }
 
       if (!signUpData.user) {
         setError(t('register.errRegister'))
+        setLoading(false)
         return
       }
 
-      // Crear perfil en la BD con el plan seleccionado
-      const res = await fetch('/api/auth/register-complete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nombre_completo: nombreCompleto.trim(),
-          telefono: telefono.trim() || null,
-          plan_estudio_id: selectedPlan,
-        }),
-      })
-      const data = await res.json()
+      // 2. En iOS Safari, signUp puede retornar user sin session si las cookies
+      //    aún no se establecieron. Esperar a que la sesión esté lista.
+      if (!signUpData.session) {
+        // Reintentar getSession hasta 3 veces con delay para que las cookies se propaguen
+        let sessionReady = false
+        for (let i = 0; i < 3; i++) {
+          await new Promise(r => setTimeout(r, 500))
+          const { data: { session } } = await supabase.auth.getSession()
+          if (session) { sessionReady = true; break }
+        }
+        if (!sessionReady) {
+          setError(isEn
+            ? 'Account created but session could not start. Please log in manually.'
+            : 'Cuenta creada pero la sesión no pudo iniciarse. Por favor inicia sesión manualmente.')
+          setLoading(false)
+          return
+        }
+      }
 
-      if (!res.ok && res.status !== 409) {
-        setError(data.error || t('register.errRegister'))
+      // 3. Crear perfil en la BD con el plan seleccionado
+      let registerRes: Response
+      try {
+        registerRes = await fetch('/api/auth/register-complete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nombre_completo: nombreCompleto.trim(),
+            telefono: telefono.trim() || null,
+            plan_estudio_id: selectedPlan,
+          }),
+        })
+      } catch {
+        // Fetch puede fallar por problemas de red en móvil
+        setError(isEn ? 'Network error. Please try again.' : 'Error de red. Intenta de nuevo.')
+        setLoading(false)
         return
       }
 
+      // 4. Parsear respuesta de forma segura
+      let registerData: { error?: string } = {}
+      try {
+        registerData = await registerRes.json()
+      } catch {
+        // Si no es JSON (ej. error 500 HTML), ignorar el body
+      }
+
+      if (!registerRes.ok && registerRes.status !== 409) {
+        setError(registerData.error || t('register.errRegister'))
+        setLoading(false)
+        return
+      }
+
+      // 5. Éxito — redirigir al dashboard
       router.push('/alumno')
-    } catch {
+    } catch (err) {
+      console.error('[Register] Error inesperado:', err)
       setError(t('register.errRegister'))
     } finally {
       setLoading(false)
