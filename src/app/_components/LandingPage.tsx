@@ -370,54 +370,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── DOCUMENTOS ── */}
-      <section style={{ padding: '90px 5%', background: 'var(--negro2)' }}>
-        <div style={{ textAlign: 'center', marginBottom: '56px' }}>
-          <div className="tag-line">
-            <span className="es">Tus Documentos</span>
-            <span className="en">Your Documents</span>
-          </div>
-          <h2 className="sec-title">
-            <span className="es">Certificación <em style={{ fontStyle: 'normal', background: 'var(--grad)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>real y oficial</em></span>
-            <span className="en">Real and <em style={{ fontStyle: 'normal', background: 'var(--grad)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>official certification</em></span>
-          </h2>
-          <p className="sec-sub">
-            <span className="es">Al graduarte recibes documentos con validez oficial que te abren puertas en ambos países.</span>
-            <span className="en">Upon graduation you receive officially valid documents that open doors in both countries.</span>
-          </p>
-        </div>
-
-        <div className="docs-grid">
-          <div className="doc-card">
-            <div className="doc-icon">📜</div>
-            <div className="doc-name">
-              <span className="es">Transcript Oficial de High School</span>
-              <span className="en">Official High School Transcript</span>
-            </div>
-            <div className="doc-desc">
-              <span className="es">Documento oficial emitido por nuestra institución partner en Estados Unidos, con validez en universidades americanas y mexicanas.</span>
-              <span className="en">Official document issued by our partner institution in the United States, valid at American and Mexican universities.</span>
-            </div>
-          </div>
-          <div className="doc-card">
-            <div className="doc-icon">🏛️</div>
-            <div className="doc-name">
-              <span className="es">Revalidación Oficial SEP</span>
-              <span className="en">Official SEP Revalidation</span>
-            </div>
-            <div className="doc-desc">
-              <span className="es">Tu certificado es revalidado ante la SEP para que tenga plena validez en México. Accede a universidades, empleos y trámites sin restricciones.</span>
-              <span className="en">Your certificate is revalidated by SEP for full validity in Mexico. Access universities, jobs, and procedures without restrictions.</span>
-            </div>
-          </div>
-        </div>
-
-        <p className="docs-note">
-          <span className="es">Nosotros gestionamos ambos documentos por ti — sin filas, sin trámites. Al graduarte los recibes directamente.</span>
-          <span className="en">We handle both documents for you — no lines, no paperwork. You receive them directly upon graduation.</span>
-        </p>
-      </section>
-
       {/* ── PLANES ── */}
       <section className="benefits" id="planes">
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
@@ -623,6 +575,11 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
+
+        <p className="docs-note">
+          <span className="es">Nosotros gestionamos ambos documentos por ti — sin filas, sin trámites. Al graduarte los recibes directamente.</span>
+          <span className="en">We handle both documents for you — no lines, no paperwork. You receive them directly upon graduation.</span>
+        </p>
 
         {/* Bloque de verificación */}
         <div className="cert-verify">
