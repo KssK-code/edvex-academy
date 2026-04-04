@@ -518,10 +518,8 @@ export default function AlumnoDashboard() {
         </FadeIn>
       )}
 
-      {/* SECCIÓN 5 — Logros */}
-      <FadeIn delay={perfil.inscripcion_pagada === false ? 500 : 400}>
-        <BadgesGrid logros={logros} lang={lang} />
-      </FadeIn>
+      {/* SECCIÓN 5 — Logros (sin animación: evita solapamientos en móvil) */}
+      <BadgesGrid logros={logros} lang={lang} />
     </div>
   )
 }
