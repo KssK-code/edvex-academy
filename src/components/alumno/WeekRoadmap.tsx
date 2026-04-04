@@ -49,6 +49,10 @@ export default function WeekRoadmap({
   esTutorial = false,
 }: WeekRoadmapProps) {
   const loc = (es: string, en?: string) => lang === 'en' && en ? en : es
+  /** Tutorial TUT*: Actividad / Activity; demás materias: Semana / Week */
+  const etiquetaUnidad = esTutorial
+    ? (lang === 'en' ? 'Activity' : 'Actividad')
+    : (lang === 'en' ? 'Week' : 'Semana')
   const containerRef = useRef<HTMLDivElement>(null)
 
   useGSAP(() => {
@@ -91,7 +95,7 @@ export default function WeekRoadmap({
                 type="button"
                 onClick={() => clickable && onSemanaClick(semana.id)}
                 disabled={!clickable}
-                aria-label={`${esTutorial ? (lang === 'en' ? 'Day' : 'Día') : (lang === 'en' ? 'Week' : 'Semana')} ${semana.numero}: ${loc(semana.titulo, semana.titulo_en)}`}
+                aria-label={`${etiquetaUnidad} ${semana.numero}: ${loc(semana.titulo, semana.titulo_en)}`}
                 className={[
                   'min-w-[44px] min-h-[44px] w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-500 relative z-10 touch-manipulation active:opacity-90',
                   estado === 'completado'
@@ -145,7 +149,7 @@ export default function WeekRoadmap({
                   className="text-xs font-mono transition-all duration-500"
                   style={{ color: estado === 'bloqueado' ? '#475569' : '#6366F1' }}
                 >
-                  {esTutorial ? (lang === 'en' ? 'Day' : 'Día') : (lang === 'en' ? 'Week' : 'Semana')} {semana.numero}
+                  {etiquetaUnidad} {semana.numero}
                 </span>
 
                 {estado === 'activo' && (
