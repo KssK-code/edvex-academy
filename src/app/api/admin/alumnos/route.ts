@@ -89,6 +89,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Nombre, email y contraseña son requeridos' }, { status: 400 })
     }
 
+    if (typeof password !== 'string' || password.length < 8 || !/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+      return NextResponse.json({ error: 'La contraseña debe tener al menos 8 caracteres, una letra y un número' }, { status: 400 })
+    }
+
     const admin = createAdminClient()
 
     // Crear usuario en Supabase Auth
