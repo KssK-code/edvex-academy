@@ -51,12 +51,13 @@ function findBestScrollContainer(start: HTMLElement | null): HTMLElement | null 
 
 export default function ReadingProgress({
   semanaId,
+  alumnoId,
   lang,
   onCompletada,
   yaCompletada = false,
 }: ReadingProgressProps) {
   const [scrollPct, setScrollPct] = useState(0)
-  const [completada, setCompletada] = useState(yaCompletada)
+  const [completada, setCompletada] = useState(false)
   const [cargando, setCargando] = useState(false)
   const [mostrarResumen, setMostrarResumen] = useState(false)
   const [minLectura, setMinLectura] = useState(1)
@@ -68,6 +69,50 @@ export default function ReadingProgress({
   const resumenRef = useRef<HTMLDivElement>(null)
   const rootRef = useRef<HTMLDivElement>(null)
   const mountedAt = useRef(Date.now())
+  const yaCompletadaRef = useRef(yaCompletada)
+  yaCompletadaRef.current = yaCompletada
+
+  // Solo cuando cambia semana o alumno: limpiar UI y leer progreso real en BD (evita stale Semana 1 → 2)
+  useEffect(() => {
+    let cancelled = false
+    setMostrarResumen(false)
+    setCargando(false)
+    setErrorMsg(null)
+    setScrollPct(0)
+    mountedAt.current = Date.now()
+    setCompletada(false)
+
+    if (!alumnoId) {
+      setCompletada(yaCompletadaRef.current)
+      return
+    }
+
+    ;(async () => {
+      try {
+        const res = await fetch(
+          `/api/alumno/progreso/semana?semana_id=${encodeURIComponent(semanaId)}`
+        )
+        const data = (await res.json()) as { completada?: boolean }
+        if (cancelled) return
+        if (res.ok && typeof data.completada === 'boolean') {
+          setCompletada(data.completada)
+        } else {
+          setCompletada(yaCompletadaRef.current)
+        }
+      } catch {
+        if (!cancelled) setCompletada(yaCompletadaRef.current)
+      }
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [semanaId, alumnoId])
+
+  // Misma semana: el padre puede actualizar el Set antes/después del fetch; mantener coherencia
+  useEffect(() => {
+    if (yaCompletada) setCompletada(true)
+  }, [yaCompletada])
 
   // Badge verde entra con back.out cuando completada cambia a true
   useGSAP(() => {
@@ -156,11 +201,6 @@ export default function ReadingProgress({
       ro?.disconnect()
     }
   }, [semanaId, calcularScroll])
-
-  // Sincronizar prop externa
-  useEffect(() => {
-    if (yaCompletada) setCompletada(true)
-  }, [yaCompletada])
 
   const marcarLeido = async () => {
     if (cargando || completada) return

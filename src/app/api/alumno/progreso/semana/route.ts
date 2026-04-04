@@ -1,6 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+/** ¿El alumno ya marcó esta semana como leída? */
+export async function GET(request: NextRequest) {
+  try {
+    const semanaId = request.nextUrl.searchParams.get('semana_id')
+    if (!semanaId) {
+      return NextResponse.json({ error: 'semana_id requerido' }, { status: 400 })
+    }
+
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
+
+    const { data: alumnoData } = await supabase
+      .from('alumnos')
+      .select('id')
+      .eq('usuario_id', user.id)
+      .single()
+
+    if (!alumnoData) return NextResponse.json({ error: 'Alumno no encontrado' }, { status: 404 })
+
+    const alumno = alumnoData as { id: string }
+
+    const { data: row } = await supabase
+      .from('progreso_semanas')
+      .select('id')
+      .eq('alumno_id', alumno.id)
+      .eq('semana_id', semanaId)
+      .maybeSingle()
+
+    return NextResponse.json({ completada: !!row })
+  } catch {
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
+  }
+}
+
 /** Obtener fecha YYYY-MM-DD en el timezone dado, usando Intl.DateTimeFormat */
 function toLocalDateStr(date: Date, tz: string): string {
   return new Intl.DateTimeFormat('en-CA', {
