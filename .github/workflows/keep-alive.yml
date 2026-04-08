@@ -1,0 +1,17 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    - cron: '0 12 */3 * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        run: |
+          curl -s "https://npsejzwtmnzauldsolwk.supabase.co/rest/v1/" \
+            -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wc2Vqend0bW56YXVsZHNvbHdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwOTgwODYsImV4cCI6MjA4ODY3NDA4Nn0._63-TQoCScen04ZKSAML7bvHYMAUY_k-NSpmW_YEPNk" \
+            -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5wc2Vqend0bW56YXVsZHNvbHdrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwOTgwODYsImV4cCI6MjA4ODY3NDA4Nn0._63-TQoCScen04ZKSAML7bvHYMAUY_k-NSpmW_YEPNk"
+          echo "Ping Supabase EDVEX OK"
