@@ -14,6 +14,7 @@ import SplitTitle from '@/components/ui/SplitTitle'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
+import { trackPurchase } from '@/lib/metaPixel'
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
 
@@ -162,6 +163,9 @@ export default function AlumnoDashboard() {
   useEffect(() => {
     const pago = searchParams.get('pago')
     if (pago === 'exitoso') {
+      if (searchParams.get('inscripcion') === '1') {
+        trackPurchase(50)
+      }
       showToast(t('payment.successToast'), 'success')
       router.replace('/alumno', { scroll: false })
       // Esperar 2 s para que el webhook de Stripe procese antes de recargar

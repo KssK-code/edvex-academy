@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { trackAgendarLlamada, trackCrearCuenta } from '@/lib/metaPixel'
 import '../landing.css'
 
 type Lang = 'es' | 'en'
@@ -118,7 +119,7 @@ export default function LandingPage() {
             <span className="es">Ver Planes</span>
             <span className="en">View Plans</span>
           </a>
-          <Link href="/register" className="btn-ingresar nav-btn-register">
+          <Link href="/register" className="btn-ingresar nav-btn-register" onClick={() => trackCrearCuenta()}>
             <span className="es">Regístrate</span>
             <span className="en">Sign up</span>
           </Link>
@@ -157,11 +158,11 @@ export default function LandingPage() {
             </p>
 
             <div className="hero-btns">
-              <Link href="/register" className="btn-wa" style={{ background: 'linear-gradient(135deg, #0044ee 0%, #1ad9ff 100%)', gap: '10px' }}>
+              <Link href="/register" className="btn-wa" style={{ background: 'linear-gradient(135deg, #0044ee 0%, #1ad9ff 100%)', gap: '10px' }} onClick={() => trackCrearCuenta()}>
                 <span className="es">Crear mi cuenta gratis →</span>
                 <span className="en">Create my free account →</span>
               </Link>
-              <a href={CAL_URL} target="_blank" rel="noopener noreferrer" className="btn-cal">
+              <a href={CAL_URL} target="_blank" rel="noopener noreferrer" className="btn-cal" onClick={() => trackAgendarLlamada()}>
                 <span className="es">📅 Prefiero agendar una videollamada gratis</span>
                 <span className="en">📅 I&apos;d rather schedule a free video call</span>
               </a>
@@ -430,7 +431,7 @@ export default function LandingPage() {
                 </li>
               ))}
             </ul>
-            <Link href="/register" className="btn-plan outline">
+            <Link href="/register" className="btn-plan outline" onClick={() => trackCrearCuenta()}>
               <span className="es">Empezar ahora →</span>
               <span className="en">Start now →</span>
             </Link>
@@ -474,7 +475,7 @@ export default function LandingPage() {
                 </li>
               ))}
             </ul>
-            <Link href="/register" className="btn-plan">
+            <Link href="/register" className="btn-plan" onClick={() => trackCrearCuenta()}>
               <span className="es">Empezar Express →</span>
               <span className="en">Start Express →</span>
             </Link>
@@ -728,6 +729,7 @@ export default function LandingPage() {
             href="/register"
             className="btn-wa"
             style={{ background: 'linear-gradient(135deg, #0044ee 0%, #1ad9ff 100%)', gap: '10px' }}
+            onClick={() => trackCrearCuenta()}
           >
             <span className="es">Crear mi cuenta gratis →</span>
             <span className="en">Create my free account →</span>
@@ -740,10 +742,11 @@ export default function LandingPage() {
 
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
             <a
-              href="https://cal.com/soluciones-academicas/asesoria-edvex-academy-30-min"
+              href={CAL_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-cal"
+              onClick={() => trackAgendarLlamada()}
             >
               <span className="es">📅 Agendar videollamada con un asesor (30 min gratis)</span>
               <span className="en">📅 Schedule a call with an advisor (30 min free)</span>
@@ -883,6 +886,7 @@ export default function LandingPage() {
             href="/register"
             className="btn-wa"
             style={{ display: 'inline-flex', background: 'linear-gradient(135deg, #0044ee 0%, #1ad9ff 100%)' }}
+            onClick={() => trackCrearCuenta()}
           >
             <span className="es">Crear mi cuenta gratis →</span>
             <span className="en">Create my free account →</span>
@@ -892,6 +896,7 @@ export default function LandingPage() {
             target="_blank"
             rel="noopener noreferrer"
             className="btn-cal"
+            onClick={() => trackAgendarLlamada()}
           >
             <span className="es">📅 Prefiero agendar una videollamada gratis</span>
             <span className="en">📅 I&apos;d rather schedule a free video call</span>

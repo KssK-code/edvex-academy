@@ -71,11 +71,16 @@ export async function POST(req: NextRequest) {
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
+    const successQuery =
+      tipo === 'inscripcion'
+        ? 'pago=exitoso&inscripcion=1'
+        : 'pago=exitoso'
+
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${baseUrl}/alumno?pago=exitoso`,
+      success_url: `${baseUrl}/alumno?${successQuery}`,
       cancel_url: `${baseUrl}/alumno?pago=cancelado`,
       metadata: {
         alumnoId,
