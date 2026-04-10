@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { ESCUELA_CONFIG } from "@/lib/config";
 import { Providers } from "@/components/providers";
-import { MetaPixel } from "@/components/MetaPixel";
+import MetaPixel from "@/components/MetaPixel";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
