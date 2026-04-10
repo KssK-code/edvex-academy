@@ -47,6 +47,9 @@ export const metadata: Metadata = {
     title: ESCUELA_CONFIG.nombre,
     description,
   },
+  other: {
+    "facebook-domain-verification": "mxcnn194szx68xtkdbl19g1suqcmyz",
+  },
 };
 
 export default function RootLayout({
