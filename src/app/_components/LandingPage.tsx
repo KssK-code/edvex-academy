@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { trackAgendarLlamada, trackCrearCuenta } from '@/lib/metaPixel'
 import '../landing.css'
 
@@ -76,9 +77,26 @@ const LogoSvg = ({ id }: { id: string }) => (
 )
 
 export default function LandingPage() {
+  const router = useRouter()
   const [lang, setLang] = useState<Lang>('es')
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null)
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+
+  const handleRegisterClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    trackCrearCuenta()
+    setTimeout(() => {
+      router.push('/register')
+    }, 300)
+  }
+
+  const handleCalClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    trackAgendarLlamada()
+    setTimeout(() => {
+      window.open(CAL_URL, '_blank')
+    }, 300)
+  }
 
   useEffect(() => {
     const prev = document.documentElement.style.scrollBehavior
@@ -119,7 +137,7 @@ export default function LandingPage() {
             <span className="es">Ver Planes</span>
             <span className="en">View Plans</span>
           </a>
-          <Link href="/register" className="btn-ingresar nav-btn-register" onClick={() => trackCrearCuenta()}>
+          <Link href="/register" className="btn-ingresar nav-btn-register" onClick={handleRegisterClick}>
             <span className="es">Regístrate</span>
             <span className="en">Sign up</span>
           </Link>
@@ -158,11 +176,11 @@ export default function LandingPage() {
             </p>
 
             <div className="hero-btns">
-              <Link href="/register" className="btn-wa" style={{ background: 'linear-gradient(135deg, #0044ee 0%, #1ad9ff 100%)', gap: '10px' }} onClick={() => trackCrearCuenta()}>
+              <Link href="/register" className="btn-wa" style={{ background: 'linear-gradient(135deg, #0044ee 0%, #1ad9ff 100%)', gap: '10px' }} onClick={handleRegisterClick}>
                 <span className="es">Crear mi cuenta gratis →</span>
                 <span className="en">Create my free account →</span>
               </Link>
-              <a href={CAL_URL} target="_blank" rel="noopener noreferrer" className="btn-cal" onClick={() => trackAgendarLlamada()}>
+              <a href={CAL_URL} target="_blank" rel="noopener noreferrer" className="btn-cal" onClick={handleCalClick}>
                 <span className="es">📅 Prefiero agendar una videollamada gratis</span>
                 <span className="en">📅 I&apos;d rather schedule a free video call</span>
               </a>
@@ -431,7 +449,7 @@ export default function LandingPage() {
                 </li>
               ))}
             </ul>
-            <Link href="/register" className="btn-plan outline" onClick={() => trackCrearCuenta()}>
+            <Link href="/register" className="btn-plan outline" onClick={handleRegisterClick}>
               <span className="es">Empezar ahora →</span>
               <span className="en">Start now →</span>
             </Link>
@@ -475,7 +493,7 @@ export default function LandingPage() {
                 </li>
               ))}
             </ul>
-            <Link href="/register" className="btn-plan" onClick={() => trackCrearCuenta()}>
+            <Link href="/register" className="btn-plan" onClick={handleRegisterClick}>
               <span className="es">Empezar Express →</span>
               <span className="en">Start Express →</span>
             </Link>
@@ -729,7 +747,7 @@ export default function LandingPage() {
             href="/register"
             className="btn-wa"
             style={{ background: 'linear-gradient(135deg, #0044ee 0%, #1ad9ff 100%)', gap: '10px' }}
-            onClick={() => trackCrearCuenta()}
+            onClick={handleRegisterClick}
           >
             <span className="es">Crear mi cuenta gratis →</span>
             <span className="en">Create my free account →</span>
@@ -746,7 +764,7 @@ export default function LandingPage() {
               target="_blank"
               rel="noopener noreferrer"
               className="btn-cal"
-              onClick={() => trackAgendarLlamada()}
+              onClick={handleCalClick}
             >
               <span className="es">📅 Agendar videollamada con un asesor (30 min gratis)</span>
               <span className="en">📅 Schedule a call with an advisor (30 min free)</span>
@@ -886,7 +904,7 @@ export default function LandingPage() {
             href="/register"
             className="btn-wa"
             style={{ display: 'inline-flex', background: 'linear-gradient(135deg, #0044ee 0%, #1ad9ff 100%)' }}
-            onClick={() => trackCrearCuenta()}
+            onClick={handleRegisterClick}
           >
             <span className="es">Crear mi cuenta gratis →</span>
             <span className="en">Create my free account →</span>
@@ -896,7 +914,7 @@ export default function LandingPage() {
             target="_blank"
             rel="noopener noreferrer"
             className="btn-cal"
-            onClick={() => trackAgendarLlamada()}
+            onClick={handleCalClick}
           >
             <span className="es">📅 Prefiero agendar una videollamada gratis</span>
             <span className="en">📅 I&apos;d rather schedule a free video call</span>
