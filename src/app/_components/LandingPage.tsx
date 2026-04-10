@@ -431,8 +431,8 @@ export default function LandingPage() {
               <span className="period"> USD/<span className="es">mes</span><span className="en">month</span></span>
             </div>
             <div className="plan-total">
-              <span className="es">+ $50 inscripción · Total: <strong>$950 USD</strong> + $450 titulación</span>
-              <span className="en">+ $50 enrollment · Total: <strong>$950 USD</strong> + $450 certification</span>
+              <span className="es">+ $50 inscripción · Total: <strong>$950 USD</strong></span>
+              <span className="en">+ $50 enrollment · Total: <strong>$950 USD</strong></span>
             </div>
             <ul className="plan-features">
               {[
@@ -475,8 +475,8 @@ export default function LandingPage() {
               <span className="period"> USD/<span className="es">mes</span><span className="en">month</span></span>
             </div>
             <div className="plan-total">
-              <span className="es">+ $50 inscripción · Total: <strong>$950 USD</strong> + $450 titulación</span>
-              <span className="en">+ $50 enrollment · Total: <strong>$950 USD</strong> + $450 certification</span>
+              <span className="es">+ $50 inscripción · Total: <strong>$950 USD</strong></span>
+              <span className="en">+ $50 enrollment · Total: <strong>$950 USD</strong></span>
             </div>
             <ul className="plan-features">
               {[
