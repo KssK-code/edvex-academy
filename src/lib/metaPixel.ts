@@ -1,17 +1,22 @@
+type FbqFn = (...args: unknown[]) => void
+
+function getFbq(): FbqFn | undefined {
+  if (typeof window === 'undefined') return undefined
+  const w = window as Window & { fbq?: FbqFn }
+  return w.fbq
+}
+
 export const trackCrearCuenta = () => {
-  if (typeof window !== 'undefined' && (window as any).fbq) {
-    (window as any).fbq('trackCustom', 'CrearCuenta')
-  }
+  const fbq = getFbq()
+  if (fbq) fbq('trackCustom', 'CrearCuenta')
 }
 
 export const trackAgendarLlamada = () => {
-  if (typeof window !== 'undefined' && (window as any).fbq) {
-    (window as any).fbq('trackCustom', 'AgendarLlamada')
-  }
+  const fbq = getFbq()
+  if (fbq) fbq('trackCustom', 'AgendarLlamada')
 }
 
 export const trackPurchase = (value: number) => {
-  if (typeof window !== 'undefined' && (window as any).fbq) {
-    (window as any).fbq('track', 'Purchase', { value, currency: 'USD' })
-  }
+  const fbq = getFbq()
+  if (fbq) fbq('track', 'Purchase', { value, currency: 'USD' })
 }

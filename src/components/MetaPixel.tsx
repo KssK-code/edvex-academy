@@ -7,7 +7,7 @@ export function MetaPixel() {
     <>
       <Script
         id="meta-pixel-base"
-        strategy="beforeInteractive"
+        strategy="afterInteractive"
         dangerouslySetInnerHTML={{
           __html: `
 !function(f,b,e,v,n,t,s)
@@ -24,6 +24,8 @@ fbq('track', 'PageView');
         }}
       />
       <noscript>
+        {/* Pixel 1×1 de Meta: debe ser <img>, no next/image (rastreo sin JS) */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           height="1"
           width="1"
