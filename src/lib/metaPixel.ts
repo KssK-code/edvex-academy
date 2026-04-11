@@ -7,13 +7,23 @@ function getFbq(): FbqFn | undefined {
 }
 
 export const trackCrearCuenta = () => {
+  console.log('META: trackCrearCuenta fired')
   const fbq = getFbq()
-  if (fbq) fbq('trackCustom', 'CrearCuenta')
+  if (!fbq) {
+    console.log('META: fbq not found')
+    return
+  }
+  fbq('trackCustom', 'CrearCuenta')
 }
 
 export const trackAgendarLlamada = () => {
+  console.log('META: trackAgendarLlamada fired')
   const fbq = getFbq()
-  if (fbq) fbq('trackCustom', 'AgendarLlamada')
+  if (!fbq) {
+    console.log('META: fbq not found')
+    return
+  }
+  fbq('trackCustom', 'AgendarLlamada')
 }
 
 export const trackPurchase = (value: number) => {
