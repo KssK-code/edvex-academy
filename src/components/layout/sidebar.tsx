@@ -163,7 +163,7 @@ export function Sidebar({ role, userName, isOpen, onClose }: SidebarProps) {
         </div>
 
         {/* Navegación */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+        <nav className="flex-1 min-h-0 overflow-y-auto px-3 py-4 space-y-1">
           {navItems.map((item) => {
             const Icon   = item.icon
             const active = isActive(item.href)
@@ -194,11 +194,25 @@ export function Sidebar({ role, userName, isOpen, onClose }: SidebarProps) {
               </Link>
             )
           })}
+
+          <div
+            className="mt-2 pt-3 border-t"
+            style={{ borderColor: '#2A2F3E' }}
+          >
+            <button
+              type="button"
+              onClick={() => void handleSignOut()}
+              className="w-full flex items-center gap-3 px-3 min-h-[48px] rounded-lg text-sm font-medium transition-all duration-150 touch-manipulation text-red-400 hover:text-red-300 hover:bg-red-500/10 active:bg-red-500/15"
+            >
+              <LogOut className="w-4 h-4 flex-shrink-0" />
+              {t('sidebar.signOut')}
+            </button>
+          </div>
         </nav>
 
         {/* Footer usuario */}
         <div className="px-3 py-4" style={{ borderTop: '1px solid #2A2F3E' }}>
-          <div className="flex items-center gap-3 px-2 mb-3">
+          <div className="flex items-center gap-3 px-2">
             <div
               className="flex items-center justify-center w-8 h-8 rounded-full flex-shrink-0 text-xs font-bold"
               style={{ background: '#0055ff', color: '#fff' }}
@@ -217,16 +231,6 @@ export function Sidebar({ role, userName, isOpen, onClose }: SidebarProps) {
               </span>
             </div>
           </div>
-
-          <button
-            type="button"
-            onClick={handleSignOut}
-            className="w-full flex items-center gap-3 px-3 min-h-[48px] rounded-lg text-sm font-medium transition-all duration-150 touch-manipulation active:bg-red-500/10"
-            style={{ color: '#94A3B8' }}
-          >
-            <LogOut className="w-4 h-4" />
-            {t('sidebar.signOut')}
-          </button>
         </div>
       </aside>
     </>
