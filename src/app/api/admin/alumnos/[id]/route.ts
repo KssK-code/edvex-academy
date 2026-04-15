@@ -13,6 +13,7 @@ type AlumnoRow = {
   plan_estudio_id: string
   telefono: string | null
   contactado_whatsapp: boolean
+  inscripcion_pagada?: boolean
   usuarios: UsuariosData | UsuariosData[] | null
   planes_estudio: { id: string; nombre: string; duracion_meses: number; precio_mensual: number } | null
 }
@@ -65,6 +66,7 @@ export async function GET(
       telefono: a.telefono ?? null,
       contactado_whatsapp: a.contactado_whatsapp ?? false,
       meses_desbloqueados: a.meses_desbloqueados,
+      inscripcion_pagada: a.inscripcion_pagada ?? false,
       created_at: a.created_at,
       usuario: {
         id: a.usuario_id,

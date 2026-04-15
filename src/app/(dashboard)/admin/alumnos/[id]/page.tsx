@@ -11,6 +11,7 @@ interface AlumnoDetalle {
   telefono: string | null
   contactado_whatsapp: boolean
   meses_desbloqueados: number
+  inscripcion_pagada: boolean
   created_at: string
   usuario: { id: string; nombre_completo: string; email: string; activo: boolean }
   plan: { id: string; nombre: string; duracion_meses: number; precio_mensual: number }
@@ -69,6 +70,7 @@ export default function AlumnoDetallePage() {
   const [modalConfirmToggle, setModalConfirmToggle] = useState(false)
   const [modalEditar, setModalEditar] = useState(false)
   const [planes, setPlanes] = useState<{ id: string; nombre: string; duracion_meses: number }[]>([])
+  const [markingInscripcion, setMarkingInscripcion] = useState(false)
   const [editForm, setEditForm] = useState({ nombre_completo: '', plan_estudio_id: '', matricula: '', telefono: '' })
   const [editError, setEditError] = useState<string | null>(null)
   const [savingEdit, setSavingEdit] = useState(false)
@@ -166,6 +168,29 @@ export default function AlumnoDetallePage() {
       setResetError('Error inesperado. Intenta de nuevo.')
     } finally {
       setResettingPass(false)
+    }
+  }
+
+  async function handleMarcarInscripcionPagada() {
+    if (!alumno || alumno.inscripcion_pagada) return
+    setMarkingInscripcion(true)
+    try {
+      const res = await fetch(`/api/admin/alumnos/${id}/inscripcion-pagada`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inscripcion_pagada: true }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        showToast(data.error ?? 'Error al marcar inscripción pagada', 'error')
+        return
+      }
+      await cargar()
+      showToast(`✓ Inscripción marcada como pagada para ${alumno.usuario.nombre_completo}`, 'success')
+    } catch {
+      showToast('Error inesperado. Intenta de nuevo.', 'error')
+    } finally {
+      setMarkingInscripcion(false)
     }
   }
 
@@ -404,7 +429,23 @@ export default function AlumnoDetallePage() {
             <p className="text-xs mt-0.5" style={{ color: '#94A3B8' }}>
               {alumno.meses_desbloqueados} de {alumno.plan.duracion_meses} meses desbloqueados
             </p>
+            {!alumno.inscripcion_pagada && (
+              <p className="text-xs mt-1" style={{ color: '#F59E0B' }}>
+                Inscripción pendiente
+              </p>
+            )}
           </div>
+          {!alumno.inscripcion_pagada && (
+            <button
+              onClick={handleMarcarInscripcionPagada}
+              disabled={markingInscripcion}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              style={{ background: '#10B981', color: '#fff' }}
+            >
+              {markingInscripcion ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              {markingInscripcion ? 'Marcando...' : 'Marcar inscripción pagada'}
+            </button>
+          )}
           <button
             onClick={() => setModalPago(true)}
             disabled={todosBloqueados}
