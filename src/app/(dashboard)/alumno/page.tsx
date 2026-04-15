@@ -223,7 +223,7 @@ export default function AlumnoDashboard() {
       <ToastContainer toasts={toasts} onClose={removeToast} />
 
       {/* Banner: Inscripción pendiente */}
-      {perfil.inscripcion_pagada === false && (
+      {perfil.inscripcion_pagada === false && perfil.meses_desbloqueados === 0 && (
         <FadeIn delay={0}>
           {/* Móvil: fila pago + fila asesoría (secundaria) */}
           <div className="md:hidden space-y-2">
@@ -394,7 +394,7 @@ export default function AlumnoDashboard() {
       )}
 
       {/* SECCIÓN 1 — Header de bienvenida */}
-      <FadeIn delay={perfil.inscripcion_pagada === false ? 100 : 0}>
+      <FadeIn delay={perfil.inscripcion_pagada === false && perfil.meses_desbloqueados === 0 ? 100 : 0}>
         <div className="space-y-1 md:space-y-1.5 pt-0 md:pt-0">
           <SplitTitle
             text={`${saludo}, ${primerNombre}`}
@@ -420,7 +420,7 @@ export default function AlumnoDashboard() {
       </FadeIn>
 
       {/* SECCIÓN 2 — 3 tarjetas de stats */}
-      <FadeIn delay={perfil.inscripcion_pagada === false ? 200 : 100}>
+      <FadeIn delay={perfil.inscripcion_pagada === false && perfil.meses_desbloqueados === 0 ? 200 : 100}>
         <div className="grid grid-cols-3 gap-1.5 md:gap-3">
           {/* Tarjeta 1: Progreso general */}
           <div
@@ -503,7 +503,7 @@ export default function AlumnoDashboard() {
 
       {/* SECCIÓN 3 — Botón continuar estudiando */}
       {(
-        <FadeIn delay={perfil.inscripcion_pagada === false ? 300 : 200}>
+        <FadeIn delay={perfil.inscripcion_pagada === false && perfil.meses_desbloqueados === 0 ? 300 : 200}>
           <div>
             {mesActivo > 0 && (
               <button
@@ -563,7 +563,7 @@ export default function AlumnoDashboard() {
 
       {/* SECCIÓN 4b — Grid de meses */}
       {meses.length > 0 && (
-        <FadeIn delay={perfil.inscripcion_pagada === false ? 400 : 300}>
+        <FadeIn delay={perfil.inscripcion_pagada === false && perfil.meses_desbloqueados === 0 ? 400 : 300}>
           <div className="space-y-2 md:space-y-3">
             <div className="flex items-center gap-2 md:gap-3">
               <p className="text-[10px] md:text-xs font-semibold tracking-widest uppercase" style={{ color: '#475569' }}>

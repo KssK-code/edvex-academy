@@ -23,6 +23,12 @@ interface Mes {
   materias: MateriaResumen[]
 }
 
+interface MesesResponse {
+  meses: Mes[]
+  inscripcion_pagada?: boolean
+  meses_desbloqueados?: number
+}
+
 const CARD = { background: '#181C26', border: '1px solid #2A2F3E' }
 
 export default function MateriasPage() {
@@ -36,7 +42,10 @@ export default function MateriasPage() {
   useEffect(() => {
     fetch('/api/alumno/meses')
       .then(r => r.json())
-      .then(data => setMeses(Array.isArray(data) ? data : []))
+      .then((data: Mes[] | MesesResponse) => {
+        const mesesData = Array.isArray(data) ? data : (Array.isArray(data?.meses) ? data.meses : [])
+        setMeses(mesesData)
+      })
       .catch(() => setError('Error al cargar las materias'))
       .finally(() => setLoading(false))
   }, [])

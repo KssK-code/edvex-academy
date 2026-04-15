@@ -23,6 +23,12 @@ interface Mes {
   materias: MateriaResumen[]
 }
 
+interface MesesResponse {
+  meses: Mes[]
+  inscripcion_pagada?: boolean
+  meses_desbloqueados?: number
+}
+
 const CARD = { background: '#181C26', border: '1px solid #2A2F3E' }
 
 export default function MesPage() {
@@ -39,9 +45,10 @@ export default function MesPage() {
   useEffect(() => {
     fetch('/api/alumno/meses')
       .then(r => r.json())
-      .then((data: Mes[]) => {
-        if (!Array.isArray(data)) { setError('Error al cargar meses'); return }
-        const found = data.find(m => m.numero === numero)
+      .then((data: Mes[] | MesesResponse) => {
+        const mesesData = Array.isArray(data) ? data : (Array.isArray(data?.meses) ? data.meses : [])
+        if (!Array.isArray(mesesData) || mesesData.length === 0) { setError('Error al cargar meses'); return }
+        const found = mesesData.find(m => m.numero === numero)
         if (!found) { setError('Mes no encontrado'); return }
         if (!found.desbloqueado) { router.replace('/alumno'); return }
         setMes(found)
